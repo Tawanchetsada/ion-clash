@@ -51,7 +51,13 @@ export const LEVEL_SEEDS: readonly LevelSeed[] = [
   { id: 19, difficulty: "basic", reactantA: { cation: "copper-2plus", anion: "sulfate" }, reactantB: { cation: "sodium-plus", anion: "sulfide" } },
   { id: 20, difficulty: "basic", reactantA: { cation: "lead-2plus", anion: "nitrate" }, reactantB: { cation: "sodium-plus", anion: "sulfate" } },
 
-  // 21-30 · ปานกลาง · ต้องใส่วงเล็บและดุลหลายค่า
+  // 21-30 · ปานกลาง · ตะกอนไฮดรอกไซด์ทั้งช่วง ต้องใส่วงเล็บและดุลหลายค่า
+  //
+  // ทั้ง 10 ด่านให้ตะกอน M(OH)n ซึ่งบังคับให้ผู้เรียนใส่วงเล็บทุกด่าน และไล่
+  // ไอออนคู่เดิมสามแบบต่อโลหะหนึ่งตัว (คลอไรด์ / ไนเตรต / ซัลเฟต) เพื่อฝึก
+  // ให้เห็นว่าไอออนผู้ชมเปลี่ยนแต่สมการสุทธิเหมือนเดิม
+  //   Mg(OH)2 -> 21, 22, 28   Cu(OH)2 -> 23, 24, 25
+  //   Fe(OH)2 -> 26, 27, 29   Pb(OH)2 -> 30
   { id: 21, difficulty: "medium", reactantA: { cation: "magnesium-2plus", anion: "chloride" }, reactantB: { cation: "sodium-plus", anion: "hydroxide" } },
   { id: 22, difficulty: "medium", reactantA: { cation: "magnesium-2plus", anion: "nitrate" }, reactantB: { cation: "potassium-plus", anion: "hydroxide" } },
   { id: 23, difficulty: "medium", reactantA: { cation: "copper-2plus", anion: "sulfate" }, reactantB: { cation: "sodium-plus", anion: "hydroxide" } },
@@ -59,8 +65,8 @@ export const LEVEL_SEEDS: readonly LevelSeed[] = [
   { id: 25, difficulty: "medium", reactantA: { cation: "copper-2plus", anion: "nitrate" }, reactantB: { cation: "sodium-plus", anion: "hydroxide" } },
   { id: 26, difficulty: "medium", reactantA: { cation: "iron-2plus", anion: "sulfate" }, reactantB: { cation: "sodium-plus", anion: "hydroxide" } },
   { id: 27, difficulty: "medium", reactantA: { cation: "iron-2plus", anion: "chloride" }, reactantB: { cation: "potassium-plus", anion: "hydroxide" } },
-  { id: 28, difficulty: "medium", reactantA: { cation: "calcium-2plus", anion: "nitrate" }, reactantB: { cation: "sodium-plus", anion: "carbonate" } },
-  { id: 29, difficulty: "medium", reactantA: { cation: "barium-2plus", anion: "nitrate" }, reactantB: { cation: "sodium-plus", anion: "carbonate" } },
+  { id: 28, difficulty: "medium", reactantA: { cation: "magnesium-2plus", anion: "sulfate" }, reactantB: { cation: "sodium-plus", anion: "hydroxide" } },
+  { id: 29, difficulty: "medium", reactantA: { cation: "iron-2plus", anion: "nitrate" }, reactantB: { cation: "sodium-plus", anion: "hydroxide" } },
   { id: 30, difficulty: "medium", reactantA: { cation: "lead-2plus", anion: "nitrate" }, reactantB: { cation: "potassium-plus", anion: "hydroxide" } },
 
   // 31-40 · ยาก · โลหะแทรนซิชันหลายเลขออกซิเดชัน
