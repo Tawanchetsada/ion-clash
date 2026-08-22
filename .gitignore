@@ -6,3 +6,9 @@ out/
 coverage/
 playwright-report/
 test-results/
+
+# misc
+.DS_Store
+*.pem
+*.tsbuildinfo
+npm-debug.log*
