@@ -17,20 +17,22 @@
 
 ## ลำดับ Phase
 
-| Phase | ชื่อ | ผลลัพธ์ที่จับต้องได้ | ต้องรออะไร |
-|---|---|---|---|
-| 0 | [รากฐานโครงการ](01-phase-0-foundation.md) | repo public + โปรเจกต์เปล่าที่ build ผ่าน + CI เขียว | — |
-| 1 | [โดเมนเคมี](02-phase-1-chemistry-domain.md) | ตรรกะเคมีบริสุทธิ์ + unit test ครบ | 0 |
-| 2 | [ข้อมูล 50 ด่าน](03-phase-2-level-data.md) | 50 ด่านผ่าน validation + เอกสารให้อาจารย์ตรวจ | 1 |
-| 3 | [ระบบบันทึก](04-phase-3-storage-save.md) | save/load/checkpoint/export/import ทนพัง | 0 |
-| 4 | [State Machine เกม](05-phase-4-game-state.md) | reducer 9 สถานะ + คะแนน + คำใบ้ | 1, 3 |
-| 5 | [Design System](06-phase-5-design-system.md) | token, การ์ด, สมการ, โครงหน้า | 0 |
-| 6 | [ระบบลาก–วาง](07-phase-6-interaction.md) | ลาก/แตะ/คีย์บอร์ด + เส้นตัดไอออน | 5 |
-| 7 | [หน้าจอทั้งหมด](08-phase-7-screens.md) | 8 route ต่อกันครบ เล่นจบด่านได้ | 2, 4, 6 |
-| 8 | [เนื้อหาการเรียนรู้](09-phase-8-content.md) | /knowledge, /how-to-play, คำใบ้ 150 ข้อ | 7 |
-| 9 | [ระบบเก็บข้อมูลวิจัย](10-phase-9-research.md) | event log + CSV + Google Sheet + หน้า /research | 7 |
-| 10 | [ทดสอบและ QA](11-phase-10-testing-qa.md) | E2E 3 โหมดอินพุต 3 ขนาดจอ + a11y | 8, 9 |
-| 11 | [Deploy และส่งมอบ](12-phase-11-deploy-handoff.md) | เว็บออนไลน์ + README + คู่มือวันทดลอง | 10 |
+| Phase | ชื่อ | ผลลัพธ์ที่จับต้องได้ | ต้องรออะไร | สถานะ |
+|---|---|---|---|---|
+| 0 | [รากฐานโครงการ](01-phase-0-foundation.md) | repo public + โปรเจกต์เปล่าที่ build ผ่าน + CI เขียว | — | ✅ เสร็จ (เหลือเชื่อม Vercel) |
+| 1 | [โดเมนเคมี](02-phase-1-chemistry-domain.md) | ตรรกะเคมีบริสุทธิ์ + unit test ครบ | 0 | ✅ เสร็จ · 75 tests |
+| 2 | [ข้อมูล 50 ด่าน](03-phase-2-level-data.md) | 50 ด่านผ่าน validation + เอกสารให้อาจารย์ตรวจ | 1 | ⬜ ถัดไป |
+| 3 | [ระบบบันทึก](04-phase-3-storage-save.md) | save/load/checkpoint/export/import ทนพัง | 0 | ⬜ |
+| 4 | [State Machine เกม](05-phase-4-game-state.md) | reducer 9 สถานะ + คะแนน + คำใบ้ | 1, 3 | ⬜ |
+| 5 | [Design System](06-phase-5-design-system.md) | token, การ์ด, สมการ, โครงหน้า | 0 | ⬜ |
+| 6 | [ระบบลาก–วาง](07-phase-6-interaction.md) | ลาก/แตะ/คีย์บอร์ด + เส้นตัดไอออน | 5 | ⬜ |
+| 7 | [หน้าจอทั้งหมด](08-phase-7-screens.md) | 8 route ต่อกันครบ เล่นจบด่านได้ | 2, 4, 6 | ⬜ |
+| 8 | [เนื้อหาการเรียนรู้](09-phase-8-content.md) | /knowledge, /how-to-play, คำใบ้ 150 ข้อ | 7 | ⬜ |
+| 9 | [ระบบเก็บข้อมูลวิจัย](10-phase-9-research.md) | event log + CSV + Google Sheet + หน้า /research | 7 | ⬜ |
+| 10 | [ทดสอบและ QA](11-phase-10-testing-qa.md) | E2E 3 โหมดอินพุต 3 ขนาดจอ + a11y | 8, 9 | ⬜ |
+| 11 | [Deploy และส่งมอบ](12-phase-11-deploy-handoff.md) | เว็บออนไลน์ + README + คู่มือวันทดลอง | 10 | ⬜ |
+
+> อัปเดตล่าสุด **22 สิงหาคม 2569** · ทุก phase ที่เสร็จแล้วมีบล็อกสรุป "สิ่งที่ทำจริงและสิ่งที่ต่างจากแผน" อยู่ต้นไฟล์
 
 ## เส้นทางวิกฤต
 
