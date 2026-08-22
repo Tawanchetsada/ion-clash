@@ -21,7 +21,7 @@
 |---|---|---|---|---|
 | 0 | [รากฐานโครงการ](01-phase-0-foundation.md) | repo public + โปรเจกต์เปล่าที่ build ผ่าน + CI เขียว | — | ✅ เสร็จ (เหลือเชื่อม Vercel) |
 | 1 | [โดเมนเคมี](02-phase-1-chemistry-domain.md) | ตรรกะเคมีบริสุทธิ์ + unit test ครบ | 0 | ✅ เสร็จ · 75 tests |
-| 2 | [ข้อมูล 50 ด่าน](03-phase-2-level-data.md) | 50 ด่านผ่าน validation + เอกสารให้อาจารย์ตรวจ | 1 | ⬜ ถัดไป |
+| 2 | [ข้อมูล 50 ด่าน](03-phase-2-level-data.md) | 50 ด่านผ่าน validation + เอกสารให้อาจารย์ตรวจ | 1 | ⏳ โค้ดเสร็จ · รอเซ็น |
 | 3 | [ระบบบันทึก](04-phase-3-storage-save.md) | save/load/checkpoint/export/import ทนพัง | 0 | ⬜ |
 | 4 | [State Machine เกม](05-phase-4-game-state.md) | reducer 9 สถานะ + คะแนน + คำใบ้ | 1, 3 | ⬜ |
 | 5 | [Design System](06-phase-5-design-system.md) | token, การ์ด, สมการ, โครงหน้า | 0 | ⬜ |
