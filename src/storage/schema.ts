@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { starsForScore } from "../config/scoring";
+import { ERROR_CODES } from "../domain/chemistry/types";
+import type { ErrorCode, ErrorTally } from "../domain/chemistry/types";
 
 /**
  * Schema ของไฟล์บันทึกความก้าวหน้า
@@ -56,6 +58,19 @@ export const levelCheckpointSchema = z.object({
   ),
   hintsUsed: z.number().int().min(0).max(3),
   wrongAttempts: z.number().int().nonnegative(),
+  /**
+   * แยกจำนวนครั้งที่ผิดตามรหัส — ต้องเก็บลง checkpoint ด้วย ไม่ใช่แค่ยอดรวม
+   *
+   * ถ้าเก็บแค่ `wrongAttempts` แล้วนักเรียน refresh กลางด่าน ยอดรวมจะรอด
+   * แต่รายละเอียดหาย กลายเป็น wrongAttempts = 5 ในขณะที่ผลรวมของ
+   * errorsByCode = 2 ซึ่งขัดกันเองและย้อนกลับไปเก็บไม่ได้ — เป็นข้อมูล
+   * ที่งานวิจัยต้องการที่สุด (ว่านักเรียนพลาดเรื่องอะไรบ่อย)
+   *
+   * ใน Zod v4 record ที่ใช้ enum เป็นคีย์บังคับให้มีครบทุกคีย์และปฏิเสธ
+   * คีย์แปลกปลอม (ต่างจาก v3) ซึ่งเป็นสิ่งที่ต้องการพอดี — normalizeCheckpoint
+   * เติมคีย์ที่ขาดให้เป็น 0 ก่อนเสมอ
+   */
+  errorsByCode: z.record(z.enum(ERROR_CODES), z.number().int().nonnegative()),
   elapsedMs: z.number().int().nonnegative(),
   savedAt: z.iso.datetime(),
 });
@@ -126,6 +141,19 @@ function isoOrNull(value: unknown): string | null {
   const parsed = Date.parse(value);
   if (Number.isNaN(parsed)) return null;
   return new Date(parsed).toISOString();
+}
+
+/** สร้าง tally ที่มีครบทุกรหัสเสมอ — คีย์ที่ขาดเป็น 0 คีย์แปลกปลอมถูกทิ้ง */
+function normalizeErrorTally(raw: unknown): ErrorTally {
+  const source = (typeof raw === "object" && raw !== null ? raw : {}) as Record<
+    string,
+    unknown
+  >;
+  const tally = {} as Record<ErrorCode, number>;
+  for (const code of ERROR_CODES) {
+    tally[code] = clampInt(source[code], 0, Number.MAX_SAFE_INTEGER, 0);
+  }
+  return tally;
 }
 
 function isValidLevelId(key: string): boolean {
@@ -232,6 +260,7 @@ function normalizeCheckpoint(raw: unknown): LevelCheckpoint | null {
       Number.MAX_SAFE_INTEGER,
       0,
     ),
+    errorsByCode: normalizeErrorTally(source["errorsByCode"]),
     elapsedMs: clampInt(source["elapsedMs"], 0, Number.MAX_SAFE_INTEGER, 0),
     savedAt: isoOrNull(source["savedAt"]) ?? new Date(0).toISOString(),
   };

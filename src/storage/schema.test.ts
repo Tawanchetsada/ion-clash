@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { LEVELS } from "../data/levels";
+import { emptyErrorTally } from "../domain/chemistry/types";
 import { createDefaultSave } from "./defaults";
 import {
   MAX_LEVEL_ID,
@@ -162,6 +163,54 @@ describe("normalizeSave ซ่อมแทนการปฏิเสธ", () =>
     });
 
     expect(save.activeCheckpoint).toBeNull();
+  });
+
+  it("checkpoint ที่ไม่มี errorsByCode ถูกซ่อมด้วยศูนย์ ไม่ถูกกัก", () => {
+    // ไฟล์เซฟที่บันทึกก่อนเพิ่มฟิลด์นี้ต้องยังใช้ได้ ไม่ใช่กลายเป็นไฟล์เสีย
+    const save = normalized({
+      version: 1,
+      unlockedLevel: 5,
+      activeCheckpoint: {
+        levelId: 5,
+        state: "arrangeProductIons",
+        slotAssignments: [],
+        coefficients: [null, null, null, null],
+        canceledPairs: [],
+        hintsUsed: 1,
+        wrongAttempts: 2,
+        elapsedMs: 1000,
+        savedAt: "2026-08-22T10:00:00.000Z",
+      },
+    });
+
+    expect(save.activeCheckpoint?.errorsByCode).toEqual(emptyErrorTally());
+    expect(gameSaveV1Schema.safeParse(save).success).toBe(true);
+  });
+
+  it("errorsByCode เก็บค่าที่รู้จักและทิ้งรหัสแปลกปลอม", () => {
+    const save = normalized({
+      version: 1,
+      unlockedLevel: 5,
+      activeCheckpoint: {
+        levelId: 5,
+        state: "cancelSpectatorIons",
+        slotAssignments: [],
+        coefficients: [null, null, null, null],
+        canceledPairs: [],
+        hintsUsed: 0,
+        wrongAttempts: 4,
+        errorsByCode: { "E-PAIR": 3, "E-SPECTATOR": 1, "E-ไม่มีจริง": 99 },
+        elapsedMs: 1000,
+        savedAt: "2026-08-22T10:00:00.000Z",
+      },
+    });
+
+    expect(save.activeCheckpoint?.errorsByCode).toEqual({
+      ...emptyErrorTally(),
+      "E-PAIR": 3,
+      "E-SPECTATOR": 1,
+    });
+    expect(gameSaveV1Schema.safeParse(save).success).toBe(true);
   });
 
   it("วันที่อ่านไม่ออกถูกแทนด้วยค่าสำรอง", () => {

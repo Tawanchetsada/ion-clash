@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { emptyErrorTally } from "../domain/chemistry/types";
 import { createDefaultSave } from "./defaults";
 import {
   clearCheckpoint,
@@ -24,6 +25,7 @@ function checkpoint(levelId: number): LevelCheckpoint {
     canceledPairs: [],
     hintsUsed: 0,
     wrongAttempts: 0,
+    errorsByCode: emptyErrorTally(),
     elapsedMs: 1000,
     savedAt: "2026-08-22T09:00:00.000Z",
   };

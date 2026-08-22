@@ -8,13 +8,33 @@
 
 export type Phase = "aq" | "s";
 
-export type ErrorCode =
-  | "E-CHARGE"
-  | "E-PAIR"
-  | "E-PHASE"
-  | "E-BALANCE"
-  | "E-RATIO"
-  | "E-SPECTATOR";
+/**
+ * รหัสข้อผิดพลาดทั้งหมด — เป็นค่าคงที่ตอนรันไทม์ ไม่ใช่แค่ type
+ * เพราะทั้ง save schema และ reducer ต้องสร้าง record ที่มีครบทุกรหัส
+ * ถ้าเป็น union เขียนมืออย่างเดียว วันที่เพิ่มรหัสใหม่จะมีที่ที่ลืมเติม
+ */
+export const ERROR_CODES = [
+  "E-CHARGE",
+  "E-PAIR",
+  "E-PHASE",
+  "E-BALANCE",
+  "E-RATIO",
+  "E-SPECTATOR",
+] as const;
+
+export type ErrorCode = (typeof ERROR_CODES)[number];
+
+/** จำนวนครั้งที่ผิดแยกตามรหัส — มีครบทุกรหัสเสมอ ป้อนสถิติงานวิจัย Phase 9 */
+export type ErrorTally = Readonly<Record<ErrorCode, number>>;
+
+/** tally เปล่าที่มีครบทุกรหัส — ค่าเริ่มต้นที่ถูกต้องเพียงค่าเดียว */
+export function emptyErrorTally(): ErrorTally {
+  const tally = {} as Record<ErrorCode, number>;
+  for (const code of ERROR_CODES) {
+    tally[code] = 0;
+  }
+  return tally;
+}
 
 export type ValidationResult = { ok: true } | { ok: false; code: ErrorCode };
 
