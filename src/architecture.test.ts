@@ -1,0 +1,87 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, relative, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+
+/**
+ * ข้อจำกัดเชิงสถาปัตยกรรมที่บังคับด้วยเครื่องมือ ไม่ใช่วินัยคน
+ *
+ * กฎในไฟล์นี้ข้ามชั้นทั้งหมด จึงวางไว้ที่รากของ src ไม่ใช่ในโฟลเดอร์ใด
+ * โฟลเดอร์หนึ่ง เพื่อให้คนที่เข้ามาใหม่หาเจอ
+ */
+
+const srcDir = dirname(fileURLToPath(import.meta.url));
+
+/** ไฟล์นี้เองมีคำที่กำลังตรวจอยู่ในโค้ด จึงต้องข้ามตัวเอง */
+const SELF = "architecture.test.ts";
+
+function collectTsFiles(dir: string): string[] {
+  const found: string[] = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      found.push(...collectTsFiles(full));
+    } else if (entry.endsWith(".ts") || entry.endsWith(".tsx")) {
+      found.push(full);
+    }
+  }
+  return found;
+}
+
+const asPosix = (path: string): string => path.split(sep).join("/");
+
+function findOffenders(
+  pattern: RegExp,
+  isAllowed: (relativePath: string) => boolean,
+): string[] {
+  const offenders: string[] = [];
+
+  for (const file of collectTsFiles(srcDir)) {
+    const relativePath = asPosix(relative(srcDir, file));
+    if (relativePath === SELF || isAllowed(relativePath)) continue;
+    if (pattern.test(readFileSync(file, "utf8"))) {
+      offenders.push(relativePath);
+    }
+  }
+
+  return offenders;
+}
+
+describe("ข้อจำกัดเชิงสถาปัตยกรรม", () => {
+  it("ชั้นโดเมนไม่ import React หรือ Next", () => {
+    const offenders: string[] = [];
+
+    for (const file of collectTsFiles(join(srcDir, "domain"))) {
+      const source = readFileSync(file, "utf8");
+      if (/from\s+["'](react|react-dom|next)(\/[^"']*)?["']/.test(source)) {
+        offenders.push(asPosix(relative(srcDir, file)));
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("มีแต่ solubility.ts เท่านั้นที่กำหนดสถานะ (s) ได้", () => {
+    // 'aq' ของไอออนอิสระเป็นเรื่องโครงสร้าง (ไอออนที่แตกตัวย่อมอยู่ในน้ำ)
+    // แต่ 's' คือการตัดสินการละลายเสมอ จึงต้องมาจากตารางกฎที่เดียว
+    const offenders = findOffenders(
+      /phase:\s*["']s["']/,
+      (path) =>
+        path === "domain/chemistry/solubility.ts" || path.endsWith(".test.ts"),
+    );
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("มีแต่โฟลเดอร์ storage เท่านั้นที่แตะ localStorage ได้", () => {
+    // ทั้งเกมต้องคุยกับที่เก็บข้อมูลผ่าน GameSaveRepository อย่างเดียว
+    // ไม่งั้นวันที่เพิ่ม Cloud Save จะต้องไล่แก้ทุก component
+    // และการอ่าน storage ตอน server render จะทำให้ Next.js พังทันที
+    const offenders = findOffenders(
+      /\b(localStorage|sessionStorage)\b/,
+      (path) => path.startsWith("storage/"),
+    );
+
+    expect(offenders).toEqual([]);
+  });
+});

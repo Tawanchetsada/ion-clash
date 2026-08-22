@@ -26,6 +26,39 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // ที่เก็บข้อมูลต้องผ่าน GameSaveRepository เท่านั้น
+    // นอกจากเรื่องสถาปัตยกรรมแล้ว การอ่าน localStorage ตอน server render
+    // ทำให้ Next.js พังทันทีเพราะไม่มี window บนเซิร์ฟเวอร์
+    files: ["src/**/*.ts", "src/**/*.tsx"],
+    ignores: ["src/storage/**"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        {
+          name: "localStorage",
+          message: "ใช้ GameSaveRepository แทน — ดู src/storage/",
+        },
+        {
+          name: "sessionStorage",
+          message: "ใช้ GameSaveRepository แทน — ดู src/storage/",
+        },
+      ],
+      "no-restricted-properties": [
+        "error",
+        {
+          object: "window",
+          property: "localStorage",
+          message: "ใช้ GameSaveRepository แทน — ดู src/storage/",
+        },
+        {
+          object: "window",
+          property: "sessionStorage",
+          message: "ใช้ GameSaveRepository แทน — ดู src/storage/",
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
