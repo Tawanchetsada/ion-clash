@@ -67,6 +67,20 @@ reactantA เสมอ ไม่ได้จับคู่ตามที่ต
 เพิ่ม helper คืนด่านตาม id เดียว (throw ถ้าไม่พบ) เพราะ Phase 4 (game state) และ Phase 6
 (UI ด่าน) ต้องใช้แน่ ๆ และเขียนตอนนี้ง่ายกว่ากลับมาแก้ทีหลัง
 
+### ปัญหาที่เจอ — lockfile ขาด optional deps ของ Linux ซ้ำรอย Phase 0
+
+การรัน `npm install --save-dev tsx` บน Windows ทำให้ npm **ตัดรายการ optional dependency ที่เป็น
+ของ Linux ออกจาก lockfile** (`@emnapi/core`, `@emnapi/runtime` หายไป เหลือแต่ `wasi-threads`)
+CI จึงพังที่ขั้น `npm ci` ด้วย `Missing: @emnapi/runtime@1.11.3 from lock file` — เป็นข้อผิดพลาด
+**ตัวเดียวกับที่เจอใน Phase 0** เป๊ะ
+
+**แก้:** `rm -rf node_modules package-lock.json && npm install` (regenerate รวดเดียว) แล้วยืนยันด้วย
+`npm ci --dry-run` ซึ่งตรวจ sync ระหว่าง package.json กับ lockfile แบบเดียวกับที่ CI ทำ
+
+> **บทเรียนที่ต้องจำ:** บน Windows ห้ามเชื่อ lockfile ที่ได้จาก `npm install` แบบเพิ่มทีละแพ็กเกจ
+> ทุกครั้งที่เพิ่ม/ลบ dependency ต้อง regenerate ทั้งไฟล์ แล้วรัน `npm ci --dry-run` ก่อน push
+> ไม่งั้น CI จะพังซ้ำเรื่อย ๆ โดยที่เครื่องตัวเองรันผ่านหมด
+
 ---
 
 ## 2.1 หลักการ: เก็บให้น้อยที่สุด แล้วคำนวณส่วนที่เหลือ
