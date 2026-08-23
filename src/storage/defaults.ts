@@ -43,7 +43,12 @@ export function createDefaultSave(clock: SaveClock = {}): GameSaveV1 {
     completedLevels: {},
     lastPlayedLevel: 1,
     activeCheckpoint: null,
-    settings: { sound: true, music: false, reducedMotion: false },
+    settings: {
+      sound: true,
+      music: false,
+      reducedMotion: false,
+      researchConsent: false,
+    },
     createdAt: timestamp,
     updatedAt: timestamp,
   };

@@ -79,6 +79,7 @@ export const settingsSchema = z.object({
   sound: z.boolean(),
   music: z.boolean(),
   reducedMotion: z.boolean(),
+  researchConsent: z.boolean(),
 });
 
 export const gameSaveV1Schema = z.object({
@@ -332,6 +333,7 @@ export function normalizeSave(
       sound: boolOr(rawSettings["sound"], true),
       music: boolOr(rawSettings["music"], false),
       reducedMotion: boolOr(rawSettings["reducedMotion"], false),
+      researchConsent: boolOr(rawSettings["researchConsent"], false),
     },
     createdAt: isoOrNull(source["createdAt"]) ?? fallback.now,
     updatedAt: isoOrNull(source["updatedAt"]) ?? fallback.now,

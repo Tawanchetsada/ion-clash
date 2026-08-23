@@ -223,12 +223,37 @@ describe("normalizeSave ซ่อมแทนการปฏิเสธ", () =>
     expect(save.installId).toBe("เครื่องเดิม");
   });
 
-  it("ค่าตั้งค่าที่หายไปใช้ค่าเริ่มต้น เพลงปิดตาม D-17", () => {
+  it("ค่าตั้งค่าที่หายไปใช้ค่าเริ่มต้น เพลงปิดตาม D-17 และความยินยอมวิจัยเป็น false", () => {
     const save = normalized({ version: 1 });
     expect(save.settings).toEqual({
       sound: true,
       music: false,
       reducedMotion: false,
+      researchConsent: false,
     });
+  });
+
+  it("เซฟเวอร์ชันเก่าที่ไม่มี researchConsent โหลดได้และได้ false โดยไม่ถูกปฏิเสธ", () => {
+    const legacySave = {
+      version: 1,
+      installId: "legacy-user",
+      playerName: "เด็กดี",
+      unlockedLevel: 5,
+      completedLevels: {},
+      lastPlayedLevel: 5,
+      activeCheckpoint: null,
+      settings: {
+        sound: true,
+        music: true,
+        reducedMotion: true,
+      },
+    };
+
+    const save = normalized(legacySave);
+    expect(save.settings.researchConsent).toBe(false);
+    expect(save.settings.sound).toBe(true);
+    expect(save.settings.music).toBe(true);
+    expect(save.settings.reducedMotion).toBe(true);
+    expect(gameSaveV1Schema.safeParse(save).success).toBe(true);
   });
 });

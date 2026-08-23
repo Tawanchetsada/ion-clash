@@ -198,4 +198,10 @@ describe("ข้อจำกัดเชิงสถาปัตยกรรม"
 
     expect(offenders).toEqual([]);
   });
+
+  it("ไม่มี URL ของ Google Apps Script (script.google.com) ฮาร์ดโค้ดอยู่ใน src/ เลย", () => {
+    // D-10: ห้ามใส่ URL ของ Apps Script endpoint ลง repo สาธารณะ ต้องใช้ env var
+    const offenders = findOffenders(/script\.google\.com/, () => false);
+    expect(offenders).toEqual([]);
+  });
 });

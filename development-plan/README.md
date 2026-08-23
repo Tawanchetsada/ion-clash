@@ -28,7 +28,7 @@
 | 6 | [ระบบลาก–วาง](07-phase-6-interaction.md) | ลาก/แตะ/คีย์บอร์ด + เส้นตัดไอออน | 5 | ✅ เสร็จ · 1,561 tests + 15 e2e |
 | 7 | [หน้าจอทั้งหมด](08-phase-7-screens.md) | 8 route ต่อกันครบ เล่นจบด่านได้ | 2, 4, 6 | ✅ เสร็จ · 1,595 tests + 24 e2e |
 | 8 | [เนื้อหาการเรียนรู้](09-phase-8-content.md) | /knowledge, /how-to-play, คำใบ้ 150 ข้อ | 7 | ✅ เสร็จ · 1,621 tests + 33 e2e |
-| 9 | [ระบบเก็บข้อมูลวิจัย](10-phase-9-research.md) | event log + CSV + Google Sheet + หน้า /research | 7 | ⬜ |
+| 9 | [ระบบเก็บข้อมูลวิจัย](10-phase-9-research.md) | event log + CSV + Google Sheet + หน้า /research | 7 | ✅ เสร็จ · 1,655 tests + 42 e2e |
 | 10 | [ทดสอบและ QA](11-phase-10-testing-qa.md) | E2E 3 โหมดอินพุต 3 ขนาดจอ + a11y | 8, 9 | ⬜ |
 | 11 | [Deploy และส่งมอบ](12-phase-11-deploy-handoff.md) | เว็บออนไลน์ + README + คู่มือวันทดลอง | 10 | ⬜ |
 

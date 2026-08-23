@@ -8,12 +8,14 @@ import { Button } from "../../components/ui/Button";
 import { Dialog } from "../../components/ui/Dialog";
 import type { ImportPreview } from "../../storage/repository";
 import type { GameSaveV1 } from "../../storage/schema";
+import { useOptionalResearch } from "../../session/ResearchProvider";
 import { useSave } from "../../session/SaveProvider";
 import { useToast } from "../../session/ToastProvider";
 
 export default function ProgressPage() {
   const router = useRouter();
   const { save, exportJson, importJson, applyImport, reset } = useSave();
+  const research = useOptionalResearch();
   const toast = useToast();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -25,6 +27,8 @@ export default function ProgressPage() {
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState("");
   const [resetError, setResetError] = useState("");
+
+  const [fallbackClipboardText, setFallbackClipboardText] = useState<string | null>(null);
 
   if (save === null) {
     return (
@@ -84,11 +88,54 @@ export default function ProgressPage() {
       return;
     }
     reset();
+    research?.clearEvents();
     setShowResetDialog(false);
     setResetConfirmText("");
     setResetError("");
     toast.show("รีเซ็ตข้อมูลความก้าวหน้าทั้งหมดเรียบร้อยแล้ว");
   };
+
+  const handleCopyTsv = async () => {
+    const tsvData = research ? research.exportTsv() : "";
+    if (!tsvData || tsvData.trim().split("\n").length <= 1) {
+      toast.show("ยังไม่มีข้อมูลบันทึกผลการเล่น");
+      return;
+    }
+
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(tsvData);
+        toast.show("คัดลอกผลการเรียน (TSV) เรียบร้อยแล้ว พร้อมวางลง Google Sheets หรือ Google Form");
+        return;
+      } catch {
+        // Fallback when clipboard write fails
+      }
+    }
+    setFallbackClipboardText(tsvData);
+  };
+
+  const handleDownloadCsv = () => {
+    const csvData = research ? research.exportCsv() : "";
+    if (!csvData || csvData.trim().split("\n").length <= 1) {
+      toast.show("ยังไม่มีข้อมูลบันทึกผลการเล่น");
+      return;
+    }
+
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const safeName = (save.playerName || "student").replace(/[/\\?%*:|"<>]/g, "-");
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `ion-clash-research-${safeName}-${dateStr}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.show("ดาวน์โหลดไฟล์ CSV เรียบร้อยแล้ว");
+  };
+
+  const isLevel50Completed = save.completedLevels["50"]?.completed === true;
 
   return (
     <PageShell>
@@ -98,6 +145,24 @@ export default function ProgressPage() {
       />
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
+        {/* Level 50 Complete Banner */}
+        {isLevel50Completed && (
+          <div className="flex flex-col gap-2 rounded-card bg-gold/15 border-2 border-gold p-4 text-navy shadow-card sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="font-bold text-base flex items-center gap-1.5 text-navy">
+                <span>🎉</span>
+                <span>ยินดีด้วย! คุณผ่านครบทั้ง 50 ด่านของ Ion Clash แล้ว</span>
+              </div>
+              <div className="text-xs text-navy/80 mt-0.5">
+                กรุณากดปุ่ม <strong>&ldquo;คัดลอกผลการเรียน (TSV)&rdquo;</strong> หรือดาวน์โหลด CSV เพื่อส่งผลให้ครูผู้สอน/ผู้วิจัย
+              </div>
+            </div>
+            <Button variant="gold" onClick={handleCopyTsv} className="whitespace-nowrap mt-2 sm:mt-0">
+              คัดลอกผลการเรียน
+            </Button>
+          </div>
+        )}
+
         <header className="border-b border-border pb-4">
           <h1 className="text-2xl font-bold text-navy">ความก้าวหน้าและการจัดการข้อมูล</h1>
           <p className="text-sm text-navy/70">
@@ -159,15 +224,38 @@ export default function ProgressPage() {
           </div>
         </div>
 
+        {/* Research Data Actions (D-06, D-14) */}
+        <div className="flex flex-col gap-4 rounded-card bg-white p-6 shadow-card border border-border">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-navy">ข้อมูลการวิจัยและการส่งผลการเรียน</h2>
+            <span className="rounded-full bg-blue/10 px-2.5 py-0.5 text-xs font-semibold text-blue">
+              สำหรับงานวิจัย
+            </span>
+          </div>
+          <p className="text-xs text-navy/70 leading-relaxed">
+            สำหรับส่งผลการเรียนให้ครูผู้สอนหรือผู้วิจัย: แนะนำให้ใช้ปุ่ม <strong>&ldquo;คัดลอกผลการเรียน (TSV)&rdquo;</strong> เพื่อนำไปวางลงใน Google Sheets หรือ Google Forms ได้ทันทีบน iPad หรือดาวน์โหลดเป็นไฟล์ CSV สำหรับเปิดใน Excel
+          </p>
+
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Button variant="gold" onClick={handleCopyTsv} className="font-bold">
+              📋 คัดลอกผลการเรียน (TSV)
+            </Button>
+
+            <Button variant="outline" onClick={handleDownloadCsv}>
+              📥 ดาวน์โหลด CSV
+            </Button>
+          </div>
+        </div>
+
         {/* Data Management Actions */}
         <div className="flex flex-col gap-4 rounded-card bg-white p-6 shadow-card border border-border">
           <h2 className="text-lg font-bold text-navy">การสำรองและกู้คืนข้อมูล</h2>
           <p className="text-xs text-navy/70">
-            เนื่องจากข้อมูลถูกเก็บไว้ในเบราว์เซอร์นี้ หากเปลี่ยนเครื่องหรือต้องการส่งผล ให้ส่งออกเป็นไฟล์ JSON
+            เนื่องจากข้อมูลถูกเก็บไว้ในเบราว์เซอร์นี้ หากเปลี่ยนเครื่องหรือต้องการสำรองข้อมูล ให้ส่งออกเป็นไฟล์ JSON
           </p>
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button variant="gold" onClick={exportJson}>
+            <Button variant="outline" onClick={exportJson}>
               ส่งออกข้อมูล (Export JSON)
             </Button>
 
@@ -195,6 +283,31 @@ export default function ProgressPage() {
           </div>
         </div>
       </main>
+
+      {/* Clipboard Fallback Modal */}
+      <Dialog
+        open={fallbackClipboardText !== null}
+        titleTh="คัดลอกผลการเรียนสำหรับงานวิจัย"
+        onClose={() => setFallbackClipboardText(null)}
+      >
+        <div className="flex flex-col gap-3 text-left">
+          <p className="text-sm text-navy/80">
+            เนื่องจากเบราว์เซอร์ไม่อนุญาตให้คัดลอกอัตโนมัติ กรุณาเลือกข้อความทั้งหมดในกล่องด้านล่างแล้วกดคัดลอก (Copy):
+          </p>
+          <textarea
+            readOnly
+            value={fallbackClipboardText ?? ""}
+            onFocus={(e) => e.target.select()}
+            rows={8}
+            className="w-full rounded-card border border-border bg-canvas p-2.5 font-mono text-xs text-navy select-all"
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="gold" onClick={() => setFallbackClipboardText(null)}>
+              ปิดหน้าต่าง
+            </Button>
+          </div>
+        </div>
+      </Dialog>
 
       {/* Import Preview Dialog */}
       <Dialog

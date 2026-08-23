@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { AudioProvider } from "../audio/AudioProvider";
 import { AnnouncerProvider } from "../components/interaction/LiveAnnouncer";
 import { MotionProvider } from "../components/interaction/MotionProvider";
+import { ResearchProvider } from "../session/ResearchProvider";
 import { SaveProvider, useSave } from "../session/SaveProvider";
 import { ToastProvider } from "../session/ToastProvider";
 
@@ -16,7 +17,9 @@ function SettingsBridge({ children }: { children: ReactNode }) {
     <AudioProvider enabled={sound}>
       <MotionProvider enabled={!reducedMotion}>
         <AnnouncerProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <ResearchProvider>{children}</ResearchProvider>
+          </ToastProvider>
         </AnnouncerProvider>
       </MotionProvider>
     </AudioProvider>

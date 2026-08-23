@@ -100,7 +100,9 @@ test.describe("Phase 7: Screens and Level Progression E2E", () => {
     await no3Buttons.nth(0).click();
     await no3Buttons.nth(1).click();
 
-    await page.getByRole("button", { name: "ยืนยันการตัดไอออน" }).click();
+    const confirmBtn = page.getByRole("button", { name: "ยืนยันการตัดไอออน" });
+    await expect(confirmBtn).toBeEnabled();
+    await confirmBtn.click();
 
     // 1.8 ขั้นที่ 5: ดูสมการไอออนิกสุทธิและจบด่าน
     await expect(

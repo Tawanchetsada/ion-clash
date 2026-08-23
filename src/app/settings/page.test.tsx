@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createFakeStorage } from "../../storage/__fixtures__/fakeStorage";
 import { createGameSaveRepository } from "../../storage/repository";
@@ -41,5 +41,44 @@ describe("Settings Page (/settings)", () => {
 
     const saveBtn = screen.getByRole("button", { name: "บันทึก" });
     expect(saveBtn).toBeInTheDocument();
+
+    expect(
+      screen.getByText("ยินยอมส่งข้อมูลวิจัย (Research Data Consent)"),
+    ).toBeInTheDocument();
+  });
+
+  it("เปลี่ยนการตั้งค่าความยินยอมวิจัยและบันทึกลง save", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      settings: {
+        sound: true,
+        music: false,
+        reducedMotion: false,
+        researchConsent: false,
+      },
+    });
+
+    render(
+      <SaveProvider repository={repo}>
+        <ToastProvider>
+          <SettingsPage />
+        </ToastProvider>
+      </SaveProvider>,
+    );
+
+    const switches = await screen.findAllByRole("switch");
+    const consentSwitch = switches[3];
+    expect(consentSwitch).toBeDefined();
+    expect(consentSwitch?.getAttribute("aria-checked")).toBe("false");
+
+    act(() => {
+      fireEvent.click(consentSwitch!);
+    });
+
+    expect(consentSwitch?.getAttribute("aria-checked")).toBe("true");
+    const saved = repo.load();
+    expect(saved.settings.researchConsent).toBe(true);
   });
 });

@@ -29,7 +29,7 @@ export default function SettingsPage() {
   }
 
   const handleToggleSetting = (
-    key: "sound" | "music" | "reducedMotion",
+    key: "sound" | "music" | "reducedMotion" | "researchConsent",
     val: boolean,
   ) => {
     const updated = {
@@ -144,7 +144,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Reduced Motion toggle */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between border-b border-border/60 pb-3">
             <div>
               <div className="font-semibold text-navy">ลดการเคลื่อนไหว (Reduced Motion)</div>
               <div className="text-xs text-navy/60">
@@ -165,6 +165,33 @@ export default function SettingsPage() {
               <span
                 className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
                   save.settings.reducedMotion ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Research Consent toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-semibold text-navy">ยินยอมส่งข้อมูลวิจัย (Research Data Consent)</div>
+              <div className="text-xs text-navy/60">
+                ส่งสถิติคะแนน เวลา และข้อผิดพลาดไปยังระบบบันทึกผลงานวิจัยเพื่อประเมินสื่อการเรียนรู้ (D-06, D-14)
+              </div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={save.settings.researchConsent}
+              onClick={() =>
+                handleToggleSetting("researchConsent", !save.settings.researchConsent)
+              }
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                save.settings.researchConsent ? "bg-green" : "bg-navy/20"
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                  save.settings.researchConsent ? "translate-x-6" : "translate-x-1"
                 }`}
               />
             </button>

@@ -68,5 +68,46 @@ describe("Progress Page (/progress)", () => {
     expect(
       screen.getByRole("button", { name: "รีเซ็ตข้อมูลทั้งหมด" }),
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", { name: /คัดลอกผลการเรียน \(TSV\)/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /ดาวน์โหลด CSV/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("แสดงแบนเนอร์ยินดีด้วยเมื่อผ่านด่าน 50", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+    const initial = repo.load();
+    repo.save({
+      ...initial,
+      playerName: "Winner",
+      completedLevels: {
+        "50": {
+          completed: true,
+          bestScore: 100,
+          stars: 3,
+          bestTimeMs: 20000,
+          attempts: 1,
+          completedAt: new Date().toISOString(),
+        },
+      },
+    });
+
+    render(
+      <SaveProvider repository={repo}>
+        <ToastProvider>
+          <ProgressPage />
+        </ToastProvider>
+      </SaveProvider>,
+    );
+
+    expect(
+      await screen.findByText("ยินดีด้วย! คุณผ่านครบทั้ง 50 ด่านของ Ion Clash แล้ว", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
   });
 });

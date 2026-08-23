@@ -4,6 +4,7 @@ import ErrorPage from "./error";
 import HowToPlayPage from "./how-to-play/page";
 import KnowledgePage from "./knowledge/page";
 import NotFound from "./not-found";
+import ResearchPage from "./research/page";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -53,5 +54,14 @@ describe("Routes and Shells", () => {
       screen.getByRole("heading", { name: "เกิดข้อผิดพลาดในการทำงาน" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/TEST_ERROR_MESSAGE/)).toBeInTheDocument();
+  });
+
+  it("render หน้า /research ได้ถูกต้องพร้อมหัวข้อและส่วนนำเข้าข้อมูล", () => {
+    render(<ResearchPage />);
+    expect(
+      screen.getByRole("heading", {
+        name: /แดชบอร์ดข้อมูลวิจัยและการประเมิน E1\/E2/,
+      }),
+    ).toBeInTheDocument();
   });
 });

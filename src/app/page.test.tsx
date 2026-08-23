@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createFakeStorage } from "../storage/__fixtures__/fakeStorage";
 import { createGameSaveRepository } from "../storage/repository";
@@ -47,6 +47,40 @@ describe("Home Page (/) ", () => {
     expect(
       screen.getByText("* แนะนำให้ใช้ชื่อเล่นหรือรหัสนิสิต ไม่ต้องใส่ชื่อจริงเต็ม"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("ยินยอมส่งข้อมูลผลการเรียนเพื่อการวิจัย", { exact: false }),
+    ).toBeInTheDocument();
+  });
+
+  it("กรอกชื่อและยืนยันเพื่อบันทึกชื่อและความยินยอมลง save", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+
+    render(
+      <SaveProvider repository={repo}>
+        <Home />
+      </SaveProvider>,
+    );
+
+    const startBtn = await screen.findByRole("button", { name: "เริ่มเกม" });
+    act(() => {
+      startBtn.click();
+    });
+
+    const nameInput = screen.getByLabelText("ชื่อหรือรหัสผู้เรียน:");
+    act(() => {
+      fireEvent.change(nameInput, { target: { value: "S01" } });
+    });
+
+    const submitBtn = screen.getByRole("button", { name: "เข้าสู่เกม" });
+    act(() => {
+      fireEvent.click(submitBtn);
+    });
+
+    expect(pushSpy).toHaveBeenCalledWith("/levels");
+    const saved = repo.load();
+    expect(saved.playerName).toBe("S01");
+    expect(saved.settings.researchConsent).toBe(true);
   });
 
   it("แสดงปุ่มเล่นต่อด่าน XX เมื่อมีข้อมูลการเล่นเดิม", async () => {

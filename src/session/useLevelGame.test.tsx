@@ -4,6 +4,8 @@ import { getLevel } from "../data/levels";
 import { createFakeStorage } from "../storage/__fixtures__/fakeStorage";
 import { createGameSaveRepository } from "../storage/repository";
 import type { LevelCheckpoint } from "../storage/schema";
+import type { ResearchEvent } from "../research/types";
+import { ResearchProvider } from "./ResearchProvider";
 import { SaveProvider } from "./SaveProvider";
 import { useLevelGame } from "./useLevelGame";
 
@@ -165,5 +167,125 @@ describe("useLevelGame", () => {
     expect(saved.completedLevels["1"]?.stars).toBeGreaterThanOrEqual(1);
     expect(saved.unlockedLevel).toBe(2);
     expect(saved.activeCheckpoint).toBeNull();
+  });
+
+  it("บันทึก ResearchEvent ครบทุกฟิลด์เมื่อจบด่าน และบันทึกครั้งเดียวแม้ component re-render", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      playerName: "Student-Test",
+      settings: {
+        sound: true,
+        music: false,
+        reducedMotion: false,
+        researchConsent: true,
+      },
+    });
+
+    const recordedEvents: ResearchEvent[] = [];
+    const mockSink = {
+      record: (ev: ResearchEvent) => recordedEvents.push(ev),
+      flush: async () => {},
+    };
+
+    const { result, rerender } = renderHook(() => useLevelGame(level1), {
+      wrapper: ({ children }) => (
+        <SaveProvider repository={repo}>
+          <ResearchProvider sink={mockSink}>{children}</ResearchProvider>
+        </SaveProvider>
+      ),
+    });
+
+    // Start -> Dissociate -> Arrange
+    act(() => {
+      result.current.dispatch({ type: "START_LEVEL", at: Date.now() });
+    });
+    act(() => {
+      result.current.dispatch({ type: "CONTINUE" });
+    });
+
+    // Place ions
+    act(() => {
+      result.current.dispatch({
+        type: "PLACE_ION",
+        slotId: "L1:slot:0",
+        instanceId: "L1:react:a:cat",
+      });
+      result.current.dispatch({
+        type: "PLACE_ION",
+        slotId: "L1:slot:1",
+        instanceId: "L1:react:b:an",
+      });
+      result.current.dispatch({
+        type: "PLACE_ION",
+        slotId: "L1:slot:2",
+        instanceId: "L1:react:b:cat",
+      });
+      result.current.dispatch({
+        type: "PLACE_ION",
+        slotId: "L1:slot:3",
+        instanceId: "L1:react:a:an",
+      });
+    });
+
+    act(() => {
+      result.current.dispatch({ type: "CHECK" });
+    });
+    act(() => {
+      result.current.dispatch({ type: "CONFIRM_PRODUCTS" });
+    });
+
+    // Cancel spectator pairs
+    act(() => {
+      result.current.dispatch({
+        type: "SELECT_LEFT",
+        instanceId: "L1:ci:l:ion:sodium-plus",
+      });
+      result.current.dispatch({
+        type: "SELECT_RIGHT",
+        instanceId: "L1:ci:r:ion:sodium-plus",
+      });
+      result.current.dispatch({
+        type: "SELECT_LEFT",
+        instanceId: "L1:ci:l:ion:nitrate",
+      });
+      result.current.dispatch({
+        type: "SELECT_RIGHT",
+        instanceId: "L1:ci:r:ion:nitrate",
+      });
+    });
+
+    act(() => {
+      result.current.dispatch({ type: "CONFIRM" });
+    });
+
+    // Complete level
+    act(() => {
+      result.current.dispatch({ type: "COMPLETE_LEVEL", at: Date.now() });
+    });
+
+    expect(result.current.state.phase).toBe("levelComplete");
+
+    // Re-render multiple times
+    rerender();
+    rerender();
+    rerender();
+
+    // Verify record was called exactly once
+    expect(recordedEvents).toHaveLength(1);
+    const event = recordedEvents[0]!;
+    expect(event.playerName).toBe("Student-Test");
+    expect(event.levelId).toBe(1);
+    expect(event.completed).toBe(true);
+    expect(event.score).toBe(100);
+    expect(event.stars).toBe(3);
+    expect(event.errorsByCode).toBeDefined();
+    expect(event.errorsByCode["E-CHARGE"]).toBe(0);
+    expect(event.errorsByCode["E-PAIR"]).toBe(0);
+    expect(event.errorsByCode["E-PHASE"]).toBe(0);
+    expect(event.errorsByCode["E-BALANCE"]).toBe(0);
+    expect(event.errorsByCode["E-RATIO"]).toBe(0);
+    expect(event.errorsByCode["E-SPECTATOR"]).toBe(0);
   });
 });

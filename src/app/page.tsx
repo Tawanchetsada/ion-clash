@@ -14,6 +14,7 @@ export default function Home() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [nameError, setNameError] = useState("");
+  const [consentChecked, setConsentChecked] = useState(true);
 
   const handleStartGame = () => {
     if (!save) return;
@@ -41,7 +42,14 @@ export default function Home() {
       return;
     }
     if (save) {
-      commit({ ...save, playerName: trimmed });
+      commit({
+        ...save,
+        playerName: trimmed,
+        settings: {
+          ...save.settings,
+          researchConsent: consentChecked,
+        },
+      });
     }
     setShowNameModal(false);
     router.push("/levels");
@@ -175,6 +183,21 @@ export default function Home() {
             <p className="text-xs text-navy/60">
               * แนะนำให้ใช้ชื่อเล่นหรือรหัสนิสิต ไม่ต้องใส่ชื่อจริงเต็ม
             </p>
+          </div>
+
+          {/* Research Consent Box */}
+          <div className="flex flex-col gap-2 rounded-card bg-canvas p-3 border border-navy/10 text-left">
+            <label className="flex items-start gap-2.5 cursor-pointer text-xs text-navy/90 leading-relaxed">
+              <input
+                type="checkbox"
+                checked={consentChecked}
+                onChange={(e) => setConsentChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-navy/30 text-blue focus:ring-blue"
+              />
+              <span>
+                <strong>ยินยอมส่งข้อมูลผลการเรียนเพื่อการวิจัย</strong>: ยินยอมให้ระบบบันทึกคะแนน เวลา และสถิติข้อผิดพลาด เพื่อประเมินประสิทธิภาพสื่อการเรียนรู้ (สามารถเปลี่ยนการตั้งค่าได้ภายหลัง)
+              </span>
+            </label>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

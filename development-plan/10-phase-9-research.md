@@ -1,5 +1,10 @@
 # Phase 9 · ระบบเก็บข้อมูลวิจัย
 
+> **สถานะ: เสร็จแล้ว ✅**
+> - **วันที่เสร็จ:** 2026-08-23
+> - **Definition of Done:** `npm run lint && npm run typecheck && npm test && npm run build` (1,655 unit tests) และ `npm run test:e2e` (42 tests) ผ่านครบ 100%
+> - **ผลลัพธ์:** Dual Sink (Local + Remote), CSV/TSV Export พร้อม UTF-8 BOM, หน้าแดชบอร์ด `/research` คำนวณ E1/E2 และวิเคราะห์ 6 ข้อผิดพลาด, หน้าต่างยินยอมและสวิตช์ใน `/settings`, คู่มือและ Apps Script template ใน `docs/`
+
 > **เป้าหมาย:** เก็บข้อมูลพอคำนวณ E1/E2 และตอบได้ว่านักเรียนพลาดเรื่องอะไรบ่อยที่สุด โดยไม่มี database
 > **ต้องรอ:** Phase 7 (ไม่ต้องรอ Phase 8)
 > **ที่มา:** frontend spec ไม่มีระบบนี้เลยแม้แต่บรรทัดเดียว แต่ proposal ต้องใช้ ตาม **D-06** และ **D-07**

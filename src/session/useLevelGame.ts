@@ -14,14 +14,19 @@ import {
   reduce,
 } from "../domain/game/gameMachine";
 import {
+  elapsedOf,
   isPrecipitateRevealed,
   levelResultOf,
   progressStep,
+  scoreOf,
+  starsOf,
   type ProgressStep,
 } from "../domain/game/selectors";
 import type { GameState } from "../domain/game/types";
+import type { ResearchEvent } from "../research/types";
 import { clearCheckpoint, recordLevelResult, saveCheckpoint } from "../storage/progress";
 import type { LevelCheckpoint } from "../storage/schema";
+import { useOptionalResearch } from "./ResearchProvider";
 import { useSave } from "./SaveProvider";
 
 export type UseLevelGame = {
@@ -153,24 +158,54 @@ export function useLevelGame(
     };
   }, [dispatch]);
 
+  const research = useOptionalResearch();
+
   // Handle level completion
   const completedHandledRef = useRef(false);
   useEffect(() => {
     if (state.phase === "levelComplete" && !completedHandledRef.current) {
       completedHandledRef.current = true;
       const currentSave = saveRef.current;
+      const result = levelResultOf(state, Date.now());
       if (currentSave) {
-        const result = levelResultOf(state, Date.now());
         const withResult = recordLevelResult(currentSave, result);
         const finalSave = clearCheckpoint(withResult);
         commit(finalSave);
       }
+
+      // Record research event (D-06, D-12, D-13, D-14)
+      try {
+        const attempts =
+          (currentSave?.completedLevels[String(level.id)]?.attempts ?? 0) + 1;
+        const now = Date.now();
+        const researchEvent: ResearchEvent = {
+          playerName: currentSave?.playerName ?? "",
+          installId: currentSave?.installId ?? "",
+          levelId: level.id,
+          attemptNo: attempts,
+          startedAt: state.startedAt
+            ? new Date(state.startedAt).toISOString()
+            : new Date(now).toISOString(),
+          finishedAt: new Date(now).toISOString(),
+          elapsedMs: elapsedOf(state, now),
+          completed: true,
+          score: scoreOf(state),
+          stars: starsOf(state),
+          hintsUsed: state.hintsUsed,
+          wrongAttempts: state.wrongAttempts,
+          errorsByCode: state.errorsByCode,
+        };
+        research?.record(researchEvent);
+      } catch {
+        // Safe fail: ข้อผิดพลาดของระบบวิจัยต้องไม่ทำให้เกมหยุด
+      }
+
       options?.playAudio?.("levelup");
     }
     if (state.phase !== "levelComplete") {
       completedHandledRef.current = false;
     }
-  }, [state, commit, options]);
+  }, [state, commit, options, level, research]);
 
   // Audio effects for feedback and gold reveal
   const prevFeedbackRef = useRef(state.lastFeedback);
