@@ -165,6 +165,15 @@ export function CloseIcon(props: IconProps) {
   );
 }
 
+export function ClockIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="9.5" {...STROKE} />
+      <path d="M12 6.5v5.5l3.5 2" {...STROKE} />
+    </svg>
+  );
+}
+
 export function TrashIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

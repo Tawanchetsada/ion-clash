@@ -149,6 +149,9 @@ export const MESSAGES = {
     },
     problemLabel: "โจทย์",
     problemUnknown: "ผลิตภัณฑ์ที่ต้องหาคำตอบ",
+    currentScore: "คะแนน:",
+    elapsedTime: "เวลา:",
+    liveStats: "สถิติระหว่างเล่น",
     dismissFeedback: "ปิดการแจ้งเตือน",
     close: "ปิด",
     rotatePrompt: {

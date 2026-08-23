@@ -5,6 +5,7 @@ import { notFound, useRouter } from "next/navigation";
 import { useAudio } from "../../../../audio/AudioProvider";
 import { FeedbackPanel } from "../../../../components/game/FeedbackPanel";
 import { HintButton } from "../../../../components/game/HintButton";
+import { LiveGameStats } from "../../../../components/game/LiveGameStats";
 import { SolubilityDialog } from "../../../../components/game/SolubilityDialog";
 import { AppHeader } from "../../../../components/layout/AppHeader";
 import { PageShell } from "../../../../components/layout/PageShell";
@@ -12,6 +13,7 @@ import { StepIndicator } from "../../../../components/layout/StepIndicator";
 import { Button } from "../../../../components/ui/Button";
 import { Dialog } from "../../../../components/ui/Dialog";
 import { MESSAGES } from "../../../../config/messages";
+import { elapsedOf, scoreOf } from "../../../../domain/game/selectors";
 import { useSave } from "../../../../session/SaveProvider";
 import { useToast } from "../../../../session/ToastProvider";
 import { useLevelGame } from "../../../../session/useLevelGame";
@@ -132,6 +134,20 @@ function PlayContent({
   const isMidLevel =
     state.phase !== "levelIntro" && state.phase !== "levelComplete";
 
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!isMidLevel || !state.startedAt) return;
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 500);
+    return () => clearInterval(interval);
+  }, [isMidLevel, state.startedAt]);
+
+  const score = scoreOf(state);
+  const elapsedMs = elapsedOf(state, now);
+  const elapsedSec = Math.floor(elapsedMs / 1000);
+
   const handleLeave = (target: string) => {
     if (isMidLevel) {
       setExitTarget(target);
@@ -152,14 +168,19 @@ function PlayContent({
       />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-6">
-        {/* Top Progress, Rules & Hint Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
-          <StepIndicator
-            current={step}
-            onStepClick={(targetStep) => dispatch({ type: "GO_TO_STEP", step: targetStep })}
-          />
+        {/* Top Progress, Rules, Live Score/Timer & Hint Bar */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <StepIndicator
+              current={step}
+              onStepClick={(targetStep) => dispatch({ type: "GO_TO_STEP", step: targetStep })}
+            />
+            {isMidLevel && (
+              <LiveGameStats score={score} elapsedSec={elapsedSec} />
+            )}
+          </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 self-end sm:self-auto">
             {/* Rules Button (Does NOT deduct points) */}
             <Button
               variant="outline"
