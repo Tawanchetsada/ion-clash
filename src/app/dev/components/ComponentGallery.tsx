@@ -91,7 +91,7 @@ export function ComponentGallery() {
 
       <Section title="AppHeader">
         <div className="w-full overflow-hidden rounded-card">
-          <AppHeader levelLabelTh="LEVEL 01/50" onHome={() => {}} onHowToPlay={() => {}} />
+          <AppHeader levelLabelTh="LEVEL 01/50" onHome={() => {}} onLevels={() => {}} onHowToPlay={() => {}} />
         </div>
       </Section>
 

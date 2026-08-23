@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "../../components/layout/AppHeader";
 import { PageShell } from "../../components/layout/PageShell";
@@ -12,7 +13,13 @@ export default function LevelsPage() {
   const router = useRouter();
   const { save } = useSave();
 
-  if (save === null) {
+  useEffect(() => {
+    if (save && save.playerName.trim() === "") {
+      router.replace("/");
+    }
+  }, [save, router]);
+
+  if (save === null || save.playerName.trim() === "") {
     return (
       <PageShell>
         <AppHeader

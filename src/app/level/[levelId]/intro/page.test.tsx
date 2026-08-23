@@ -23,9 +23,28 @@ describe("Level Intro Page (/level/[levelId]/intro)", () => {
     replaceSpy.mockClear();
   });
 
-  it("แสดงสารตั้งต้น 2 ชนิด และปุ่มเริ่มแยกไอออน", async () => {
+  it("ผู้เล่นที่ยังไม่ได้กรอกชื่อจะถูก redirect ไปยังหน้าแรก", async () => {
     const storage = createFakeStorage();
     const repo = createGameSaveRepository({ storage });
+
+    render(
+      <SaveProvider repository={repo}>
+        <ToastProvider>
+          <LevelIntroPage params={{ levelId: "1" }} />
+        </ToastProvider>
+      </SaveProvider>,
+    );
+
+    expect(replaceSpy).toHaveBeenCalledWith("/");
+  });
+
+  it("แสดงสารตั้งต้น 2 ชนิด และปุ่มเริ่มเล่นเกม", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      playerName: "S01",
+    });
 
     render(
       <SaveProvider repository={repo}>
@@ -41,7 +60,7 @@ describe("Level Intro Page (/level/[levelId]/intro)", () => {
       }),
     ).toBeInTheDocument();
 
-    const startBtn = screen.getByRole("button", { name: "เริ่มแยกไอออน" });
+    const startBtn = screen.getByRole("button", { name: "เริ่มเล่นเกม" });
     expect(startBtn).toBeInTheDocument();
 
     act(() => {
@@ -54,6 +73,10 @@ describe("Level Intro Page (/level/[levelId]/intro)", () => {
   it("เมื่อเปิดด่านที่ยังล็อกอยู่ จะถูก redirect ไป /levels พร้อม toast", async () => {
     const storage = createFakeStorage();
     const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      playerName: "S01",
+    });
 
     render(
       <SaveProvider repository={repo}>

@@ -437,3 +437,71 @@ describe("จบด่านแล้วเล่นซ้ำ", () => {
     expect(reduce(intro, { type: "EXIT" }, level1).phase).toBe("levelSelect");
   });
 });
+
+describe("การย้อนกลับขั้นตอน (PREV_STEP และ GO_TO_STEP)", () => {
+  it("ย้อนกลับทีละขั้นจาก Step 5 ถึง Step 1 ได้อย่างถูกต้อง", () => {
+    const level13 = getLevel(13); // ด่านที่ต้องดุลสมการ
+
+    let atStep5: GameState | null = null;
+    playLevel(level13, {
+      interject: (curr) => {
+        if (curr.phase === "netIonicResult" && atStep5 === null) {
+          atStep5 = curr;
+        }
+        return [];
+      },
+    });
+
+    expect(atStep5).not.toBeNull();
+    if (!atStep5) return;
+    expect((atStep5 as GameState).phase).toBe("netIonicResult");
+
+    // ย้อนจาก Step 5 -> Step 4
+    const atStep4 = reduce(atStep5, { type: "PREV_STEP" }, level13);
+    expect(atStep4.phase).toBe("cancelSpectatorIons");
+
+    // ย้อนจาก Step 4 -> Step 3
+    const atStep3 = reduce(atStep4, { type: "PREV_STEP" }, level13);
+    expect(atStep3.phase).toBe("validateProducts");
+
+    // ย้อนจาก Step 3 -> Step 2 (ด่านนี้มี balanceEquation)
+    const atStep2Balance = reduce(atStep3, { type: "PREV_STEP" }, level13);
+    expect(atStep2Balance.phase).toBe("balanceEquation");
+
+    // ย้อนจาก balanceEquation -> arrangeProductIons
+    const atStep2Arrange = reduce(atStep2Balance, { type: "PREV_STEP" }, level13);
+    expect(atStep2Arrange.phase).toBe("arrangeProductIons");
+
+    // ย้อนจาก Step 2 -> Step 1 (dissociateReactants)
+    const atStep1 = reduce(atStep2Arrange, { type: "PREV_STEP" }, level13);
+    expect(atStep1.phase).toBe("dissociateReactants");
+
+    // ย้อนจาก Step 1 ไม่เปลี่ยน phase
+    const atStep1Again = reduce(atStep1, { type: "PREV_STEP" }, level13);
+    expect(atStep1Again.phase).toBe("dissociateReactants");
+  });
+
+  it("GO_TO_STEP สามารถกระโดดย้อนกลับไปยังขั้นที่ระบุได้", () => {
+    const atStep4 = send(createInitialState(level1), [
+      { type: "START_LEVEL", at: 0 },
+      { type: "CONTINUE" },
+      ...correctSlotOrder(level1).map((instanceId, idx) => ({
+        type: "PLACE_ION" as const,
+        instanceId: instanceId ?? "",
+        slotId: productSlotIds(level1)[idx] ?? "",
+      })),
+      { type: "CHECK" },
+      { type: "CONFIRM_PRODUCTS" },
+    ]);
+
+    expect(atStep4.phase).toBe("cancelSpectatorIons");
+
+    // กระโดดกลับไป Step 1
+    const jumpTo1 = reduce(atStep4, { type: "GO_TO_STEP", step: 1 }, level1);
+    expect(jumpTo1.phase).toBe("dissociateReactants");
+
+    // ไม่สามารถกระโดดไปข้างหน้าเกินขั้นปัจจุบัน
+    const invalidJump = reduce(atStep4, { type: "GO_TO_STEP", step: 5 }, level1);
+    expect(invalidJump.phase).toBe("cancelSpectatorIons");
+  });
+});

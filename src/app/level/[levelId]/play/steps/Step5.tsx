@@ -9,6 +9,7 @@ import type { GameState } from "../../../../../domain/game/types";
 import { EquationView } from "../../../../../components/game/EquationView";
 import { SaveStatus } from "../../../../../components/game/SaveStatus";
 import { Button } from "../../../../../components/ui/Button";
+import { MESSAGES } from "../../../../../config/messages";
 import { useSave } from "../../../../../session/SaveProvider";
 import { StarIcon, StarOutlineIcon } from "../../../../../components/ui/Icon";
 
@@ -36,18 +37,22 @@ export function Step5({
   const stars = starsOf(state);
   const elapsedSec = Math.round(state.elapsedMs / 1000);
 
-  // Net ionic terms
-  const reactantAsts = level.netIonic.reactants.map((term) =>
-    term.kind === "ion"
-      ? renderIon(getIon(term.ionId), term.count)
-      : term.compound.formula,
-  );
+  // Net ionic terms with states of matter (aq / s)
+  const reactantTerms = level.netIonic.reactants.map((term) => ({
+    ast:
+      term.kind === "ion"
+        ? renderIon(getIon(term.ionId), term.count)
+        : term.compound.formula,
+    phase: term.kind === "ion" ? term.phase : term.compound.phase,
+  }));
 
-  const productAsts = level.netIonic.products.map((term) =>
-    term.kind === "ion"
-      ? renderIon(getIon(term.ionId), term.count)
-      : term.compound.formula,
-  );
+  const productTerms = level.netIonic.products.map((term) => ({
+    ast:
+      term.kind === "ion"
+        ? renderIon(getIon(term.ionId), term.count)
+        : term.compound.formula,
+    phase: term.kind === "ion" ? term.phase : term.compound.phase,
+  }));
 
   const spectatorNames = level.spectators
     .map((s) => getIon(s.ionId).nameTh)
@@ -69,18 +74,24 @@ export function Step5({
       {/* Net Ionic Equation Display Box */}
       <div className="flex flex-col items-center gap-3 rounded-card bg-gold/10 p-6 shadow-card border-2 border-gold max-w-2xl w-full">
         <span className="text-xs font-bold text-navy">สมการไอออนิกสุทธิ:</span>
-        <div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-bold text-navy">
-          {reactantAsts.map((ast, idx) => (
+        <div className="flex flex-wrap items-center justify-center gap-3 text-xl sm:text-2xl font-bold text-navy">
+          {reactantTerms.map((item, idx) => (
             <span key={idx} className="flex items-center gap-2">
               {idx > 0 && <span>+</span>}
-              <EquationView ast={ast} />
+              <span className="inline-flex items-baseline gap-1">
+                <EquationView ast={item.ast} />
+                <span className="text-base sm:text-lg font-semibold text-navy/80">({item.phase})</span>
+              </span>
             </span>
           ))}
-          <span>→</span>
-          {productAsts.map((ast, idx) => (
+          <span className="mx-1">→</span>
+          {productTerms.map((item, idx) => (
             <span key={idx} className="flex items-center gap-2">
               {idx > 0 && <span>+</span>}
-              <EquationView ast={ast} />
+              <span className="inline-flex items-baseline gap-1">
+                <EquationView ast={item.ast} />
+                <span className="text-base sm:text-lg font-semibold text-navy/80">({item.phase})</span>
+              </span>
             </span>
           ))}
         </div>
@@ -88,7 +99,9 @@ export function Step5({
         <div className="mt-2 flex flex-col gap-1 text-xs text-navy/80 border-t border-gold/30 pt-3 w-full">
           <div>
             <span className="font-bold">ตะกอนที่เกิดขึ้น: </span>
-            <span>{level.precipitate.nameTh} ({level.precipitate.formula.map((p) => p.value).join("")})</span>
+            <span>
+              {level.precipitate.nameTh} ({level.precipitate.formula.map((p) => p.value).join("")} (s))
+            </span>
           </div>
           {spectatorNames && (
             <div>
@@ -101,13 +114,19 @@ export function Step5({
 
       {/* When in netIonicResult phase */}
       {!isComplete && (
-        <div className="flex justify-center">
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => dispatch({ type: "PREV_STEP" })}
+          >
+            {MESSAGES.ui.backToStep4}
+          </Button>
           <Button
             variant="gold"
             className="px-8 py-3 text-lg"
             onClick={() => dispatch({ type: "COMPLETE_LEVEL", at: Date.now() })}
           >
-            ดูผลคะแนนและจบด่าน
+            {MESSAGES.ui.completeAndScore}
           </Button>
         </div>
       )}

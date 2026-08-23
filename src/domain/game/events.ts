@@ -42,6 +42,9 @@ export type GameEvent =
   // ── ใช้ได้ทุกสถานะระหว่างเล่น
   | { type: "USE_HINT" }
   | { type: "PAUSE"; at: number }
-  | { type: "RESUME"; at: number };
+  | { type: "RESUME"; at: number }
+  // ── ย้อนกลับไปขั้นก่อนหน้า / ไปยังขั้นที่ระบุ
+  | { type: "PREV_STEP" }
+  | { type: "GO_TO_STEP"; step: 1 | 2 | 3 | 4 | 5 };
 
 export type GameEventType = GameEvent["type"];

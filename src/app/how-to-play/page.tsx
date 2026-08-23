@@ -7,6 +7,8 @@ import { AppHeader } from "../../components/layout/AppHeader";
 import { PageShell } from "../../components/layout/PageShell";
 import { IonCard } from "../../components/game/IonCard";
 import { IonSlot } from "../../components/game/IonSlot";
+import { EquationArrow } from "../../components/game/EquationArrow";
+import { ProblemBar } from "../../components/game/ProblemBar";
 import { DragLayer } from "../../components/interaction/DragLayer";
 import { usePlacement } from "../../components/interaction/usePlacement";
 import { Button } from "../../components/ui/Button";
@@ -42,6 +44,7 @@ export default function HowToPlayPage() {
     "ช่องที่ 3 (ไอออนบวก คู่ที่ 2)",
     "ช่องที่ 4 (ไอออนลบ คู่ที่ 2)",
   ];
+  const slotRoles = ["ไอออนบวก", "ไอออนลบ", "ไอออนบวก", "ไอออนลบ"];
 
   const placement = usePlacement({
     onIntent: (intent) => {
@@ -100,6 +103,7 @@ export default function HowToPlayPage() {
     <PageShell>
       <AppHeader
         onHome={() => router.push("/")}
+        onLevels={() => router.push("/levels")}
         onHowToPlay={() => {}}
       />
 
@@ -178,216 +182,286 @@ export default function HowToPlayPage() {
               ทดลองเล่นจริง
             </span>
             <h2 className="text-xl font-bold text-navy">
-              ขั้นตอนที่ 2: แลกคู่ไอออนบวก–ลบสร้างผลิตภัณฑ์
+              ขั้นที่ 2 · แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์
             </h2>
             <p className="text-sm text-navy/70 mt-1">
-              ลองทดสอบลากหรือแตะการ์ดไอออนจากถาดด้านบน มาวางจับคู่ในช่องผลิตภัณฑ์ด้านล่าง
-              (กติกา: <strong>ไอออนบวกต้องอยู่หน้าไอออนลบ</strong> เสมอ)
+              ลากหรือแตะเลือกไอออนบวกและไอออนลบเพื่อจับคู่ผลิตภัณฑ์ใหม่ (กติกา: <strong>ไอออนบวกต้องอยู่หน้าไอออนลบ</strong> เสมอ)
             </p>
           </div>
 
-          <div className="flex flex-col items-center gap-6 rounded-card bg-panel p-6 border border-border">
+          <div className="flex flex-col items-center gap-6 rounded-card bg-panel p-4 sm:p-6 border border-border">
             <DragLayer
               dragging={placement.dragging}
               renderGhost={(source) => {
                 const card = allCards.find((c) => c.instanceId === source.instanceId);
                 if (!card) return null;
-                return <IonCard view={ionCardView(card)} />;
+                return <IonCard view={ionCardView(card)} size="fluid" />;
               }}
             />
 
-            {/* Tray of source ions */}
-            <div className="flex flex-col items-center gap-2">
-              <span className="text-xs font-bold text-navy/70">ถาดไอออนตั้งต้น (คลิกลากหรือแตะเลือก):</span>
-              <div
-                {...placement.targetPropsFor({ kind: "tray" })}
-                className="flex flex-wrap items-center justify-center gap-3 rounded-card bg-white p-3 border border-border min-h-[90px] w-full max-w-lg"
-              >
-                {allCards.map((card) => {
-                  const isAssigned = assignedSet.has(card.instanceId);
-                  const isHeld = placement.isHeld({
-                    kind: "card",
-                    instanceId: card.instanceId,
-                  });
-                  const view = ionCardView(card);
-                  const dragHandlers = placement.dragHandlersFor({
-                    kind: "card",
-                    instanceId: card.instanceId,
-                  });
+            {/* แถบโจทย์สมการสารตั้งต้น */}
+            <ProblemBar
+              reactants={[
+                { formula: tutorialLevel.reactantA.formula, phaseTh: tutorialLevel.reactantA.phase },
+                { formula: tutorialLevel.reactantB.formula, phaseTh: tutorialLevel.reactantB.phase },
+              ]}
+            />
 
-                  if (isAssigned) {
-                    return (
-                      <div
-                        key={card.instanceId}
-                        className="h-11 w-20 rounded-card border border-dashed border-border opacity-30 flex items-center justify-center text-xs text-navy"
-                      >
-                        (วางแล้ว)
+            {/* แถบจับคู่ไอออนเป็นผลิตภัณฑ์ (โครงสร้างและสไตล์ตรงกับในเกมจริง 100%) */}
+            <div
+              role="region"
+              aria-label="แถวจับคู่ไอออนเป็นผลิตภัณฑ์"
+              tabIndex={0}
+              className="equation-scroll fit-cards w-full min-w-0 rounded-card border border-border bg-white p-3 shadow-card sm:p-4"
+            >
+              <div className="fit-cards-track flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-[calc(var(--card-size,5rem)*0.25)]">
+                {/* ฝั่งซ้าย — ถาดไอออนตั้งต้น 4 ตัว */}
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-xs font-semibold text-navy/70">
+                    ไอออนของสารตั้งต้น 4 ตัว
+                  </span>
+                  <div
+                    {...placement.targetPropsFor({ kind: "tray" })}
+                    className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)] rounded-card border border-navy/10 bg-canvas p-[calc(var(--card-size,5rem)*0.12)]"
+                  >
+                    {allCards.map((card, idx) => {
+                      const isAssigned = assignedSet.has(card.instanceId);
+                      const isHeld = placement.isHeld({
+                        kind: "card",
+                        instanceId: card.instanceId,
+                      });
+                      const view = ionCardView(card);
+                      const dragHandlers = placement.dragHandlersFor({
+                        kind: "card",
+                        instanceId: card.instanceId,
+                      });
+
+                      return (
+                        <span
+                          key={card.instanceId}
+                          className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)]"
+                        >
+                          {idx > 0 && (
+                            <span
+                              aria-hidden="true"
+                              className="text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                            >
+                              +
+                            </span>
+                          )}
+                          {isAssigned ? (
+                            <span className="flex h-[calc(var(--card-size,5rem)*0.95)] w-[var(--card-size,5rem)] items-center justify-center rounded-card border border-dashed border-border px-1 text-center text-[calc(var(--card-size,5rem)*0.13)] leading-tight text-navy/40">
+                              (อยู่ในช่อง)
+                            </span>
+                          ) : (
+                            <IonCard
+                              view={view}
+                              size="fluid"
+                              selected={isHeld}
+                              isDragging={
+                                placement.dragging?.source.kind === "card" &&
+                                placement.dragging.source.instanceId === card.instanceId
+                              }
+                              onSelect={() => {
+                                placement.toggleHold({
+                                  kind: "card",
+                                  instanceId: card.instanceId,
+                                });
+                              }}
+                              onPointerDown={dragHandlers.onPointerDown}
+                            />
+                          )}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ลูกศรกลางแถว — ชี้ขวาเมื่อเรียงแถวเดียว ชี้ลงเมื่อพับสองชั้น */}
+                <div className="flex items-center justify-center px-1 md:min-h-[calc(var(--card-size,5rem)*1.6)]">
+                  <EquationArrow breakpoint="md" className="text-gold" />
+                </div>
+
+                {/* ฝั่งขวา — ช่องไอออนสารผลิตภัณฑ์แบ่งเป็น 2 ช่องย่อย */}
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.15)]">
+                    {/* ช่องย่อยที่ 1: ผลิตภัณฑ์ที่เป็นตะกอน */}
+                    <div className="flex flex-col items-center gap-1 rounded-card border border-gold/60 bg-gold/10 p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
+                      <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy">
+                        ผลิตภัณฑ์ที่เป็นตะกอน
+                      </span>
+                      <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
+                        {[0, 1].map((idx) => {
+                          const slotId = slotIds[idx]!;
+                          const assignedCardId = slotAssignments[slotId] ?? null;
+                          const assignedCard = assignedCardId ? cardMap.get(assignedCardId) : null;
+                          const cardView = assignedCard ? ionCardView(assignedCard) : null;
+                          const isTarget = placement.activeTargetId === slotId;
+                          const isHeld =
+                            assignedCardId != null &&
+                            placement.isHeld({
+                              kind: "slot",
+                              slotId,
+                              instanceId: assignedCardId,
+                            });
+                          const dragHandlers = assignedCardId
+                            ? placement.dragHandlersFor({
+                                kind: "slot",
+                                slotId,
+                                instanceId: assignedCardId,
+                              })
+                            : undefined;
+
+                          return (
+                            <span
+                              key={slotId}
+                              className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]"
+                            >
+                              {idx > 0 && (
+                                <span
+                                  aria-hidden="true"
+                                  className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                                >
+                                  +
+                                </span>
+                              )}
+                              <IonSlot
+                                slotId={slotId}
+                                slotLabelTh={slotLabels[idx]!}
+                                roleHintTh={slotRoles[idx]!}
+                                assignedIon={cardView}
+                                size="fluid"
+                                isDropTarget={isTarget}
+                                selected={isHeld}
+                                onActivate={() => {
+                                  placement.activateTarget({ kind: "slot", slotId });
+                                }}
+                                onSelect={
+                                  assignedCardId
+                                    ? () => {
+                                        placement.toggleHold({
+                                          kind: "slot",
+                                          slotId,
+                                          instanceId: assignedCardId,
+                                        });
+                                      }
+                                    : undefined
+                                }
+                                onRemove={
+                                  assignedCardId
+                                    ? () => {
+                                        setSlotAssignments((prev) => {
+                                          const next = { ...prev };
+                                          delete next[slotId];
+                                          return next;
+                                        });
+                                      }
+                                    : undefined
+                                }
+                                onPointerDown={dragHandlers?.onPointerDown}
+                              />
+                            </span>
+                          );
+                        })}
                       </div>
-                    );
-                  }
+                    </div>
 
-                  return (
-                    <IonCard
-                      key={card.instanceId}
-                      view={view}
-                      selected={isHeld}
-                      isDragging={
-                        placement.dragging?.source.kind === "card" &&
-                        placement.dragging.source.instanceId === card.instanceId
-                      }
-                      onSelect={() => {
-                        placement.toggleHold({
-                          kind: "card",
-                          instanceId: card.instanceId,
-                        });
-                      }}
-                      onPointerDown={dragHandlers.onPointerDown}
-                    />
-                  );
-                })}
-              </div>
-            </div>
+                    {/* เครื่องหมาย + คั่นระหว่าง 2 กลุ่ม */}
+                    <span
+                      aria-hidden="true"
+                      className="mt-[calc(var(--card-size,5rem)*0.55)] text-[calc(var(--card-size,5rem)*0.32)] font-bold leading-none text-navy/60"
+                    >
+                      +
+                    </span>
 
-            <span className="text-base font-bold text-navy/70">จับคู่เป็น 2 ผลิตภัณฑ์</span>
+                    {/* ช่องย่อยที่ 2: ไอออนที่ยังคงอยู่ในสารละลาย */}
+                    <div className="flex flex-col items-center gap-1 rounded-card border border-border bg-panel p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
+                      <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy/80">
+                        ไอออนที่ยังคงอยู่ในสารละลาย
+                      </span>
+                      <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
+                        {[2, 3].map((idx) => {
+                          const slotId = slotIds[idx]!;
+                          const assignedCardId = slotAssignments[slotId] ?? null;
+                          const assignedCard = assignedCardId ? cardMap.get(assignedCardId) : null;
+                          const cardView = assignedCard ? ionCardView(assignedCard) : null;
+                          const isTarget = placement.activeTargetId === slotId;
+                          const isHeld =
+                            assignedCardId != null &&
+                            placement.isHeld({
+                              kind: "slot",
+                              slotId,
+                              instanceId: assignedCardId,
+                            });
+                          const dragHandlers = assignedCardId
+                            ? placement.dragHandlersFor({
+                                kind: "slot",
+                                slotId,
+                                instanceId: assignedCardId,
+                              })
+                            : undefined;
 
-            {/* Product Slots */}
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              {/* Pair 1 */}
-              <div className="flex flex-col items-center gap-2 rounded-card bg-white p-3 shadow-card border border-border">
-                <span className="text-xs font-bold text-navy">คู่ที่ 1 (บวก + ลบ)</span>
-                <div className="flex items-center gap-2">
-                  {[0, 1].map((idx) => {
-                    const slotId = slotIds[idx]!;
-                    const assignedCardId = slotAssignments[slotId] ?? null;
-                    const assignedCard = assignedCardId ? cardMap.get(assignedCardId) : null;
-                    const cardView = assignedCard ? ionCardView(assignedCard) : null;
-                    const isTarget = placement.activeTargetId === slotId;
-                    const isHeld =
-                      assignedCardId != null &&
-                      placement.isHeld({
-                        kind: "slot",
-                        slotId,
-                        instanceId: assignedCardId,
-                      });
-                    const dragHandlers = assignedCardId
-                      ? placement.dragHandlersFor({
-                          kind: "slot",
-                          slotId,
-                          instanceId: assignedCardId,
-                        })
-                      : undefined;
-
-                    return (
-                      <IonSlot
-                        key={slotId}
-                        slotId={slotId}
-                        slotLabelTh={slotLabels[idx]!}
-                        assignedIon={cardView}
-                        isDropTarget={isTarget}
-                        selected={isHeld}
-                        onActivate={() => {
-                          placement.activateTarget({ kind: "slot", slotId });
-                        }}
-                        onSelect={
-                          assignedCardId
-                            ? () => {
-                                placement.toggleHold({
-                                  kind: "slot",
-                                  slotId,
-                                  instanceId: assignedCardId,
-                                });
-                              }
-                            : undefined
-                        }
-                        onRemove={
-                          assignedCardId
-                            ? () => {
-                                setSlotAssignments((prev) => {
-                                  const next = { ...prev };
-                                  delete next[slotId];
-                                  return next;
-                                });
-                              }
-                            : undefined
-                        }
-                        onPointerDown={dragHandlers?.onPointerDown}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              <span className="text-xl font-bold text-navy">+</span>
-
-              {/* Pair 2 */}
-              <div className="flex flex-col items-center gap-2 rounded-card bg-white p-3 shadow-card border border-border">
-                <span className="text-xs font-bold text-navy">คู่ที่ 2 (บวก + ลบ)</span>
-                <div className="flex items-center gap-2">
-                  {[2, 3].map((idx) => {
-                    const slotId = slotIds[idx]!;
-                    const assignedCardId = slotAssignments[slotId] ?? null;
-                    const assignedCard = assignedCardId ? cardMap.get(assignedCardId) : null;
-                    const cardView = assignedCard ? ionCardView(assignedCard) : null;
-                    const isTarget = placement.activeTargetId === slotId;
-                    const isHeld =
-                      assignedCardId != null &&
-                      placement.isHeld({
-                        kind: "slot",
-                        slotId,
-                        instanceId: assignedCardId,
-                      });
-                    const dragHandlers = assignedCardId
-                      ? placement.dragHandlersFor({
-                          kind: "slot",
-                          slotId,
-                          instanceId: assignedCardId,
-                        })
-                      : undefined;
-
-                    return (
-                      <IonSlot
-                        key={slotId}
-                        slotId={slotId}
-                        slotLabelTh={slotLabels[idx]!}
-                        assignedIon={cardView}
-                        isDropTarget={isTarget}
-                        selected={isHeld}
-                        onActivate={() => {
-                          placement.activateTarget({ kind: "slot", slotId });
-                        }}
-                        onSelect={
-                          assignedCardId
-                            ? () => {
-                                placement.toggleHold({
-                                  kind: "slot",
-                                  slotId,
-                                  instanceId: assignedCardId,
-                                });
-                              }
-                            : undefined
-                        }
-                        onRemove={
-                          assignedCardId
-                            ? () => {
-                                setSlotAssignments((prev) => {
-                                  const next = { ...prev };
-                                  delete next[slotId];
-                                  return next;
-                                });
-                              }
-                            : undefined
-                        }
-                        onPointerDown={dragHandlers?.onPointerDown}
-                      />
-                    );
-                  })}
+                          return (
+                            <span
+                              key={slotId}
+                              className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]"
+                            >
+                              {idx === 3 && (
+                                <span
+                                  aria-hidden="true"
+                                  className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                                >
+                                  +
+                                </span>
+                              )}
+                              <IonSlot
+                                slotId={slotId}
+                                slotLabelTh={slotLabels[idx]!}
+                                roleHintTh={slotRoles[idx]!}
+                                assignedIon={cardView}
+                                size="fluid"
+                                isDropTarget={isTarget}
+                                selected={isHeld}
+                                onActivate={() => {
+                                  placement.activateTarget({ kind: "slot", slotId });
+                                }}
+                                onSelect={
+                                  assignedCardId
+                                    ? () => {
+                                        placement.toggleHold({
+                                          kind: "slot",
+                                          slotId,
+                                          instanceId: assignedCardId,
+                                        });
+                                      }
+                                    : undefined
+                                }
+                                onRemove={
+                                  assignedCardId
+                                    ? () => {
+                                        setSlotAssignments((prev) => {
+                                          const next = { ...prev };
+                                          delete next[slotId];
+                                          return next;
+                                        });
+                                      }
+                                    : undefined
+                                }
+                                onPointerDown={dragHandlers?.onPointerDown}
+                              />
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               <Button variant="outline" onClick={handleResetSandbox}>
-                ล้างช่องวาง
+                ล้างทุกช่อง
               </Button>
               <Button variant="gold" onClick={handleAutoFillSandbox}>
                 แสดงตัวอย่างการวางที่ถูกต้อง

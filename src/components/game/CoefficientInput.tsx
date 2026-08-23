@@ -6,6 +6,8 @@ export type CoefficientInputProps = {
   value: number | null;
   compoundLabelTh: string;
   errorTh?: string;
+  hideLabel?: boolean;
+  size?: "md" | "sm";
   onChange: (value: number | null) => void;
 };
 
@@ -21,6 +23,8 @@ export function CoefficientInput({
   value,
   compoundLabelTh,
   errorTh,
+  hideLabel = false,
+  size = "md",
   onChange,
 }: CoefficientInputProps) {
   const inputId = useId();
@@ -37,9 +41,17 @@ export function CoefficientInput({
     }
   }
 
+  const sizeClasses =
+    size === "sm"
+      ? "h-9 w-9 sm:h-10 sm:w-10 text-base sm:text-lg"
+      : "h-11 w-11 text-lg";
+
   return (
     <div className="flex flex-col items-center gap-1">
-      <label htmlFor={inputId} className="text-sm text-navy">
+      <label
+        htmlFor={inputId}
+        className={`text-sm text-navy ${hideLabel ? "sr-only" : ""}`}
+      >
         {MESSAGES.ui.coefficientLabelPrefix} {compoundLabelTh}
       </label>
       <input
@@ -49,9 +61,10 @@ export function CoefficientInput({
         autoComplete="off"
         value={value ?? ""}
         onChange={handleChange}
+        placeholder="1"
         aria-invalid={errorTh ? true : undefined}
         aria-describedby={errorTh ? errorId : undefined}
-        className={`h-11 w-11 rounded-card border text-center text-lg font-bold text-navy ${
+        className={`${sizeClasses} rounded-card border bg-white text-center font-bold text-navy shadow-xs transition-all focus:border-gold focus:ring-2 focus:ring-gold/30 ${
           errorTh ? "border-error" : "border-border"
         }`}
       />

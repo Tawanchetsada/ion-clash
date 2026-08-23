@@ -331,7 +331,7 @@ export function normalizeSave(
       checkpoint && checkpoint.levelId <= unlockedLevel ? checkpoint : null,
     settings: {
       sound: boolOr(rawSettings["sound"], true),
-      music: boolOr(rawSettings["music"], false),
+      music: boolOr(rawSettings["music"], true),
       reducedMotion: boolOr(rawSettings["reducedMotion"], false),
       researchConsent: boolOr(rawSettings["researchConsent"], false),
     },

@@ -11,10 +11,11 @@ import { ToastProvider } from "../session/ToastProvider";
 function SettingsBridge({ children }: { children: ReactNode }) {
   const { save } = useSave();
   const sound = save?.settings.sound ?? true;
+  const music = save?.settings.music ?? false;
   const reducedMotion = save?.settings.reducedMotion ?? false;
 
   return (
-    <AudioProvider enabled={sound}>
+    <AudioProvider enabled={sound} musicEnabled={music}>
       <MotionProvider enabled={!reducedMotion}>
         <AnnouncerProvider>
           <ToastProvider>

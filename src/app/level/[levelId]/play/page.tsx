@@ -12,6 +12,7 @@ import { StepIndicator } from "../../../../components/layout/StepIndicator";
 import { Button } from "../../../../components/ui/Button";
 import { Dialog } from "../../../../components/ui/Dialog";
 import { MESSAGES } from "../../../../config/messages";
+import { useSave } from "../../../../session/SaveProvider";
 import { useToast } from "../../../../session/ToastProvider";
 import { useLevelGame } from "../../../../session/useLevelGame";
 import { useLevelGuard } from "../../../../session/useLevelGuard";
@@ -38,11 +39,16 @@ export default function PlayPage({
   const router = useRouter();
   const toast = useToast();
   const audio = useAudio();
+  const { save } = useSave();
 
   const verdict = useLevelGuard(resolvedParams?.levelId ?? "");
   const redirectedRef = useRef(false);
 
   useEffect(() => {
+    if (save && save.playerName.trim() === "") {
+      router.replace("/");
+      return;
+    }
     if (verdict.status === "locked" && !redirectedRef.current) {
       redirectedRef.current = true;
       toast.show(MESSAGES.toast.unlocked(verdict.requiredLevel));
@@ -51,7 +57,7 @@ export default function PlayPage({
     if (verdict.status !== "locked") {
       redirectedRef.current = false;
     }
-  }, [verdict, toast, router]);
+  }, [save, verdict, toast, router]);
 
   if (verdict.status === "invalid") {
     notFound();
@@ -60,7 +66,7 @@ export default function PlayPage({
   if (verdict.status === "loading" || verdict.status === "locked") {
     return (
       <PageShell>
-        <AppHeader onHome={() => router.push("/")} />
+        <AppHeader onHome={() => router.push("/")} onLevels={() => router.push("/levels")} />
         <main className="flex flex-1 flex-col items-center justify-center p-8">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-navy/20 border-t-gold" />
           <p className="mt-4 text-sm text-navy/70">กำลังตรวจสอบข้อมูลด่าน…</p>
@@ -72,7 +78,7 @@ export default function PlayPage({
   if (verdict.status === "broken") {
     return (
       <PageShell>
-        <AppHeader onHome={() => router.push("/")} />
+        <AppHeader onHome={() => router.push("/")} onLevels={() => router.push("/levels")} />
         <main className="flex flex-1 flex-col items-center justify-center p-8 text-center">
           <div className="max-w-md rounded-card bg-white p-6 shadow-card border border-error/30">
             <h1 className="text-xl font-bold text-error">ไม่สามารถสร้างข้อมูลด่านนี้ได้</h1>
@@ -108,16 +114,18 @@ function PlayContent({
   const router = useRouter();
   const { state, dispatch, step, hintText } = useLevelGame(level, { playAudio });
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [exitTarget, setExitTarget] = useState<string>("/levels");
   const [showRules, setShowRules] = useState(false);
 
   const isMidLevel =
     state.phase !== "levelIntro" && state.phase !== "levelComplete";
 
-  const handleLeave = () => {
+  const handleLeave = (target: string) => {
     if (isMidLevel) {
+      setExitTarget(target);
       setShowExitConfirm(true);
     } else {
-      router.push("/levels");
+      router.push(target);
     }
   };
 
@@ -126,14 +134,18 @@ function PlayContent({
       <RotatePrompt />
       <AppHeader
         levelLabelTh={`ด่านที่ ${level.id}`}
-        onHome={handleLeave}
-        onHowToPlay={() => router.push("/how-to-play")}
+        onHome={() => handleLeave("/")}
+        onLevels={() => handleLeave("/levels")}
+        onHowToPlay={() => handleLeave("/how-to-play")}
       />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-6">
         {/* Top Progress, Rules & Hint Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
-          <StepIndicator current={step} />
+          <StepIndicator
+            current={step}
+            onStepClick={(targetStep) => dispatch({ type: "GO_TO_STEP", step: targetStep })}
+          />
 
           <div className="flex items-center gap-3">
             {/* Rules Button (Does NOT deduct points) */}
@@ -228,7 +240,7 @@ function PlayContent({
           <div className="flex justify-end gap-3 pt-2">
             <Button
               variant="outline"
-              onClick={() => router.push("/levels")}
+              onClick={() => router.push(exitTarget)}
             >
               {MESSAGES.ui.exitDialog.confirm}
             </Button>

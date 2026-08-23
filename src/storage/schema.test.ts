@@ -227,7 +227,7 @@ describe("normalizeSave ซ่อมแทนการปฏิเสธ", () =>
     const save = normalized({ version: 1 });
     expect(save.settings).toEqual({
       sound: true,
-      music: false,
+      music: true,
       reducedMotion: false,
       researchConsent: false,
     });

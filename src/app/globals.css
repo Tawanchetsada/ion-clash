@@ -99,6 +99,36 @@ body {
   scrollbar-width: thin;
 }
 
+/* แอนิเมชันกราฟิกวงโคจรไอออนหน้าแรก */
+@keyframes orbit-pulse-core {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 12px rgba(241, 190, 45, 0.35));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 24px rgba(241, 190, 45, 0.7));
+  }
+}
+
+@keyframes orbit-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-orbit-core {
+  transform-origin: 110px 110px;
+  animation: orbit-pulse-core 3.5s ease-in-out infinite;
+}
+
+.animate-orbit-float {
+  animation: orbit-float 4.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -109,3 +139,4 @@ body {
     scroll-behavior: auto !important;
   }
 }
+

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { BuiltLevel } from "../../../../../data/buildLevel";
 import type { GameEvent } from "../../../../../domain/game/events";
 import { productSlotIds, reactantIonCards } from "../../../../../domain/game/instances";
-import { canCheckArrangement, canCheckBalance } from "../../../../../domain/game/selectors";
+import { canCheckArrangement } from "../../../../../domain/game/selectors";
 import type { GameState } from "../../../../../domain/game/types";
 import { CoefficientInput } from "../../../../../components/game/CoefficientInput";
 import { IonCard } from "../../../../../components/game/IonCard";
@@ -14,9 +14,13 @@ import { intentToEvent } from "../../../../../components/interaction/intentToEve
 import { useAnnouncer } from "../../../../../components/interaction/LiveAnnouncer";
 import { usePlacement } from "../../../../../components/interaction/usePlacement";
 import { Button } from "../../../../../components/ui/Button";
+import { MESSAGES } from "../../../../../config/messages";
 import { ionCardView } from "../../../../../presentation/cards";
 import { EquationArrow } from "../../../../../components/game/EquationArrow";
+import { EquationView } from "../../../../../components/game/EquationView";
 import { ProblemBar } from "../../../../../components/game/ProblemBar";
+import { getIon } from "../../../../../domain/chemistry/ions";
+import { renderIon } from "../../../../../domain/chemistry/formula";
 
 export type Step2Props = {
   state: GameState;
@@ -29,6 +33,17 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
   const { announce } = useAnnouncer();
   const slotIds = useMemo(() => productSlotIds(level), [level]);
   const allReactantCards = useMemo(() => reactantIonCards(level), [level]);
+
+  // สัมประสิทธิ์หน้าทุกไอออนและสารในสมการไอออนิกครบ 7 ตัว
+  const [ionicCoeffs, setIonicCoeffs] = useState<(number | null)[]>([
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+  ]);
 
   const slotLabels: Record<string, string> = useMemo(
     () => ({
@@ -160,6 +175,75 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
     );
   }
 
+
+
+  const expectedCoeffs = useMemo(() => {
+    const { a, b } = level.coefficients;
+    const precipCoeff =
+      level.productA.phase === "s"
+        ? level.coefficients.c
+        : level.coefficients.d;
+    const aqCoeff =
+      level.productA.phase === "s"
+        ? level.coefficients.d
+        : level.coefficients.c;
+    return [
+      a * level.reactantA.cationCount,
+      a * level.reactantA.anionCount,
+      b * level.reactantB.cationCount,
+      b * level.reactantB.anionCount,
+      precipCoeff,
+      aqCoeff * level.aqueousProduct.cationCount,
+      aqCoeff * level.aqueousProduct.anionCount,
+    ];
+  }, [level]);
+
+  function handleIonicCoeffChange(index: number, value: number | null) {
+    setIonicCoeffs((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  }
+
+  const isIonicBalanceComplete = ionicCoeffs.every((c) => c !== null);
+
+  function handleCheckIonicBalance() {
+    const isAllCorrect = ionicCoeffs.every(
+      (val, idx) => val === expectedCoeffs[idx],
+    );
+    if (isAllCorrect) {
+      dispatch({
+        type: "SET_COEFFICIENT",
+        index: 0,
+        value: level.coefficients.a,
+      });
+      dispatch({
+        type: "SET_COEFFICIENT",
+        index: 1,
+        value: level.coefficients.b,
+      });
+      dispatch({
+        type: "SET_COEFFICIENT",
+        index: 2,
+        value: level.coefficients.c,
+      });
+      dispatch({
+        type: "SET_COEFFICIENT",
+        index: 3,
+        value: level.coefficients.d,
+      });
+      dispatch({ type: "CHECK_BALANCE" });
+    } else {
+      // Set invalid values to trigger E-BALANCE error feedback
+      dispatch({ type: "SET_COEFFICIENT", index: 0, value: 9 });
+      dispatch({ type: "SET_COEFFICIENT", index: 1, value: 9 });
+      dispatch({ type: "SET_COEFFICIENT", index: 2, value: 9 });
+      dispatch({ type: "SET_COEFFICIENT", index: 3, value: 9 });
+      dispatch({ type: "CHECK_BALANCE" });
+    }
+  }
+
   return (
     <div
       className="flex flex-col items-center gap-6 text-center"
@@ -184,12 +268,12 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
       <div>
         <h2 className="text-xl font-bold text-navy">
           {isBalancing
-            ? "ขั้นที่ 2 · ดุลสัมประสิทธิ์ของสมการ"
+            ? "ขั้นที่ 2 · ดุลสัมประสิทธิ์ของสมการไอออนิก"
             : "ขั้นที่ 2 · แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์"}
         </h2>
         <p className="text-sm text-navy/70">
           {isBalancing
-            ? "กรอกตัวเลขสัมประสิทธิ์หน้าสารตั้งต้นและผลิตภัณฑ์เพื่อดุลสมการให้สมบูรณ์"
+            ? "กรอกตัวเลขสัมประสิทธิ์ข้างหน้าแต่ละไอออนและสารผลิตภัณฑ์ (สมมุติสารแต่ละตัวเป็น 1 โมล) เพื่อดุลสมการให้เท่ากันทั้งสองด้าน"
             : "ลากหรือแตะเลือกไอออนบวกและไอออนลบเพื่อจับคู่ผลิตภัณฑ์ใหม่ (ไอออนบวกต้องอยู่หน้าไอออนลบ)"}
         </p>
       </div>
@@ -205,18 +289,6 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
 
       {/*
         แถวเดียวแนวนอน: ไอออนตั้งต้น 4 ใบ → ช่องผลิตภัณฑ์ 4 ช่อง ตามเอกสาร UI หน้า 07
-
-        ต้องอยู่บรรทัดเดียวกันจริง ๆ เพราะนักเรียนที่ยังอ่านสมการไม่คล่องต้อง
-        เห็นพร้อมกันว่าอะไรอยู่หน้าลูกศรและอะไรอยู่หลัง — และต้อง **กว้างพอดีจอ**
-        ไม่ใช่เลื่อนดูทีละครึ่ง ซึ่งให้ผลเสียเดียวกับการตัดขึ้นบรรทัดใหม่
-
-        วิธีที่ใช้คือให้ขนาดการ์ดมาจาก `--card-size` ที่คำนวณจากความกว้างของแถบ
-        เอง (คลาส `fit-cards` / `fit-cards-track` ใน globals.css) การ์ด ช่องไฟ
-        เครื่องหมายบวก และลูกศร จึงย่อ–ขยายพร้อมกันทั้งแถวเป็นสัดส่วนเดิม
-
-        ต่ำกว่า 768px พับเป็นสองชั้น (ถาดบน–ช่องล่าง) พร้อมลูกศรชี้ลง เพราะมือถือ
-        แนวตั้งใส่การ์ด 8 ใบในบรรทัดเดียวแล้วเล็กจนอ่านไม่ออก — จุดพับตรงกับ
-        media query ของ RotatePrompt ที่ชวนให้หมุนเครื่องเป็นแนวนอนพอดี
       */}
       <div
         role="region"
@@ -256,26 +328,50 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
             <EquationArrow breakpoint="md" className="text-gold" />
           </div>
 
-          {/* ฝั่งขวา — ช่องผลิตภัณฑ์ 4 ช่องเรียงต่อกัน */}
+          {/* ฝั่งขวา — ช่องผลิตภัณฑ์แบ่งเป็น 2 ช่องย่อย: ผลิตภัณฑ์ที่เป็นตะกอน + ไอออนที่ยังคงอยู่ในสารละลาย */}
           <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-semibold text-navy/70">ช่องไอออนสารผลิตภัณฑ์ 4 ช่อง</span>
-            <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)] rounded-card border border-border bg-panel p-[calc(var(--card-size,5rem)*0.12)]">
-              {[0, 1, 2, 3].map((idx) => (
-                <span
-                  key={slotIds[idx]}
-                  className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]"
-                >
-                  {idx > 0 && (
-                    <span
-                      aria-hidden="true"
-                      className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
-                    >
-                      +
-                    </span>
-                  )}
-                  {renderSlot(idx)}
+            <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.15)]">
+              {/* ช่องย่อยที่ 1: ผลิตภัณฑ์ที่เป็นตะกอน */}
+              <div className="flex flex-col items-center gap-1 rounded-card border border-gold/60 bg-gold/10 p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
+                <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy">
+                  ผลิตภัณฑ์ที่เป็นตะกอน
                 </span>
-              ))}
+                <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
+                  {renderSlot(0)}
+                  <span
+                    aria-hidden="true"
+                    className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                  >
+                    +
+                  </span>
+                  {renderSlot(1)}
+                </div>
+              </div>
+
+              {/* เครื่องหมาย + คั่นระหว่าง 2 กลุ่มผลิตภัณฑ์ */}
+              <span
+                aria-hidden="true"
+                className="mt-[calc(var(--card-size,5rem)*0.55)] text-[calc(var(--card-size,5rem)*0.32)] font-bold leading-none text-navy/60"
+              >
+                +
+              </span>
+
+              {/* ช่องย่อยที่ 2: ไอออนที่ยังคงอยู่ในสารละลาย */}
+              <div className="flex flex-col items-center gap-1 rounded-card border border-border bg-panel p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
+                <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy/80">
+                  ไอออนที่ยังคงอยู่ในสารละลาย
+                </span>
+                <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
+                  {renderSlot(2)}
+                  <span
+                    aria-hidden="true"
+                    className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                  >
+                    +
+                  </span>
+                  {renderSlot(3)}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -283,36 +379,146 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
 
       {/* Coefficient Balancing Inputs (When in balanceEquation phase) */}
       {isBalancing && (
-        <div className="flex flex-col items-center gap-3 rounded-card bg-white p-4 shadow-card border border-border">
-          <span className="text-sm font-bold text-navy">สัมประสิทธิ์การดุลสมการ:</span>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <CoefficientInput
-              value={state.coefficients[0]}
-              compoundLabelTh={level.reactantA.nameTh}
-              onChange={(val) => dispatch({ type: "SET_COEFFICIENT", index: 0, value: val })}
-            />
-            <CoefficientInput
-              value={state.coefficients[1]}
-              compoundLabelTh={level.reactantB.nameTh}
-              onChange={(val) => dispatch({ type: "SET_COEFFICIENT", index: 1, value: val })}
-            />
-            <EquationArrow />
-            <CoefficientInput
-              value={state.coefficients[2]}
-              compoundLabelTh={level.productA.nameTh}
-              onChange={(val) => dispatch({ type: "SET_COEFFICIENT", index: 2, value: val })}
-            />
-            <CoefficientInput
-              value={state.coefficients[3]}
-              compoundLabelTh={level.productB.nameTh}
-              onChange={(val) => dispatch({ type: "SET_COEFFICIENT", index: 3, value: val })}
-            />
+        <div className="w-full max-w-5xl rounded-card border border-border bg-white p-4 shadow-card sm:p-5">
+          <div className="flex flex-col items-center justify-center gap-3 md:flex-row md:gap-3 text-base sm:text-lg font-bold text-navy">
+            {/* ฝั่งสารตั้งต้น: 4 ไอออน */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+              {/* Cation A */}
+              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={ionicCoeffs[0] ?? null}
+                  compoundLabelTh={`${level.reactantA.cationId} สารตั้งต้น`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleIonicCoeffChange(0, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={renderIon(getIon(level.reactantA.cationId), 1)} />
+                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
+                </span>
+              </div>
+
+              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
+
+              {/* Anion A */}
+              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={ionicCoeffs[1] ?? null}
+                  compoundLabelTh={`${level.reactantA.anionId} สารตั้งต้น`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleIonicCoeffChange(1, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={renderIon(getIon(level.reactantA.anionId), 1)} />
+                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
+                </span>
+              </div>
+
+              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
+
+              {/* Cation B */}
+              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={ionicCoeffs[2] ?? null}
+                  compoundLabelTh={`${level.reactantB.cationId} สารตั้งต้น`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleIonicCoeffChange(2, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={renderIon(getIon(level.reactantB.cationId), 1)} />
+                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
+                </span>
+              </div>
+
+              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
+
+              {/* Anion B */}
+              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={ionicCoeffs[3] ?? null}
+                  compoundLabelTh={`${level.reactantB.anionId} สารตั้งต้น`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleIonicCoeffChange(3, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={renderIon(getIon(level.reactantB.anionId), 1)} />
+                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
+                </span>
+              </div>
+            </div>
+
+            {/* ลูกศรคั่น: แนวนอนชี้ขวา (md+) / แนวตั้งชี้ลง (< md) */}
+            <div className="flex items-center justify-center px-1">
+              <EquationArrow breakpoint="md" className="text-gold text-lg sm:text-xl" />
+            </div>
+
+            {/* ฝั่งสารผลิตภัณฑ์: 1 ตะกอน + 2 ไอออนในสารละลาย */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+              {/* Precipitate */}
+              <div className="inline-flex items-center gap-1 rounded-card border border-gold/50 bg-gold/10 px-2 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={ionicCoeffs[4] ?? null}
+                  compoundLabelTh={`${level.precipitate.nameTh} ตะกอน`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleIonicCoeffChange(4, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={level.precipitate.formula} />
+                  <span className="text-xs font-semibold text-navy/70">(s)</span>
+                </span>
+              </div>
+
+              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
+
+              {/* Aqueous Cation */}
+              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={ionicCoeffs[5] ?? null}
+                  compoundLabelTh={`${level.aqueousProduct.cationId} ผลิตภัณฑ์`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleIonicCoeffChange(5, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={renderIon(getIon(level.aqueousProduct.cationId), 1)} />
+                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
+                </span>
+              </div>
+
+              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
+
+              {/* Aqueous Anion */}
+              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={ionicCoeffs[6] ?? null}
+                  compoundLabelTh={`${level.aqueousProduct.anionId} ผลิตภัณฑ์`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleIonicCoeffChange(6, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={renderIon(getIon(level.aqueousProduct.anionId), 1)} />
+                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Action Check Buttons */}
       <div className="flex flex-wrap justify-center gap-3">
+        <Button
+          variant="outline"
+          onClick={() => dispatch({ type: "PREV_STEP" })}
+        >
+          {isBalancing ? MESSAGES.ui.backToArrangement : MESSAGES.ui.backToStep1}
+        </Button>
+
         {isArranging && (
           <>
             <Button
@@ -323,14 +529,14 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
                 }
               }}
             >
-              ล้างทุกช่อง
+              {MESSAGES.ui.clearAllSlots}
             </Button>
             <Button
               variant="gold"
               disabled={!canCheckArrangement(state)}
               onClick={() => dispatch({ type: "CHECK" })}
             >
-              ตรวจการจัดเรียงไอออน
+              {MESSAGES.ui.checkArrangement}
             </Button>
           </>
         )}
@@ -338,10 +544,10 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         {isBalancing && (
           <Button
             variant="gold"
-            disabled={!canCheckBalance(state)}
-            onClick={() => dispatch({ type: "CHECK_BALANCE" })}
+            disabled={!isIonicBalanceComplete}
+            onClick={handleCheckIonicBalance}
           >
-            ตรวจการดุลสมการ
+            {MESSAGES.ui.checkBalance}
           </Button>
         )}
       </div>

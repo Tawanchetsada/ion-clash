@@ -142,6 +142,7 @@ export default function ProgressPage() {
     <PageShell>
       <AppHeader
         onHome={() => router.push("/")}
+        onLevels={() => router.push("/levels")}
         onHowToPlay={() => router.push("/how-to-play")}
       />
 

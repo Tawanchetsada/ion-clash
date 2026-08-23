@@ -53,11 +53,11 @@ describe("Knowledge Page (/knowledge)", () => {
   it("ปุ่มหน้าหลักและวิธีเล่นใน Header ทำงานได้", () => {
     render(<KnowledgePage />);
 
-    const homeBtn = screen.getByRole("button", { name: "หน้าหลัก" });
+    const homeLink = screen.getByRole("link", { name: /ION CLASH/ });
     const howToPlayBtn = screen.getByRole("button", { name: "วิธีเล่น" });
 
     act(() => {
-      homeBtn.click();
+      homeLink.click();
     });
     expect(pushSpy).toHaveBeenCalledWith("/");
 

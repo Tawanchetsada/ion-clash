@@ -13,6 +13,7 @@ import {
   type ConnectorPair,
 } from "../../../../../components/interaction/SpectatorConnector";
 import { Button } from "../../../../../components/ui/Button";
+import { MESSAGES } from "../../../../../config/messages";
 import { equationCardView } from "../../../../../presentation/cards";
 
 export type Step4Props = {
@@ -132,20 +133,26 @@ export function Step4({ state, level, dispatch }: Step4Props) {
 
         {/* Undo / Reset / Confirm Actions */}
         <div className="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "PREV_STEP" })}
+            >
+              {MESSAGES.ui.backToStep3}
+            </Button>
             <Button
               variant="outline"
               disabled={state.canceledPairs.length === 0}
               onClick={() => dispatch({ type: "UNDO" })}
             >
-              ย้อนคู่ล่าสุด (UNDO)
+              {MESSAGES.ui.undoPair}
             </Button>
             <Button
               variant="outline"
               disabled={state.canceledPairs.length === 0}
               onClick={() => dispatch({ type: "RESET" })}
             >
-              ล้างการตัดทั้งหมด (RESET)
+              {MESSAGES.ui.resetAllCuts}
             </Button>
           </div>
 
@@ -154,7 +161,7 @@ export function Step4({ state, level, dispatch }: Step4Props) {
             disabled={!canConfirmCancellation(state, level)}
             onClick={() => dispatch({ type: "CONFIRM" })}
           >
-            ยืนยันการตัดไอออน
+            {MESSAGES.ui.confirmCancellation}
           </Button>
         </div>
       </div>

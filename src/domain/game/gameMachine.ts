@@ -211,6 +211,72 @@ function selectCard(
   };
 }
 
+function stepOf(phase: GameState["phase"]): number | null {
+  switch (phase) {
+    case "levelIntro":
+    case "dissociateReactants":
+      return 1;
+    case "arrangeProductIons":
+    case "balanceEquation":
+      return 2;
+    case "validateProducts":
+      return 3;
+    case "cancelSpectatorIons":
+      return 4;
+    case "netIonicResult":
+    case "levelComplete":
+      return 5;
+    default:
+      return null;
+  }
+}
+
+function handlePrevStep(state: GameState, level: BuiltLevel): GameState {
+  if (!PLAYING_PHASES.has(state.phase)) return state;
+  switch (state.phase) {
+    case "dissociateReactants":
+      return state;
+    case "arrangeProductIons":
+      return { ...state, phase: "dissociateReactants", lastFeedback: null, selection: null };
+    case "balanceEquation":
+      return { ...state, phase: "arrangeProductIons", lastFeedback: null, selection: null };
+    case "validateProducts":
+      return {
+        ...state,
+        phase: needsBalancing(level) ? "balanceEquation" : "arrangeProductIons",
+        lastFeedback: null,
+        selection: null,
+      };
+    case "cancelSpectatorIons":
+      return { ...state, phase: "validateProducts", lastFeedback: null, selection: null };
+    case "netIonicResult":
+      return { ...state, phase: "cancelSpectatorIons", lastFeedback: null, selection: null };
+    default:
+      return state;
+  }
+}
+
+function handleGoToStep(state: GameState, level: BuiltLevel, targetStep: number): GameState {
+  if (!PLAYING_PHASES.has(state.phase)) return state;
+  const current = stepOf(state.phase);
+  if (current === null || targetStep >= current) return state;
+
+  switch (targetStep) {
+    case 1:
+      return { ...state, phase: "dissociateReactants", lastFeedback: null, selection: null };
+    case 2:
+      return { ...state, phase: "arrangeProductIons", lastFeedback: null, selection: null };
+    case 3:
+      return { ...state, phase: "validateProducts", lastFeedback: null, selection: null };
+    case 4:
+      return { ...state, phase: "cancelSpectatorIons", lastFeedback: null, selection: null };
+    case 5:
+      return { ...state, phase: "netIonicResult", lastFeedback: null, selection: null };
+    default:
+      return state;
+  }
+}
+
 export function reduce(
   state: GameState,
   event: GameEvent,
@@ -234,6 +300,12 @@ export function reduce(
       const timer = resumeTimer(state, event.at);
       return timer === state ? state : { ...state, ...timer };
     }
+
+    case "PREV_STEP":
+      return handlePrevStep(state, level);
+
+    case "GO_TO_STEP":
+      return handleGoToStep(state, level, event.step);
 
     default:
       break;

@@ -32,7 +32,7 @@ describe("Home Page (/) ", () => {
     // Initial render / wait for save to load
     expect(await screen.findByRole("heading", { name: "ION CLASH" })).toBeInTheDocument();
     expect(
-      screen.getByText("แยกไอออน • สร้างตะกอน • ตัดไอออนผู้ชม"),
+      screen.getByText("เกมฝึกสร้างสมการไอออนิกสุทธิผ่านการ์ดแม่เหล็ก"),
     ).toBeInTheDocument();
 
     const startBtn = await screen.findByRole("button", { name: "เริ่มเกม" });
@@ -83,7 +83,7 @@ describe("Home Page (/) ", () => {
     expect(saved.settings.researchConsent).toBe(true);
   });
 
-  it("แสดงปุ่มเล่นต่อด่าน XX เมื่อมีข้อมูลการเล่นเดิม", async () => {
+  it("เมื่อมีข้อมูลผู้เรียนเดิม กดเริ่มเกมจะพาไปยังหน้าภาพรวมด่าน (/levels) ทันที", async () => {
     const storage = createFakeStorage();
     const repo = createGameSaveRepository({ storage });
     const initial = repo.load();
@@ -100,15 +100,15 @@ describe("Home Page (/) ", () => {
       </SaveProvider>,
     );
 
-    const continueBtn = await screen.findByRole("button", {
-      name: "เล่นต่อด่าน 4",
+    const startBtn = await screen.findByRole("button", {
+      name: "เริ่มเกม",
     });
-    expect(continueBtn).toBeInTheDocument();
+    expect(startBtn).toBeInTheDocument();
 
     act(() => {
-      continueBtn.click();
+      startBtn.click();
     });
 
-    expect(pushSpy).toHaveBeenCalledWith("/level/4/intro");
+    expect(pushSpy).toHaveBeenCalledWith("/levels");
   });
 });

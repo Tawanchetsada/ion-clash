@@ -29,10 +29,10 @@ export function ionCardView(card: IonCard): IonCardView {
   const ion = getIon(card.ionId);
   return {
     instanceId: card.instanceId,
-    formula: renderIon(ion, card.count),
+    formula: renderIon(ion, 1),
     nameTh: ion.nameTh,
     phaseTh: card.phase,
-    ariaLabel: ionSpeechTh(ion, card.phase, card.count),
+    ariaLabel: ionSpeechTh(ion, card.phase, 1),
     tone: ion.charge > 0 ? "cation" : "anion",
   };
 }
@@ -50,10 +50,10 @@ export function freeIonView(
   const ion = getIon(ionId);
   return {
     instanceId: options.instanceId,
-    formula: renderIon(ion, options.count),
+    formula: renderIon(ion, 1),
     nameTh: ion.nameTh,
     phaseTh: options.phase,
-    ariaLabel: ionSpeechTh(ion, options.phase, options.count),
+    ariaLabel: ionSpeechTh(ion, options.phase, 1),
     tone: ion.charge > 0 ? "cation" : "anion",
   };
 }

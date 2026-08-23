@@ -43,7 +43,7 @@ describe("How to Play Page (/how-to-play)", () => {
     render(<HowToPlayPage />);
 
     const autoFillBtn = screen.getByRole("button", { name: "แสดงตัวอย่างการวางที่ถูกต้อง" });
-    const resetBtn = screen.getByRole("button", { name: "ล้างช่องวาง" });
+    const resetBtn = screen.getByRole("button", { name: "ล้างทุกช่อง" });
 
     expect(autoFillBtn).toBeInTheDocument();
     expect(resetBtn).toBeInTheDocument();

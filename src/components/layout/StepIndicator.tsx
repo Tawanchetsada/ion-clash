@@ -5,6 +5,7 @@ export type ProgressStep = 1 | 2 | 3 | 4 | 5;
 
 export type StepIndicatorProps = {
   current: ProgressStep | null;
+  onStepClick?: (step: ProgressStep) => void;
 };
 
 const STEP_LABELS_TH = MESSAGES.ui.steps;
@@ -16,36 +17,55 @@ const STEP_LABELS_TH = MESSAGES.ui.steps;
  * `aria-current="step"` ต้องมีอยู่ที่ขั้นเดียวเท่านั้น ไม่งั้น screen reader
  * จะไม่รู้ว่าผู้เล่นอยู่ตรงไหน — ข้อห้ามตรง ๆ ในหัวข้อกับดักของ Phase 5
  */
-export function StepIndicator({ current }: StepIndicatorProps) {
+export function StepIndicator({ current, onStepClick }: StepIndicatorProps) {
   return (
     <ol aria-label={MESSAGES.ui.stepProgressLabel} className="flex items-center gap-2">
       {STEP_LABELS_TH.map((labelTh, index) => {
         const step = (index + 1) as ProgressStep;
         const isCurrent = step === current;
         const isDone = current !== null && step < current;
+        const isClickable = isDone && Boolean(onStepClick);
+
+        const circleContent = (
+          <>
+            <span aria-hidden="true">{step}</span>
+            <VisuallyHidden>
+              {labelTh}
+              {isCurrent
+                ? MESSAGES.ui.stepCurrentSuffix
+                : isDone
+                  ? MESSAGES.ui.stepDoneSuffix
+                  : ""}
+            </VisuallyHidden>
+          </>
+        );
 
         return (
           <li key={step} className="flex items-center gap-2">
-            <span
-              aria-current={isCurrent ? "step" : undefined}
-              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-colors duration-150 ${
-                isCurrent
-                  ? "bg-gold text-navy"
-                  : isDone
-                    ? "bg-blue text-white"
-                    : "bg-navy/20 text-navy"
-              }`}
-            >
-              <span aria-hidden="true">{step}</span>
-              <VisuallyHidden>
-                {labelTh}
-                {isCurrent
-                  ? MESSAGES.ui.stepCurrentSuffix
-                  : isDone
-                    ? MESSAGES.ui.stepDoneSuffix
-                    : ""}
-              </VisuallyHidden>
-            </span>
+            {isClickable ? (
+              <button
+                type="button"
+                onClick={() => onStepClick?.(step)}
+                title={MESSAGES.ui.stepBackTo(step, labelTh)}
+                aria-label={MESSAGES.ui.stepBackTo(step, labelTh)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-blue text-sm font-bold text-white transition-all duration-150 hover:bg-blue/80 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 cursor-pointer"
+              >
+                {circleContent}
+              </button>
+            ) : (
+              <span
+                aria-current={isCurrent ? "step" : undefined}
+                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-colors duration-150 ${
+                  isCurrent
+                    ? "bg-gold text-navy"
+                    : isDone
+                      ? "bg-blue text-white"
+                      : "bg-navy/20 text-navy"
+                }`}
+              >
+                {circleContent}
+              </span>
+            )}
             {index < STEP_LABELS_TH.length - 1 && (
               <span aria-hidden="true" className="h-0.5 w-4 bg-navy/20" />
             )}

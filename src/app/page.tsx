@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PageShell } from "../components/layout/PageShell";
 import { Button } from "../components/ui/Button";
 import { Dialog } from "../components/ui/Dialog";
+import { WarningIcon } from "../components/ui/Icon";
 import { useSave } from "../session/SaveProvider";
 
 export default function Home() {
@@ -25,16 +26,6 @@ export default function Home() {
     }
   };
 
-  const handleContinueGame = () => {
-    if (!save) return;
-    if (save.playerName.trim() === "") {
-      setShowNameModal(true);
-    } else {
-      const targetLevel = save.lastPlayedLevel || save.unlockedLevel || 1;
-      router.push(`/level/${targetLevel}/intro`);
-    }
-  };
-
   const handleSaveName = () => {
     const trimmed = nameInput.trim();
     if (!trimmed) {
@@ -42,9 +33,11 @@ export default function Home() {
       return;
     }
     if (save) {
+      const isAdmin = trimmed === "admin111213";
       commit({
         ...save,
         playerName: trimmed,
+        unlockedLevel: isAdmin ? 50 : save.unlockedLevel,
         settings: {
           ...save.settings,
           researchConsent: consentChecked,
@@ -54,12 +47,6 @@ export default function Home() {
     setShowNameModal(false);
     router.push("/levels");
   };
-
-  const hasSaveData =
-    save !== null &&
-    (Object.keys(save.completedLevels).length > 0 ||
-      save.lastPlayedLevel > 1 ||
-      save.playerName !== "");
 
   return (
     <PageShell variant="navy">
@@ -72,36 +59,13 @@ export default function Home() {
               ION <span className="text-gold">CLASH</span>
             </h1>
             <p className="text-sm text-white/85">
-              เกมฝึกสร้างสมการไอออนิกสุทธิสำหรับนักเรียนชั้น ม.4
-            </p>
-            <p className="text-xs font-semibold tracking-wide text-white/70">
-              แยกไอออน • สร้างตะกอน • ตัดไอออนผู้ชม
+              เกมฝึกสร้างสมการไอออนิกสุทธิผ่านการ์ดแม่เหล็ก
             </p>
           </div>
 
           <div className="flex w-full flex-col gap-3">
             {save === null ? (
-              <>
-                <div className="h-12 w-full animate-pulse rounded-card bg-white/15" />
-                <div className="h-11 w-full animate-pulse rounded-card bg-white/10" />
-              </>
-            ) : hasSaveData ? (
-              <>
-                <Button
-                  variant="gold"
-                  className="h-12 w-full text-base font-bold"
-                  onClick={handleContinueGame}
-                >
-                  เล่นต่อด่าน {save.lastPlayedLevel || save.unlockedLevel || 1}
-                </Button>
-                <Button
-                  variant="blue"
-                  className="h-12 w-full text-base font-bold"
-                  onClick={() => router.push("/levels")}
-                >
-                  เลือกด่าน (ปลดล็อกถึงด่าน {save.unlockedLevel})
-                </Button>
-              </>
+              <div className="h-12 w-full animate-pulse rounded-card bg-white/15" />
             ) : (
               <Button
                 variant="gold"
@@ -136,26 +100,63 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ภาพประกอบวงโคจรไอออนรอบตะกอน — ตกแต่งล้วน ซ่อนจาก screen reader */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 220 220"
-          className="hidden h-56 w-56 shrink-0 sm:block lg:h-72 lg:w-72"
-        >
-          <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2" />
-          <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2" transform="rotate(60 110 110)" />
-          <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2" transform="rotate(120 110 110)" />
-          <circle cx="110" cy="110" r="46" fill="var(--color-gold)" />
-          <text x="110" y="118" textAnchor="middle" className="fill-navy text-xl font-bold">
-            AgCl
-          </text>
-          <circle cx="188" cy="86" r="14" fill="var(--color-green)" />
-          <text x="188" y="92" textAnchor="middle" className="fill-white text-base font-bold">−</text>
-          <circle cx="46" cy="146" r="14" fill="var(--color-blue)" />
-          <text x="46" y="152" textAnchor="middle" className="fill-white text-base font-bold">+</text>
-          <circle cx="150" cy="176" r="12" fill="var(--color-blue)" />
-          <text x="150" y="181" textAnchor="middle" className="fill-white text-sm font-bold">+</text>
-        </svg>
+        {/* ภาพประกอบวงโคจรไอออนรอบตะกอน — ตกแต่งล้วน พร้อมแอนิเมชัน */}
+        <div className="hidden shrink-0 sm:block">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 220 220"
+            className="animate-orbit-float h-56 w-56 lg:h-72 lg:w-72"
+          >
+            {/* วงโคจรคงที่ 3 วง */}
+            <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+            <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" transform="rotate(60 110 110)" />
+            <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" transform="rotate(120 110 110)" />
+
+            {/* ไอออนลบสีเขียว (−) วิ่งตามวงโคจรที่ 1 (แนวนอน) */}
+            <g transform="translate(110, 110)">
+              <g>
+                <animateMotion
+                  dur="12s"
+                  repeatCount="indefinite"
+                  path="M 96,0 A 96,52 0 1,1 -96,0 A 96,52 0 1,1 96,0"
+                />
+                <circle r="14" fill="var(--color-green)" />
+                <text x="0" y="5" textAnchor="middle" className="fill-white text-base font-bold select-none">−</text>
+              </g>
+            </g>
+
+            {/* ไอออนบวกสีฟ้า (+) วิ่งตามวงโคจรที่ 2 (เอียง 60°) */}
+            <g transform="translate(110, 110) rotate(60)">
+              <g>
+                <animateMotion
+                  dur="16s"
+                  repeatCount="indefinite"
+                  path="M 96,0 A 96,52 0 1,1 -96,0 A 96,52 0 1,1 96,0"
+                />
+                <circle r="14" fill="var(--color-blue)" />
+                <text x="0" y="5" textAnchor="middle" className="fill-white text-base font-bold select-none">+</text>
+              </g>
+            </g>
+
+            {/* ไอออนบวกสีฟ้าเล็ก (+) วิ่งตามวงโคจรที่ 3 (เอียง 120°) */}
+            <g transform="translate(110, 110) rotate(120)">
+              <g>
+                <animateMotion
+                  dur="22s"
+                  repeatCount="indefinite"
+                  path="M -96,0 A 96,52 0 1,1 96,0 A 96,52 0 1,1 -96,0"
+                />
+                <circle r="11" fill="var(--color-blue)" />
+                <text x="0" y="4" textAnchor="middle" className="fill-white text-xs font-bold select-none">+</text>
+              </g>
+            </g>
+
+            {/* แกนกลางตะกอน (ขยายและเรืองแสงเป็นจังหวะ) */}
+            <g className="animate-orbit-core">
+              <circle cx="110" cy="110" r="46" fill="var(--color-gold)" />
+            </g>
+          </svg>
+        </div>
       </main>
 
       {/* Name Input Dialog for D-14 */}
@@ -166,8 +167,20 @@ export default function Home() {
       >
         <div className="flex flex-col gap-4 text-left my-2">
           <p className="text-sm text-navy/80">
-            กรุณาระบุชื่อหรือรหัสผู้เรียนเพื่อบันทึกผลการเล่น
+            กรุณาระบุชื่อหรือรหัสผู้เรียนเพื่อเริ่มต้นและบันทึกผลการเล่น
           </p>
+
+          {/* Warning: Name cannot be edited after saving */}
+          <div className="flex items-start gap-2.5 rounded-card bg-amber-50 border border-gold/60 p-3 text-xs text-navy">
+            <WarningIcon className="text-gold text-base shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-error">คำเตือนสำคัญ:</p>
+              <p className="text-navy/85 mt-0.5">
+                เมื่อบันทึกชื่อผู้เรียนแล้วจะไม่สามารถแก้ไขชื่อเดิมได้ เพื่อรักษาความถูกต้องของข้อมูลวิจัย หากต้องการเปลี่ยนชื่อในภายหลังจะต้องเลือก &ldquo;เล่นใหม่ด้วยชื่อใหม่&rdquo; ในหน้าตั้งค่า ซึ่งจะรีเซ็ตความก้าวหน้าทั้งหมด
+              </p>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="player-name-input"

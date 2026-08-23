@@ -6,15 +6,17 @@ import { useState } from "react";
 import { AppHeader } from "../../components/layout/AppHeader";
 import { PageShell } from "../../components/layout/PageShell";
 import { Button } from "../../components/ui/Button";
+import { Dialog } from "../../components/ui/Dialog";
+import { LockIcon, WarningIcon } from "../../components/ui/Icon";
 import { useSave } from "../../session/SaveProvider";
 import { useToast } from "../../session/ToastProvider";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { save, commit } = useSave();
+  const { save, commit, reset } = useSave();
   const toast = useToast();
 
-  const [nameInput, setNameInput] = useState(save?.playerName ?? "");
+  const [showResetNameDialog, setShowResetNameDialog] = useState(false);
 
   if (save === null) {
     return (
@@ -42,16 +44,18 @@ export default function SettingsPage() {
     commit(updated);
   };
 
-  const handleSaveName = () => {
-    const trimmed = nameInput.trim();
-    commit({ ...save, playerName: trimmed });
-    toast.show("บันทึกชื่อผู้เรียนเรียบร้อยแล้ว");
+  const handleResetAndNewName = () => {
+    reset();
+    setShowResetNameDialog(false);
+    toast.show("รีเซ็ตข้อมูลเรียบร้อย กรุณากรอกชื่อผู้เรียนใหม่");
+    router.push("/");
   };
 
   return (
     <PageShell>
       <AppHeader
         onHome={() => router.push("/")}
+        onLevels={() => router.push("/levels")}
         onHowToPlay={() => router.push("/how-to-play")}
       />
 
@@ -64,27 +68,35 @@ export default function SettingsPage() {
         </header>
 
         {/* Player Profile */}
-        <div className="flex flex-col gap-3 rounded-card bg-white p-6 shadow-card border border-border">
-          <h2 className="text-lg font-bold text-navy">ข้อมูลผู้เรียน</h2>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="settings-name-input" className="text-xs font-semibold text-navy/70">
+        <div className="flex flex-col gap-4 rounded-card bg-white p-6 shadow-card border border-border">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-navy">ข้อมูลผู้เรียน</h2>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-navy/5 px-3 py-1 text-xs font-semibold text-navy/70 border border-border">
+              <LockIcon className="text-sm" />
+              ไม่สามารถแก้ไขชื่อได้
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-semibold text-navy/70">
               ชื่อหรือรหัสผู้เรียน (ใช้สำหรับเก็บผลวิจัย):
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="settings-name-input"
-                type="text"
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                placeholder="เช่น S01 หรือชื่อเล่น"
-                className="h-11 flex-1 rounded-card border border-border px-3 text-base text-navy"
-              />
-              <Button variant="gold" onClick={handleSaveName}>
-                บันทึก
+            </span>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-card bg-canvas px-4 py-3 border border-navy/10">
+              <span className="text-lg font-bold text-navy">
+                {save.playerName.trim() !== "" ? save.playerName : "ยังไม่ได้ระบุชื่อ"}
+              </span>
+              <Button
+                variant="outline"
+                className="text-sm"
+                onClick={() => setShowResetNameDialog(true)}
+              >
+                เล่นใหม่ด้วยชื่อใหม่
               </Button>
             </div>
-            <p className="text-xs text-navy/80">
-              * แนะนำให้ใช้ชื่อเล่นหรือรหัสนิสิตแทนชื่อจริงเต็ม
+
+            <p className="text-xs text-navy/70">
+              * ชื่อผู้เรียนถูกบันทึกถาวรเพื่อความถูกต้องของงานวิจัย หากต้องการเปลี่ยนชื่อจะต้องเลือก &ldquo;เล่นใหม่ด้วยชื่อใหม่&rdquo; ซึ่งจะรีเซ็ตความก้าวหน้าทั้งหมด
             </p>
           </div>
         </div>
@@ -94,8 +106,8 @@ export default function SettingsPage() {
           <h2 className="text-lg font-bold text-navy">เสียงและการแสดงผล</h2>
 
           {/* Sound toggle */}
-          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-            <div>
+          <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
+            <div className="min-w-0 flex-1">
               <div className="font-semibold text-navy">เสียงเอฟเฟกต์ (Sound Effects)</div>
               <div className="text-xs text-navy/80">
                 เสียงวางการ์ด เสียงตรวจถูก/ผิด และเสียงผ่านด่าน
@@ -107,7 +119,7 @@ export default function SettingsPage() {
               aria-label="เปิดปิดเสียงเอฟเฟกต์"
               aria-checked={save.settings.sound}
               onClick={() => handleToggleSetting("sound", !save.settings.sound)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+              className={`shrink-0 relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
                 save.settings.sound ? "bg-green" : "bg-navy/20"
               }`}
             >
@@ -119,41 +131,35 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          {/*
-            เพลงพื้นหลัง — ปิดสวิตช์ไว้เพราะ **ยังไม่มีไฟล์เพลงในโปรเจกต์**
-
-            ค่า `settings.music` ถูกบันทึกลงเซฟตั้งแต่ต้น แต่ไม่มีโค้ดส่วนไหน
-            อ่านค่านี้ไปเล่นอะไรเลย สวิตช์ที่กดแล้วเปลี่ยนสีโดยไม่มีเสียงออกมา
-            ทำให้ผู้เล่นเข้าใจว่าลำโพงหรือเครื่องตัวเองเสีย จึงบอกตรง ๆ ดีกว่า
-            ว่ารุ่นนี้ยังไม่มีเพลง — เปิดใช้งานได้ทันทีที่มีไฟล์เพลง CC0 ที่
-            อาจารย์เลือกและตกลงเรื่องขนาดไฟล์แล้ว (ตอนนี้ public/audio/ ถูกตรึง
-            ไว้ไม่เกิน 100 KB ด้วย architecture.test.ts ซึ่งเพลงหนึ่งเพลงเกินแน่)
-          */}
-          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-            <div>
-              {/* ห้ามทำตัวหนังสือให้จาง ๆ เพื่อสื่อว่า "ปิดอยู่" — axe จับได้ว่า
-                  contrast ตก AA (3.18:1) และคนสายตาเลือนอ่านไม่ออกจริง ๆ
-                  ความ "ใช้ไม่ได้" สื่อผ่านตัวสวิตช์ที่ disabled และข้อความตรง ๆ แทน */}
+          {/* Music toggle */}
+          <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
+            <div className="min-w-0 flex-1">
               <div className="font-semibold text-navy">เพลงพื้นหลัง (Music)</div>
               <div className="text-xs text-navy/80">
-                รุ่นนี้ยังไม่มีเพลงบรรเลงประกอบ — มีเฉพาะเสียงเอฟเฟกต์ด้านบน
+                เพลงบรรเลงประกอบแบบ Lo-Fi ผ่อนคลาย เพื่อความเพลิดเพลินระหว่างการเรียนรู้
               </div>
             </div>
             <button
               type="button"
               role="switch"
-              disabled
-              aria-label="เปิดปิดเพลงพื้นหลัง (ยังไม่มีเพลงในรุ่นนี้)"
-              aria-checked={false}
-              className="relative inline-flex h-7 w-12 cursor-not-allowed items-center rounded-full bg-navy/10"
+              aria-label="เปิดปิดเพลงพื้นหลัง"
+              aria-checked={save.settings.music}
+              onClick={() => handleToggleSetting("music", !save.settings.music)}
+              className={`shrink-0 relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                save.settings.music ? "bg-green" : "bg-navy/20"
+              }`}
             >
-              <span className="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-white/70" />
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                  save.settings.music ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
             </button>
           </div>
 
           {/* Reduced Motion toggle */}
-          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-            <div>
+          <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
+            <div className="min-w-0 flex-1">
               <div className="font-semibold text-navy">ลดการเคลื่อนไหว (Reduced Motion)</div>
               <div className="text-xs text-navy/80">
                 ปิดอนิเมชันการลากและเอฟเฟกต์การเคลื่อนไหว เหมาะสำหรับผู้ที่ไวต่อภาพเคลื่อนไหว
@@ -167,7 +173,7 @@ export default function SettingsPage() {
               onClick={() =>
                 handleToggleSetting("reducedMotion", !save.settings.reducedMotion)
               }
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+              className={`shrink-0 relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
                 save.settings.reducedMotion ? "bg-green" : "bg-navy/20"
               }`}
             >
@@ -180,8 +186,8 @@ export default function SettingsPage() {
           </div>
 
           {/* Research Consent toggle */}
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
               <div className="font-semibold text-navy">ยินยอมส่งข้อมูลวิจัย (Research Data Consent)</div>
               <div className="text-xs text-navy/80">
                 ส่งสถิติคะแนน เวลา และข้อผิดพลาดไปยังระบบบันทึกผลงานวิจัยเพื่อประเมินสื่อการเรียนรู้ (D-06, D-14)
@@ -195,7 +201,7 @@ export default function SettingsPage() {
               onClick={() =>
                 handleToggleSetting("researchConsent", !save.settings.researchConsent)
               }
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+              className={`shrink-0 relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
                 save.settings.researchConsent ? "bg-green" : "bg-navy/20"
               }`}
             >
@@ -222,6 +228,42 @@ export default function SettingsPage() {
           </Link>
         </div>
       </main>
+
+      {/* Confirmation Dialog for Resetting and Playing with New Name */}
+      <Dialog
+        open={showResetNameDialog}
+        titleTh="เริ่มเล่นใหม่ด้วยชื่อใหม่หรือไม่?"
+        onClose={() => setShowResetNameDialog(false)}
+      >
+        <div className="flex flex-col gap-4 text-left">
+          <div className="flex items-start gap-2.5 rounded-card bg-amber-50 border border-gold/60 p-3 text-xs text-navy">
+            <WarningIcon className="text-gold text-base shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-error">คำเตือนสำคัญ:</p>
+              <p className="text-navy/85 mt-0.5">
+                การเริ่มเล่นใหม่ด้วยชื่อใหม่จะรีเซ็ตความก้าวหน้า ดาวที่ได้รับ และคะแนนทั้งหมด เพื่อให้ผู้เรียนคนใหม่สามารถเริ่มบันทึกผลการเรียนรู้ใหม่ตั้งแต่ต้น
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-navy/80">
+            คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตข้อมูลและตั้งชื่อผู้เรียนใหม่?
+          </p>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowResetNameDialog(false)}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              variant="gold"
+              onClick={handleResetAndNewName}
+            >
+              ยืนยันและเริ่มใหม่
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </PageShell>
   );
 }

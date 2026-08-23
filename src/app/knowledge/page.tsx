@@ -39,6 +39,7 @@ export default function KnowledgePage() {
     <PageShell>
       <AppHeader
         onHome={() => router.push("/")}
+        onLevels={() => router.push("/levels")}
         onHowToPlay={() => router.push("/how-to-play")}
       />
 

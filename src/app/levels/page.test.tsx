@@ -6,10 +6,11 @@ import { SaveProvider } from "../../session/SaveProvider";
 import LevelsPage from "./page";
 
 const pushSpy = vi.fn();
+const replaceSpy = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: pushSpy,
-    replace: vi.fn(),
+    replace: replaceSpy,
     prefetch: vi.fn(),
   }),
 }));
@@ -17,11 +18,29 @@ vi.mock("next/navigation", () => ({
 describe("Levels Page (/levels)", () => {
   beforeEach(() => {
     pushSpy.mockClear();
+    replaceSpy.mockClear();
   });
 
-  it("แสดงหัวข้อ สรุปความก้าวหน้า และ 50 ด่าน", async () => {
+  it("ผู้เล่นที่ยังไม่ได้กรอกชื่อจะถูก redirect ไปยังหน้าแรก", async () => {
     const storage = createFakeStorage();
     const repo = createGameSaveRepository({ storage });
+
+    render(
+      <SaveProvider repository={repo}>
+        <LevelsPage />
+      </SaveProvider>,
+    );
+
+    expect(replaceSpy).toHaveBeenCalledWith("/");
+  });
+
+  it("แสดงหัวข้อ สรุปความก้าวหน้า และ 50 ด่าน สำหรับผู้เล่นที่กรอกชื่อแล้ว", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      playerName: "S01",
+    });
 
     render(
       <SaveProvider repository={repo}>

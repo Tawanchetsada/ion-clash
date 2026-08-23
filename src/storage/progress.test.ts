@@ -178,4 +178,12 @@ describe("การตรวจสิทธิ์เข้าด่าน", () =
     expect(isLevelUnlocked(save, 6)).toBe(false);
     expect(isLevelUnlocked(save, 0)).toBe(false);
   });
+
+  it("ชื่อผู้เล่น admin111213 สามารถเข้าเล่นได้ทุกด่าน (1-50)", () => {
+    const save = { ...base, playerName: "admin111213", unlockedLevel: 1 };
+    expect(isLevelUnlocked(save, 1)).toBe(true);
+    expect(isLevelUnlocked(save, 25)).toBe(true);
+    expect(isLevelUnlocked(save, 50)).toBe(true);
+    expect(isLevelUnlocked(save, 51)).toBe(false);
+  });
 });

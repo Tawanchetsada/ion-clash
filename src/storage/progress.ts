@@ -92,7 +92,9 @@ export function clearCheckpoint(
   return { ...save, activeCheckpoint: null, updatedAt: now().toISOString() };
 }
 
-/** ด่านที่เล่นได้ต้องไม่เกินด่านที่ปลดล็อกแล้ว — ใช้เป็น route guard */
+/** ด่านที่เล่นได้ต้องไม่เกินด่านที่ปลดล็อกแล้ว — หรือชื่อ admin111213 สามารถเข้าเล่นได้ทุกด่าน */
 export function isLevelUnlocked(save: GameSaveV1, levelId: number): boolean {
-  return levelId >= 1 && levelId <= save.unlockedLevel;
+  if (levelId < 1 || levelId > MAX_LEVEL_ID) return false;
+  if (save.playerName.trim() === "admin111213") return true;
+  return levelId <= save.unlockedLevel;
 }

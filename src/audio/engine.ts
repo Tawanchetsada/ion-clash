@@ -101,4 +101,36 @@ export class AudioEngine {
     source.connect(context.destination);
     source.start();
   }
+
+  /** เล่นเสียงกดปุ่ม UI (Click/Tap) */
+  playUiTap(options: { enabled: boolean }): void {
+    if (!options.enabled) return;
+    try {
+      this.context ??= this.createContext();
+      if (this.context.state === "suspended") {
+        void this.context.resume();
+      }
+      const ctx = this.context as unknown as AudioContext;
+      if (typeof ctx.createOscillator !== "function") return;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      const now = ctx.currentTime;
+      osc.frequency.setValueAtTime(750, now);
+      osc.frequency.exponentialRampToValueAtTime(240, now + 0.035);
+
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } catch {
+      // Fallback
+    }
+  }
 }

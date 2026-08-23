@@ -45,7 +45,7 @@ export function createDefaultSave(clock: SaveClock = {}): GameSaveV1 {
     activeCheckpoint: null,
     settings: {
       sound: true,
-      music: false,
+      music: true,
       reducedMotion: false,
       researchConsent: false,
     },

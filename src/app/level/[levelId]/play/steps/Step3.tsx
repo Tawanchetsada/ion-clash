@@ -8,6 +8,7 @@ import { CompoundCard } from "../../../../../components/game/CompoundCard";
 import { IonCard } from "../../../../../components/game/IonCard";
 import { Button } from "../../../../../components/ui/Button";
 import { DropletIcon, StarIcon } from "../../../../../components/ui/Icon";
+import { MESSAGES } from "../../../../../config/messages";
 import { compoundCardView, freeIonView } from "../../../../../presentation/cards";
 
 export type Step3Props = {
@@ -81,9 +82,17 @@ export function Step3({ state, level, dispatch }: Step3Props) {
         </div>
       </div>
 
-      <Button variant="gold" onClick={() => dispatch({ type: "CONFIRM_PRODUCTS" })}>
-        ไปขั้นตัดไอออนผู้ชม
-      </Button>
+      <div className="flex flex-wrap justify-center gap-3">
+        <Button
+          variant="outline"
+          onClick={() => dispatch({ type: "PREV_STEP" })}
+        >
+          {MESSAGES.ui.backToStep2}
+        </Button>
+        <Button variant="gold" onClick={() => dispatch({ type: "CONFIRM_PRODUCTS" })}>
+          {MESSAGES.ui.goToSpectatorStep}
+        </Button>
+      </div>
     </div>
   );
 }

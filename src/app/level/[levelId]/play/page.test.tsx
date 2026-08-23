@@ -26,9 +26,34 @@ describe("Play Page (/level/[levelId]/play)", () => {
     replaceSpy.mockClear();
   });
 
+  it("ผู้เล่นที่ยังไม่ได้กรอกชื่อจะถูก redirect ไปยังหน้าแรก", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+
+    render(
+      <SaveProvider repository={repo}>
+        <AudioProvider enabled={false}>
+          <MotionProvider enabled={false}>
+            <AnnouncerProvider>
+              <ToastProvider>
+                <PlayPage params={{ levelId: "1" }} />
+              </ToastProvider>
+            </AnnouncerProvider>
+          </MotionProvider>
+        </AudioProvider>
+      </SaveProvider>,
+    );
+
+    expect(replaceSpy).toHaveBeenCalledWith("/");
+  });
+
   it("render ด่าน 1 ใน Step 1 และกดเริ่มเพื่อแตกตัวสารตั้งต้นได้", async () => {
     const storage = createFakeStorage();
     const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      playerName: "S01",
+    });
 
     render(
       <SaveProvider repository={repo}>
@@ -66,6 +91,10 @@ describe("Play Page (/level/[levelId]/play)", () => {
   it("เมื่อเปิดด่านที่ยังล็อกอยู่ จะถูก redirect ไป /levels", async () => {
     const storage = createFakeStorage();
     const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      playerName: "S01",
+    });
 
     render(
       <SaveProvider repository={repo}>
@@ -88,6 +117,10 @@ describe("Play Page (/level/[levelId]/play)", () => {
   it("สามารถเปิดแผงดูกฎการละลายได้โดยไม่หักคะแนน", async () => {
     const storage = createFakeStorage();
     const repo = createGameSaveRepository({ storage });
+    repo.save({
+      ...repo.load(),
+      playerName: "S01",
+    });
 
     render(
       <SaveProvider repository={repo}>
