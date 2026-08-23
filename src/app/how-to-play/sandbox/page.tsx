@@ -203,16 +203,16 @@ export default function HowToPlaySandboxPage() {
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 pb-32">
         {/* Navigation Bar */}
-        <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border pb-4">
           <Button
             variant="outline"
+            className="text-xs py-1.5 px-3"
             onClick={() => router.push("/how-to-play")}
-            className="flex items-center gap-1.5"
           >
-            ← กลับไปหน้าวิธีเล่น
+            กลับไปหน้าวิธีเล่น
           </Button>
           <div className="flex items-center gap-2 text-sm font-bold text-navy">
-            <FlaskIcon className="text-gold text-lg" />
+            <FlaskIcon className="text-gold text-lg shrink-0" />
             <span>กระดานทดลองเล่นจริง (Interactive Sandbox)</span>
           </div>
         </div>
@@ -324,19 +324,19 @@ export default function HowToPlaySandboxPage() {
             </div>
 
             {/* ปุ่มควบคุม Sandbox 2.1 */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2">
               <Button
                 variant="outline"
                 onClick={handleResetSandbox}
                 disabled={Object.keys(slotAssignments).length === 0}
-                className="text-xs py-1.5 px-3"
+                className="text-xs py-2 px-3 justify-center"
               >
                 {MESSAGES.ui.clearAllSlots}
               </Button>
               <Button
                 variant="gold"
                 onClick={handleAutoFillSandbox}
-                className="text-xs py-1.5 px-3"
+                className="text-xs py-2 px-3 justify-center font-bold"
               >
                 แสดงตัวอย่างการวางที่ถูกต้อง
               </Button>
@@ -572,18 +572,18 @@ export default function HowToPlaySandboxPage() {
           </div>
 
           {/* ปุ่มควบคุม Sandbox 2.3 */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-4">
             <Button
               variant="outline"
               onClick={() => setSandboxCoeffs([1, 1, 1, 1])}
-              className="text-xs py-1.5 px-3"
+              className="text-xs py-2 px-3 justify-center"
             >
               รีเซ็ตสัมประสิทธิ์ (เป็น 1)
             </Button>
             <Button
               variant="gold"
               onClick={() => setSandboxCoeffs([1, 1, 1, 2])}
-              className="text-xs py-1.5 px-3"
+              className="text-xs py-2 px-3 justify-center font-bold"
             >
               แสดงเฉลยการดุลสมการ
             </Button>
@@ -596,7 +596,7 @@ export default function HowToPlaySandboxPage() {
             variant="outline"
             onClick={() => router.push("/how-to-play")}
           >
-            ← กลับไปหน้าคู่มือวิธีเล่น
+            กลับไปหน้าวิธีเล่น
           </Button>
         </div>
       </main>

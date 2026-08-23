@@ -24,11 +24,11 @@ describe("How to Play Sandbox Page (/how-to-play/sandbox)", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("กระดานทดลองเล่นจริง (Interactive Sandbox)")).toBeInTheDocument();
 
-    const backBtn = screen.getByRole("button", { name: /← กลับไปหน้าวิธีเล่น/ });
-    expect(backBtn).toBeInTheDocument();
+    const backButtons = screen.getAllByRole("button", { name: /กลับไปหน้าวิธีเล่น/ });
+    expect(backButtons[0]).toBeDefined();
 
     act(() => {
-      backBtn.click();
+      backButtons[0]?.click();
     });
 
     expect(pushSpy).toHaveBeenCalledWith("/how-to-play");

@@ -169,21 +169,26 @@ function PlayContent({
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-6">
         {/* Top Progress, Rules, Live Score/Timer & Hint Bar */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-            <StepIndicator
-              current={step}
-              onStepClick={(targetStep) => dispatch({ type: "GO_TO_STEP", step: targetStep })}
-            />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-3 sm:pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4">
+            <div className="flex justify-center sm:justify-start">
+              <StepIndicator
+                current={step}
+                onStepClick={(targetStep) => dispatch({ type: "GO_TO_STEP", step: targetStep })}
+              />
+            </div>
             {isMidLevel && (
-              <LiveGameStats score={score} elapsedSec={elapsedSec} />
+              <div className="flex justify-center sm:justify-start">
+                <LiveGameStats score={score} elapsedSec={elapsedSec} />
+              </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-3 self-end sm:self-auto">
+          <div className="flex items-center justify-center sm:justify-end gap-2.5 sm:gap-3">
             {/* Rules Button (Does NOT deduct points) */}
             <Button
               variant="outline"
+              className="text-xs py-1.5 px-3"
               onClick={() => setShowRules(true)}
             >
               {MESSAGES.ui.rules}

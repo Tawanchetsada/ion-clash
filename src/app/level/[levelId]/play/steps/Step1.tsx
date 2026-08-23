@@ -40,11 +40,11 @@ export function Step1({ state, level, dispatch }: Step1Props) {
 
       {/* Dissociated Ions Display */}
       {isDissociated && (
-        <div className="flex flex-col items-center gap-4">
-          <span className="text-sm font-semibold text-navy">
+        <div className="flex flex-col items-center gap-3 w-full">
+          <span className="text-xs sm:text-sm font-semibold text-navy">
             ไอออนที่แตกตัวในสารละลาย (4 ไอออน):
           </span>
-          <div className="flex flex-wrap items-center justify-center gap-4 rounded-card bg-canvas p-4 border border-navy/10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 rounded-2xl bg-canvas p-3 sm:p-4 border border-navy/10 max-w-xl mx-auto justify-items-center">
             {reactantCards.map((card) => {
               const view = ionCardView(card);
               return <IonCard key={card.instanceId} view={view} />;
