@@ -213,9 +213,6 @@ export default function ProgressPage() {
                 <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight truncate">
                   {save.playerName || "ผู้เล่นนิรนาม"}
                 </h2>
-                <div className="text-xs text-white/60 mt-0.5">
-                  วิชาเคมี ม.4 · สมการไอออนิกสุทธิ
-                </div>
               </div>
             </div>
 

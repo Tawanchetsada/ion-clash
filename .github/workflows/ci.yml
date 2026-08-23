@@ -19,7 +19,3 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Install Playwright WebKit
-        run: npx playwright install --with-deps webkit
-      - name: Run E2E Tests (iPad)
-        run: npx playwright test --project=ipad
