@@ -477,11 +477,11 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
           <div className="flex flex-col gap-4">
             {/* แถวที่ 1: ตะกอน */}
             <div className="flex flex-col gap-3 rounded-xl border border-gold/40 bg-gold-surface p-4 sm:p-5">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <span className="rounded-md bg-gold-light px-2.5 py-1 text-xs font-bold text-navy self-start">
+              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1.5 border-b border-gold/30 pb-2.5 text-center sm:text-left">
+                <span className="rounded-full bg-gold-light px-3 py-1 text-xs font-bold text-navy shadow-2xs">
                   {MESSAGES.ui.crissCrossPrecipLabel}
                 </span>
-                <span className="text-sm font-semibold text-navy">
+                <span className="text-sm sm:text-base font-bold text-navy">
                   {crissCrossData.precip.nameTh}
                 </span>
               </div>
@@ -513,9 +513,9 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
                 </div>
 
                 {/* Arrow / Transition */}
-                <div className="flex items-center gap-1.5 px-2 text-center text-gold font-bold text-sm sm:text-base md:flex-col">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 text-center text-gold font-bold text-xs sm:text-base">
                   <span>คูณไขว้ประจุ</span>
-                  <EquationArrow breakpoint="md" className="text-gold text-lg sm:text-xl" />
+                  <EquationArrow breakpoint="md" className="text-gold text-base sm:text-xl" />
                 </div>
 
                 {/* Result Formula */}
@@ -537,11 +537,11 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
 
             {/* แถวที่ 2: สารละลาย */}
             <div className="flex flex-col gap-3 rounded-xl border border-navy/15 bg-canvas/60 p-4 sm:p-5">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <span className="rounded-md bg-blue/15 px-2.5 py-1 text-xs font-bold text-navy self-start">
+              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1.5 border-b border-navy/10 pb-2.5 text-center sm:text-left">
+                <span className="rounded-full bg-blue/15 px-3 py-1 text-xs font-bold text-blue shadow-2xs">
                   {MESSAGES.ui.crissCrossAqLabel}
                 </span>
-                <span className="text-sm font-semibold text-navy">
+                <span className="text-sm sm:text-base font-bold text-navy">
                   {crissCrossData.aqueous.nameTh}
                 </span>
               </div>
@@ -573,9 +573,9 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
                 </div>
 
                 {/* Arrow / Transition */}
-                <div className="flex items-center gap-1.5 px-2 text-center text-blue font-bold text-sm sm:text-base md:flex-col">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 text-center text-blue font-bold text-xs sm:text-base">
                   <span>คูณไขว้ประจุ</span>
-                  <EquationArrow breakpoint="md" className="text-blue text-lg sm:text-xl" />
+                  <EquationArrow breakpoint="md" className="text-blue text-base sm:text-xl" />
                 </div>
 
                 {/* Result Formula */}
