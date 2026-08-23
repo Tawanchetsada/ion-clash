@@ -1,5 +1,4 @@
-"use client";
-
+import { MESSAGES } from "../../config/messages";
 import { useId } from "react";
 import type { ChangeEvent } from "react";
 
@@ -41,7 +40,7 @@ export function CoefficientInput({
   return (
     <div className="flex flex-col items-center gap-1">
       <label htmlFor={inputId} className="text-sm text-navy">
-        สัมประสิทธิ์หน้า {compoundLabelTh}
+        {MESSAGES.ui.coefficientLabelPrefix} {compoundLabelTh}
       </label>
       <input
         id={inputId}

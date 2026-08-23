@@ -1,3 +1,4 @@
+import { MESSAGES } from "../../config/messages";
 import type { Feedback } from "../../domain/game/types";
 
 export type FeedbackPanelProps = {
@@ -30,7 +31,7 @@ export function FeedbackPanel({ feedback, onRetry }: FeedbackPanelProps) {
           onClick={onRetry}
           className="min-h-11 min-w-11 text-sm underline"
         >
-          ลองใหม่
+          {MESSAGES.ui.retry}
         </button>
       )}
     </div>

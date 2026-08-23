@@ -1,3 +1,5 @@
+import { MESSAGES } from "../../config/messages";
+
 export type SaveStatusKind = "idle" | "saving" | "saved" | "error";
 
 export type SaveStatusProps = {
@@ -8,9 +10,9 @@ export type SaveStatusProps = {
 
 const STATUS_LABEL_TH: Readonly<Record<SaveStatusKind, string>> = {
   idle: "",
-  saving: "กำลังบันทึก…",
-  saved: "บันทึกแล้ว",
-  error: "บันทึกไม่สำเร็จ",
+  saving: MESSAGES.save.saving,
+  saved: MESSAGES.save.saved,
+  error: MESSAGES.save.error,
 };
 
 /** สถานะการบันทึกลงเครื่อง — error ต้องมีทางออกเสมอ (ลองใหม่ / ส่งออกข้อมูล) */
@@ -24,12 +26,12 @@ export function SaveStatus({ status, onRetry, onExport }: SaveStatusProps) {
       )}
       {status === "error" && onRetry && (
         <button type="button" onClick={onRetry} className="min-h-11 min-w-11 underline">
-          ลองบันทึกอีกครั้ง
+          {MESSAGES.save.retry}
         </button>
       )}
       {status === "error" && onExport && (
         <button type="button" onClick={onExport} className="min-h-11 min-w-11 underline">
-          ส่งออกข้อมูล
+          {MESSAGES.save.export}
         </button>
       )}
     </div>

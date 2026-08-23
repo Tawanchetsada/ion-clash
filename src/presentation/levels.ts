@@ -22,19 +22,10 @@ export type DifficultyGroupView = {
   levels: readonly LevelTileView[];
 };
 
-const DIFFICULTY_LABEL_TH: Readonly<Record<Difficulty, string>> = {
-  easy: "ง่าย",
-  basic: "พื้นฐาน",
-  medium: "ปานกลาง",
-  hard: "ยาก",
-  challenge: "ท้าทาย",
-};
+import { MESSAGES } from "../config/messages";
 
-const STATUS_LABEL_TH: Readonly<Record<LevelStatus, string>> = {
-  completed: "ผ่านแล้ว",
-  current: "ด่านปัจจุบัน",
-  locked: "ยังไม่ปลดล็อก",
-};
+const DIFFICULTY_LABEL_TH = MESSAGES.ui.difficulty;
+const STATUS_LABEL_TH = MESSAGES.ui.levelStatus;
 
 /**
  * เลเวลที่ปลดล็อกแต่ยังไม่ผ่าน = ด่านปัจจุบัน

@@ -37,20 +37,61 @@ export type BuiltLevel = {
 };
 
 /**
- * แม่แบบคำใบ้ 3 ระดับตาม D-05 — ระดับ 1 คงที่ทุกด่าน ระดับ 2 และ 3 เติม
- * ชื่อไอออนบวกตัวการกับข้อความกฎการละลายที่ตัดสินด่านนี้จริง (จาก
- * solubility.ts ซึ่งเป็น source of truth เดียว) ไม่มีสูตรของตะกอนปรากฏใน
- * ข้อความใด ๆ ตามข้อห้ามข้อ 11
+ * แม่แบบคำใบ้ 3 ระดับตาม D-05 และ Phase 8:
+ * - ระดับ 1: แตกต่างกันตาม 5 ช่วงความยาก (ง่าย / พื้นฐาน / ปานกลาง / ยาก / ท้าทาย)
+ * - ระดับ 2: ชี้ไอออนบวกตัวการด้วยชื่อไทยมาตรฐาน
+ * - ระดับ 3: หากเป็นด่านที่ต้องดุล ให้คำใบ้เรื่องประจุและสัมประสิทธิ์ หากไม่ต้องดุลให้คำใบ้กฎการละลาย
+ * ไม่มีสูตรของตะกอนปรากฏในข้อความใด ๆ ตามข้อห้ามข้อ 11
  */
-function generateHints(precipitate: CompoundDef): readonly [string, string, string] {
+function generateHints(
+  difficulty: Difficulty,
+  precipitate: CompoundDef,
+  coefficients: Coefficients,
+): readonly [string, string, string] {
   const causalCation = getIon(precipitate.cationId);
+  const causalAnion = getIon(precipitate.anionId);
   const { rule } = explainPhase(precipitate.cationId, precipitate.anionId);
 
-  return [
-    "ปฏิกิริยานี้เกิดจากการแลกคู่ระหว่างไอออนบวกกับไอออนลบที่มาจากคนละสาร ลองจับคู่ใหม่แล้วดูว่าคู่ไหนไม่ละลายน้ำ",
-    `ลองพิจารณาว่า${causalCation.nameStemTh}ไอออนจับกับไอออนลบตัวใดแล้วได้สารที่ไม่ละลายน้ำ`,
-    `กฎ: ${rule.descriptionTh} ลองใช้กฎนี้ตัดสินว่าผลิตภัณฑ์ตัวใดเป็นตะกอน`,
-  ];
+  let hint1 = "";
+  switch (difficulty) {
+    case "easy":
+      hint1 =
+        "ปฏิกิริยานี้เกิดจากการแลกคู่ระหว่างไอออนบวกกับไอออนลบที่มาจากคนละสาร ลองจับคู่ใหม่แล้วดูว่าคู่ไหนไม่ละลายน้ำ";
+      break;
+    case "basic":
+      hint1 =
+        "สารตั้งต้นแตกตัวเป็นไอออนในสารละลาย ลองสลับคู่ไอออนบวกกับไอออนลบเพื่อหาคู่ผลิตภัณฑ์ที่ตกตะกอน";
+      break;
+    case "medium":
+      hint1 =
+        "พิจารณาการแลกเปลี่ยนคู่ระหว่างแคตไอออนกับแอนไอออน แล้วสังเกตสมบัติการละลายน้ำของสารประกอบที่เกิดขึ้น";
+      break;
+    case "hard":
+      hint1 =
+        "พิจารณาชนิดและประจุของไอออนโลหะทรานซิชันในการแลกเปลี่ยนคู่ผลิตภัณฑ์ที่ไม่ละลายน้ำ";
+      break;
+    case "challenge":
+      hint1 =
+        "วิเคราะห์การแลกเปลี่ยนคู่ไอออนที่มีประจุหลากหลาย เพื่อระบุคู่สารประกอบที่เกิดเป็นตะกอน";
+      break;
+  }
+
+  const hint2 = `ลองพิจารณาว่า${causalCation.nameStemTh}ไอออนจับกับไอออนลบตัวใดแล้วได้สารที่ไม่ละลายน้ำ`;
+
+  const requiresBalancing =
+    coefficients.a !== 1 ||
+    coefficients.b !== 1 ||
+    coefficients.c !== 1 ||
+    coefficients.d !== 1;
+
+  let hint3 = "";
+  if (requiresBalancing) {
+    hint3 = `ประจุของ${causalCation.nameStemTh}เป็น ${causalCation.charge > 0 ? "+" : ""}${causalCation.charge} จึงต้องพิจารณาว่าใช้${causalAnion.nameStemTh}กี่ตัวเพื่อให้ประจุรวมเป็นศูนย์และดุลสัมประสิทธิ์ของสมการให้ถูกต้อง`;
+  } else {
+    hint3 = `กฎ: ${rule.descriptionTh} ลองใช้กฎนี้ตัดสินว่าผลิตภัณฑ์ตัวใดเป็นตะกอน`;
+  }
+
+  return [hint1, hint2, hint3];
 }
 
 /**
@@ -85,6 +126,6 @@ export function buildLevel(seed: LevelSeed): BuiltLevel {
     completeIonic,
     netIonic,
     spectators,
-    hints: generateHints(precipitate),
+    hints: generateHints(seed.difficulty, precipitate, model.coefficients),
   };
 }

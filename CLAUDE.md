@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository state
 
-A working Next.js 16 codebase. Phases 0–7 are done: tooling + CI, pure chemistry domain, 50 levels of data, save system, game state machine, design-system component library, drag-and-drop interaction system, and all 8 application screens/routes (`/`, `/levels`, `/level/[levelId]/intro`, `/level/[levelId]/play`, `/progress`, `/settings`, `/how-to-play`, `/knowledge`). Verified end-to-end (1,595 unit/component tests + 24 Playwright E2E tests across Desktop, iPad, Mobile). Phase 8 (learning content) is next.
+A working Next.js 16 codebase. Phases 0–8 are done: tooling + CI, pure chemistry domain, 50 levels of data, save system, game state machine, design-system component library, drag-and-drop interaction system, all 8 application screens/routes, and Grade 10 Thai learning content (`/knowledge`, `/how-to-play`, refined 150 hints, in-game solubility rules dialog). Verified end-to-end (1,621 unit/component tests + 33 Playwright E2E tests across Desktop, iPad, Mobile). Phase 9 (research data collection) is next.
 
 `development-plan/` is the working plan — 12 phases, each with entry/exit conditions. **Read `development-plan/README.md` for current phase status and `development-plan/00-decisions.md` (D-01 … D-21) before making any architectural choice**; those decisions are already settled and carry their reasoning. When a phase's implementation is finished, record what actually happened — including deviations — in that phase's `NN-phase-*.md`.
 

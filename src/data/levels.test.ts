@@ -138,4 +138,34 @@ describe("ข้อมูล 50 ด่าน", () => {
     );
     expect(gcdAll(counts)).toBe(1);
   });
+
+  it("คำใบ้ระดับ 1 ของด่านช่วง 'ง่าย' กับช่วง 'ท้าทาย' ต้องไม่เป็นสตริงเดียวกัน", () => {
+    const easyLevel = LEVELS.find((l) => l.difficulty === "easy");
+    const challengeLevel = LEVELS.find((l) => l.difficulty === "challenge");
+    expect(easyLevel).toBeDefined();
+    expect(challengeLevel).toBeDefined();
+    expect(easyLevel!.hints[0]).not.toBe(challengeLevel!.hints[0]);
+  });
+
+  it("ด่านที่ต้องดุลทุกด่าน คำใบ้ระดับ 3 ต้องมีคำว่า 'ประจุ' หรือ 'สัมประสิทธิ์'", () => {
+    const balancingLevels = LEVELS.filter(
+      (l) =>
+        l.coefficients.a !== 1 ||
+        l.coefficients.b !== 1 ||
+        l.coefficients.c !== 1 ||
+        l.coefficients.d !== 1,
+    );
+
+    expect(balancingLevels.length).toBeGreaterThan(0);
+
+    for (const level of balancingLevels) {
+      const hint3 = level.hints[2];
+      const hasChargeOrCoeff =
+        hint3.includes("ประจุ") || hint3.includes("สัมประสิทธิ์");
+      expect(
+        hasChargeOrCoeff,
+        `ด่าน ${level.id} ต้องมีคำว่า 'ประจุ' หรือ 'สัมประสิทธิ์' ในคำใบ้ระดับ 3`,
+      ).toBe(true);
+    }
+  });
 });

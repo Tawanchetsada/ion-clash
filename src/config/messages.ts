@@ -1,0 +1,118 @@
+import type { ErrorCode } from "../domain/chemistry/types";
+import type { Difficulty } from "../data/levelSeeds";
+import type { LevelStatus } from "../presentation/levels";
+
+/**
+ * รวมข้อความภาษาไทยทั้งหมดของระบบไว้ที่เดียว
+ *
+ * กติกา:
+ * 1. ข้อความ error ทุกรหัสต้องบอกหลักการที่ผิด ห้ามบอกคำตอบหรือสูตรผลิตภัณฑ์ (ข้อห้ามใน CLAUDE.md)
+ * 2. aria-label ของไอออนและชื่อไทยของสารประกอบสร้างจาก speech.ts จึงไม่ต้องย้ายมาที่นี่
+ * 3. component ต้องดึงข้อความจากที่นี่หรือรับผ่าน prop เท่านั้น
+ */
+export const MESSAGES = {
+  error: {
+    "E-CHARGE": "ประจุรวมของสารประกอบยังไม่เป็นศูนย์ ลองปรับจำนวนไอออน",
+    "E-PAIR": "ไอออนคู่นี้ไม่ใช่ผลิตภัณฑ์ของปฏิกิริยานี้",
+    "E-PHASE": "ตรวจสอบกฎการละลายของผลิตภัณฑ์อีกครั้ง",
+    "E-BALANCE": "จำนวนอะตอมบางธาตุยังไม่เท่ากันทั้งสองข้าง",
+    "E-RATIO": "สมการสมดุลแล้ว แต่ยังลดสัมประสิทธิ์ได้",
+    "E-SPECTATOR": "ตัดได้เฉพาะไอออนที่เหมือนกันและไม่เปลี่ยนแปลงทั้งสองข้าง",
+  } satisfies Readonly<Record<ErrorCode, string>>,
+
+  success: {
+    arrangement: "จับคู่ถูกต้อง",
+    balance: "สมการสมดุลแล้ว",
+    products: "ผลิตภัณฑ์ผ่านการตรวจครบทุกข้อ",
+    cancelPair: "ตัดไอออนผู้ชมคู่นี้ถูกต้อง",
+    cancelComplete: "ตัดไอออนผู้ชมครบแล้ว",
+    levelComplete: "ถูกต้อง! สมการไอออนิกสุทธิสมบูรณ์",
+  } as const,
+
+  save: {
+    idle: "พร้อมบันทึก",
+    saving: "กำลังบันทึก…",
+    saved: "บันทึกแล้ว",
+    error: "บันทึกไม่สำเร็จ",
+    retry: "ลองบันทึกอีกครั้ง",
+    export: "ส่งออกข้อมูล",
+  } as const,
+
+  toast: {
+    unlocked: (lvl: number | string) => `ผ่านด่าน ${lvl} ก่อนเพื่อปลดล็อกด่านนี้`,
+    importSuccess: "นำเข้าข้อมูลความก้าวหน้าเรียบร้อยแล้ว",
+    importError: "ไฟล์ข้อมูลไม่ถูกต้อง ไม่สามารถนำเข้าได้",
+    exportSuccess: "คัดลอกข้อมูลความก้าวหน้าลงคลิปบอร์ดแล้ว",
+    resetSuccess: "รีเซ็ตข้อมูลความก้าวหน้าทั้งหมดแล้ว",
+  } as const,
+
+  ui: {
+    home: "หน้าหลัก",
+    howToPlay: "วิธีเล่น",
+    levels: "เลือกด่าน",
+    settings: "ตั้งค่า",
+    progress: "ความก้าวหน้า",
+    knowledge: "คลังความรู้",
+    rules: "ดูกฎการละลาย",
+    retry: "ลองใหม่",
+    nextLevel: "ด่านถัดไป",
+    replay: "เล่นซ้ำ",
+    play: "เริ่มเล่นเลย",
+    backToLevels: "กลับหน้าเลือกด่าน",
+    mainNav: "เมนูหลัก",
+    levelPrefix: "ด่าน",
+    starsSuffix: "ดาว",
+    hintButton: (remaining: number) => `คำใบ้ (เหลือ ${remaining} ครั้ง)`,
+    hintTitle: (index: number) => `คำใบ้ที่ ${index}:`,
+    cutPairEmpty: "ยังไม่ได้ตัดไอออนผู้ชมคู่ใด",
+    cutPairListLabel: "รายการไอออนผู้ชมที่ตัดแล้ว",
+    equationRegionLabel: "สมการไอออนิก",
+    struckSuffix: "ถูกตัดออกแล้ว",
+    stepProgressLabel: "ความคืบหน้าของด่าน",
+    stepCurrentSuffix: " (ขั้นปัจจุบัน)",
+    stepDoneSuffix: " (ผ่านแล้ว)",
+    coefficientLabelPrefix: "สัมประสิทธิ์หน้า",
+    slotEmptySuffix: "ว่าง",
+    removeSlotPrefix: "นำออกจาก",
+    steps: [
+      "เข้าสู่เกม",
+      "ไอออน 4 ไป 4",
+      "ตรวจผลิตภัณฑ์",
+      "ตัดไอออนผู้ชม",
+      "สมการไอออนิกสุทธิ",
+    ] as const,
+    difficulty: {
+      easy: "ง่าย",
+      basic: "พื้นฐาน",
+      medium: "ปานกลาง",
+      hard: "ยาก",
+      challenge: "ท้าทาย",
+    } satisfies Readonly<Record<Difficulty, string>>,
+    levelStatus: {
+      completed: "ผ่านแล้ว",
+      current: "ด่านปัจจุบัน",
+      locked: "ยังไม่ปลดล็อก",
+    } satisfies Readonly<Record<LevelStatus, string>>,
+    exitDialog: {
+      title: "ออกจากด่านหรือไม่?",
+      description: "ระบบได้บันทึกความก้าวหน้าล่าสุดไว้แล้ว คุณสามารถกลับมาเล่นต่อจากจุดเดิมได้ในภายหลัง",
+      confirm: "ออกจากด่าน",
+      cancel: "เล่นต่อ",
+    },
+    nameDialog: {
+      title: "ยินดีต้อนรับสู่ Ion Clash",
+      description: "กรุณาระบุชื่อเล่นหรือรหัสนักเรียน เพื่อบันทึกความก้าวหน้าในการเรียนรู้",
+      placeholder: "ชื่อเล่นหรือรหัสนักเรียน",
+      submit: "เริ่มเรียนรู้",
+    },
+    rulesDialog: {
+      tip: "ลำดับของกฎมีความสำคัญ: หากตรงกับหลายข้อ ให้ใช้กฎข้อบนสุดเป็นหลักในการตัดสิน",
+      colOrder: "#",
+      colRule: "กฎการละลาย",
+      colOutcome: "ผลลัพธ์",
+      close: "ปิด",
+      outcomeSoluble: "ละลาย (aq)",
+      outcomePrecipitate: "ตะกอน (s)",
+    },
+  } as const,
+} as const;

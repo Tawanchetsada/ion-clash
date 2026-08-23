@@ -1,5 +1,4 @@
-"use client";
-
+import { MESSAGES } from "../../config/messages";
 import type React from "react";
 import type { EquationCardView } from "../../presentation/cards";
 import { EquationView } from "./EquationView";
@@ -37,7 +36,7 @@ export function EquationStrip({
   return (
     <div
       role="region"
-      aria-label="สมการไอออนิก"
+      aria-label={MESSAGES.ui.equationRegionLabel}
       tabIndex={0}
       className="equation-scroll min-w-0 flex items-center rounded-card bg-panel p-4 shadow-card"
     >
@@ -77,7 +76,7 @@ function EquationChip({
   registerCardRef?: ((instanceId: string, el: HTMLElement | null) => void) | undefined;
 }) {
   const { view, struck = false, selected = false, onSelect } = card;
-  const ariaLabel = struck ? `${view.ariaLabel} ถูกตัดออกแล้ว` : view.ariaLabel;
+  const ariaLabel = struck ? `${view.ariaLabel} ${MESSAGES.ui.struckSuffix}` : view.ariaLabel;
 
   const chip = (
     <span

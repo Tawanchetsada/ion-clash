@@ -1,5 +1,6 @@
 "use client";
 
+import { MESSAGES } from "../../config/messages";
 import type React from "react";
 import type { IonCardView } from "../../presentation/cards";
 import { IonCard } from "./IonCard";
@@ -57,7 +58,7 @@ export function IonSlot({
             onClick={onRemove}
             className="min-h-11 min-w-11 text-sm text-error underline"
           >
-            นำออกจาก{slotLabelTh}
+            {MESSAGES.ui.removeSlotPrefix}{slotLabelTh}
           </button>
         )}
       </div>
@@ -71,7 +72,7 @@ export function IonSlot({
       data-slot-id={slotId}
       disabled={disabled}
       onClick={onActivate}
-      aria-label={`${slotLabelTh} ว่าง`}
+      aria-label={`${slotLabelTh} ${MESSAGES.ui.slotEmptySuffix}`}
       className={`min-h-11 min-w-11 touch-none select-none rounded-card border-2 border-dashed px-4 py-3 text-2xl font-bold text-navy/40 transition-colors duration-150 ${
         isDropTarget ? "border-gold bg-gold/10 scale-105" : "border-border"
       }`}

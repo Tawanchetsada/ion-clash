@@ -16,19 +16,21 @@ vi.mock("next/navigation", () => ({
 describe("Routes and Shells", () => {
   it("render หน้า /how-to-play ได้ถูกต้องพร้อมข้อความและปุ่ม", () => {
     render(<HowToPlayPage />);
-    expect(screen.getByRole("heading", { name: "วิธีการเล่น" })).toBeInTheDocument();
     expect(
-      screen.getByText(/คู่มือการเล่นและการใช้งานระบบลาก-วางกำลังอยู่ระหว่างการจัดทำเนื้อหา/),
+      screen.getByRole("heading", { name: "คู่มือวิธีการเล่นเกม Ion Clash" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /ไปยังหน้าเลือกด่าน/ }),
     ).toBeInTheDocument();
   });
 
   it("render หน้า /knowledge ได้ถูกต้องพร้อมข้อความและปุ่ม", () => {
     render(<KnowledgePage />);
     expect(
-      screen.getByRole("heading", { name: "ความรู้ก่อนเล่นเกม" }),
+      screen.getByRole("heading", { name: "คลังความรู้เคมี ม.4" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/สรุปเนื้อหากฎการละลายน้ำและสมการไอออนิกกำลังอยู่ระหว่างการจัดทำเนื้อหา/),
+      screen.getByRole("link", { name: /เริ่มเล่นเลย/ }),
     ).toBeInTheDocument();
   });
 

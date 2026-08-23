@@ -5,11 +5,13 @@ import { notFound, useRouter } from "next/navigation";
 import { useAudio } from "../../../../audio/AudioProvider";
 import { FeedbackPanel } from "../../../../components/game/FeedbackPanel";
 import { HintButton } from "../../../../components/game/HintButton";
+import { SolubilityDialog } from "../../../../components/game/SolubilityDialog";
 import { AppHeader } from "../../../../components/layout/AppHeader";
 import { PageShell } from "../../../../components/layout/PageShell";
 import { StepIndicator } from "../../../../components/layout/StepIndicator";
 import { Button } from "../../../../components/ui/Button";
 import { Dialog } from "../../../../components/ui/Dialog";
+import { MESSAGES } from "../../../../config/messages";
 import { useToast } from "../../../../session/ToastProvider";
 import { useLevelGame } from "../../../../session/useLevelGame";
 import { useLevelGuard } from "../../../../session/useLevelGuard";
@@ -41,7 +43,7 @@ export default function PlayPage({
   useEffect(() => {
     if (verdict.status === "locked" && !redirectedRef.current) {
       redirectedRef.current = true;
-      toast.show(`ผ่านด่าน ${verdict.requiredLevel} ก่อนเพื่อปลดล็อกด่านนี้`);
+      toast.show(MESSAGES.toast.unlocked(verdict.requiredLevel));
       router.replace("/levels");
     }
     if (verdict.status !== "locked") {
@@ -78,7 +80,7 @@ export default function PlayPage({
               className="mt-4"
               onClick={() => router.push("/levels")}
             >
-              กลับหน้าเลือกด่าน
+              {MESSAGES.ui.backToLevels}
             </Button>
           </div>
         </main>
@@ -104,6 +106,7 @@ function PlayContent({
   const router = useRouter();
   const { state, dispatch, step, hintText } = useLevelGame(level, { playAudio });
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   const isMidLevel =
     state.phase !== "levelIntro" && state.phase !== "levelComplete";
@@ -125,19 +128,29 @@ function PlayContent({
       />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-6">
-        {/* Top Progress & Hint Bar */}
+        {/* Top Progress, Rules & Hint Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
           <StepIndicator current={step} />
 
-          {/* Hint Button */}
-          {state.phase !== "levelComplete" && (
-            <HintButton
-              hintsUsed={state.hintsUsed}
-              maxHints={level.hints.length}
-              disabled={state.phase === "levelIntro"}
-              onUseHint={() => dispatch({ type: "USE_HINT" })}
-            />
-          )}
+          <div className="flex items-center gap-3">
+            {/* Rules Button (Does NOT deduct points) */}
+            <Button
+              variant="outline"
+              onClick={() => setShowRules(true)}
+            >
+              {MESSAGES.ui.rules}
+            </Button>
+
+            {/* Hint Button */}
+            {state.phase !== "levelComplete" && (
+              <HintButton
+                hintsUsed={state.hintsUsed}
+                maxHints={level.hints.length}
+                disabled={state.phase === "levelIntro"}
+                onUseHint={() => dispatch({ type: "USE_HINT" })}
+              />
+            )}
+          </div>
         </div>
 
         {/* Revealed Hint Box */}
@@ -150,7 +163,7 @@ function PlayContent({
               💡
             </span>
             <div className="flex flex-col text-sm">
-              <span className="font-bold">คำใบ้ที่ {state.hintsUsed}:</span>
+              <span className="font-bold">{MESSAGES.ui.hintTitle(state.hintsUsed)}</span>
               <span>{hintText}</span>
             </div>
           </div>
@@ -196,27 +209,31 @@ function PlayContent({
         )}
       </main>
 
+      {/* Solubility Rules Dialog */}
+      <SolubilityDialog open={showRules} onClose={() => setShowRules(false)} />
+
+      {/* Exit Confirmation Dialog */}
       <Dialog
         open={showExitConfirm}
-        titleTh="ออกจากด่านหรือไม่?"
+        titleTh={MESSAGES.ui.exitDialog.title}
         onClose={() => setShowExitConfirm(false)}
       >
         <div className="flex flex-col gap-4 text-left">
           <p className="text-sm text-navy/80">
-            ระบบได้บันทึกความก้าวหน้าล่าสุดไว้แล้ว คุณสามารถกลับมาเล่นต่อจากจุดเดิมได้ในภายหลัง
+            {MESSAGES.ui.exitDialog.description}
           </p>
           <div className="flex justify-end gap-3 pt-2">
             <Button
               variant="outline"
               onClick={() => router.push("/levels")}
             >
-              ออกจากด่าน
+              {MESSAGES.ui.exitDialog.confirm}
             </Button>
             <Button
               variant="gold"
               onClick={() => setShowExitConfirm(false)}
             >
-              เล่นต่อ
+              {MESSAGES.ui.exitDialog.cancel}
             </Button>
           </div>
         </div>

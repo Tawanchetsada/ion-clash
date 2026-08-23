@@ -1,3 +1,5 @@
+import { MESSAGES } from "../../config/messages";
+
 export type CutPairListProps = {
   pairLabelsTh: readonly string[];
 };
@@ -8,11 +10,11 @@ export type CutPairListProps = {
  */
 export function CutPairList({ pairLabelsTh }: CutPairListProps) {
   if (pairLabelsTh.length === 0) {
-    return <p className="text-sm text-navy/70">ยังไม่ได้ตัดไอออนผู้ชมคู่ใด</p>;
+    return <p className="text-sm text-navy/70">{MESSAGES.ui.cutPairEmpty}</p>;
   }
 
   return (
-    <ul aria-label="รายการไอออนผู้ชมที่ตัดแล้ว" className="list-disc space-y-1 pl-5 text-sm text-navy">
+    <ul aria-label={MESSAGES.ui.cutPairListLabel} className="list-disc space-y-1 pl-5 text-sm text-navy">
       {pairLabelsTh.map((label) => (
         <li key={label}>{label}</li>
       ))}

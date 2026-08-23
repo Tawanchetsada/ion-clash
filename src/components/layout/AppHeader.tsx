@@ -1,3 +1,5 @@
+import { MESSAGES } from "../../config/messages";
+
 export type AppHeaderProps = {
   levelLabelTh?: string;
   onHome?: () => void;
@@ -30,14 +32,14 @@ export function AppHeader({ levelLabelTh, onHome, onHowToPlay }: AppHeaderProps)
           <span className="rounded-card bg-white/10 px-3 py-1 text-sm">{levelLabelTh}</span>
         )}
 
-        <nav aria-label="เมนูหลัก" className="flex items-center gap-2">
+        <nav aria-label={MESSAGES.ui.mainNav} className="flex items-center gap-2">
           {onHome && (
             <button
               type="button"
               onClick={onHome}
               className="min-h-11 min-w-11 rounded-card px-3 py-2 text-sm hover:bg-white/10"
             >
-              หน้าหลัก
+              {MESSAGES.ui.home}
             </button>
           )}
           {onHowToPlay && (
@@ -46,7 +48,7 @@ export function AppHeader({ levelLabelTh, onHome, onHowToPlay }: AppHeaderProps)
               onClick={onHowToPlay}
               className="min-h-11 min-w-11 rounded-card px-3 py-2 text-sm hover:bg-white/10"
             >
-              วิธีเล่น
+              {MESSAGES.ui.howToPlay}
             </button>
           )}
         </nav>

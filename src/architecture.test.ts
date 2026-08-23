@@ -177,4 +177,25 @@ describe("ข้อจำกัดเชิงสถาปัตยกรรม"
     );
     expect(totalBytes).toBeLessThanOrEqual(100 * 1024);
   });
+
+  it("ไม่มีข้อความไทยฝังใน src/components/ — ต้องมาจาก prop หรือ src/config/messages.ts", () => {
+    const thaiPattern = /[\u0E01-\u0E5B]/;
+    const offenders: string[] = [];
+
+    // Allowlist: ไม่มี (ทุกข้อความย้ายไป src/config/messages.ts หรือรับผ่าน view/prop แล้ว)
+    const allowlist = new Set<string>();
+
+    for (const file of collectTsFiles(join(srcDir, "components"))) {
+      const relativePath = asPosix(relative(srcDir, file));
+      if (relativePath.endsWith(".test.ts") || relativePath.endsWith(".test.tsx")) continue;
+      if (allowlist.has(relativePath)) continue;
+
+      const code = stripComments(readFileSync(file, "utf8"));
+      if (thaiPattern.test(code)) {
+        offenders.push(relativePath);
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
 });

@@ -84,4 +84,40 @@ describe("Play Page (/level/[levelId]/play)", () => {
     await screen.findByText("กำลังตรวจสอบข้อมูลด่าน…");
     expect(replaceSpy).toHaveBeenCalledWith("/levels");
   });
+
+  it("สามารถเปิดแผงดูกฎการละลายได้โดยไม่หักคะแนน", async () => {
+    const storage = createFakeStorage();
+    const repo = createGameSaveRepository({ storage });
+
+    render(
+      <SaveProvider repository={repo}>
+        <AudioProvider enabled={false}>
+          <MotionProvider enabled={false}>
+            <AnnouncerProvider>
+              <ToastProvider>
+                <PlayPage params={{ levelId: "1" }} />
+              </ToastProvider>
+            </AnnouncerProvider>
+          </MotionProvider>
+        </AudioProvider>
+      </SaveProvider>,
+    );
+
+    const rulesBtn = await screen.findByRole("button", { name: "ดูกฎการละลาย" });
+    expect(rulesBtn).toBeInTheDocument();
+
+    act(() => {
+      rulesBtn.click();
+    });
+
+    expect(screen.getByRole("dialog", { name: "ดูกฎการละลาย" })).toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeInTheDocument();
+
+    const closeBtn = screen.getByRole("button", { name: "ปิด" });
+    act(() => {
+      closeBtn.click();
+    });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
 });

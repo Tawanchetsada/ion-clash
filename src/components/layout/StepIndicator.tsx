@@ -1,3 +1,4 @@
+import { MESSAGES } from "../../config/messages";
 import { VisuallyHidden } from "../ui/VisuallyHidden";
 
 export type ProgressStep = 1 | 2 | 3 | 4 | 5;
@@ -6,13 +7,7 @@ export type StepIndicatorProps = {
   current: ProgressStep | null;
 };
 
-const STEP_LABELS_TH: readonly string[] = [
-  "เข้าสู่เกม",
-  "ไอออน 4 ไป 4",
-  "ตรวจผลิตภัณฑ์",
-  "ตัดไอออนผู้ชม",
-  "สมการไอออนิกสุทธิ",
-];
+const STEP_LABELS_TH = MESSAGES.ui.steps;
 
 /**
  * แถบ 5 ขั้นที่อยู่บนหัวทุกหน้าระหว่างเล่น — คนละชุดกับ 9 สถานะของเครื่อง
@@ -23,7 +18,7 @@ const STEP_LABELS_TH: readonly string[] = [
  */
 export function StepIndicator({ current }: StepIndicatorProps) {
   return (
-    <ol aria-label="ความคืบหน้าของด่าน" className="flex items-center gap-2">
+    <ol aria-label={MESSAGES.ui.stepProgressLabel} className="flex items-center gap-2">
       {STEP_LABELS_TH.map((labelTh, index) => {
         const step = (index + 1) as ProgressStep;
         const isCurrent = step === current;
@@ -44,7 +39,11 @@ export function StepIndicator({ current }: StepIndicatorProps) {
               <span aria-hidden="true">{step}</span>
               <VisuallyHidden>
                 {labelTh}
-                {isCurrent ? " (ขั้นปัจจุบัน)" : isDone ? " (ผ่านแล้ว)" : ""}
+                {isCurrent
+                  ? MESSAGES.ui.stepCurrentSuffix
+                  : isDone
+                    ? MESSAGES.ui.stepDoneSuffix
+                    : ""}
               </VisuallyHidden>
             </span>
             {index < STEP_LABELS_TH.length - 1 && (
