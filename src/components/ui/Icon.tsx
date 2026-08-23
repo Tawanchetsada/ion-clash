@@ -140,8 +140,8 @@ export function FlaskIcon(props: IconProps) {
 export function BookIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
-      <path d="M4 4.5h6a3 3 0 0 1 3 3V21a2.5 2.5 0 0 0-2.5-2.5H4Z" {...STROKE} />
-      <path d="M20 4.5h-6a3 3 0 0 0-3 3V21a2.5 2.5 0 0 1 2.5-2.5H20Z" {...STROKE} />
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" {...STROKE} />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" {...STROKE} />
     </svg>
   );
 }

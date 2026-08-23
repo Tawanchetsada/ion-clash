@@ -236,31 +236,56 @@ export default function HowToPlayPage() {
               </div>
             </div>
 
-            <div className="rounded-card bg-gold-surface p-4 border border-gold/40">
-              <h3 className="font-bold text-navy mb-2">เกณฑ์การได้รับดาว (Stars Criteria):</h3>
-              <ul className="space-y-2 text-xs sm:text-sm">
-                <li className="flex items-center justify-between border-b border-gold/20 pb-1.5">
-                  <span className="inline-flex items-center gap-2">
-                    <StarRow filled={3} />
-                    <strong>3 ดาว:</strong> ได้คะแนนตั้งแต่ {SCORING.starThresholds.three} คะแนนขึ้นไป (เล่นได้อย่างแม่นยำ ไม่ผิดเกิน 1 ครั้ง)
+            <div className="rounded-2xl bg-gold-surface p-4 sm:p-5 border border-gold/40 shadow-2xs">
+              <h3 className="font-extrabold text-navy text-sm sm:text-base mb-3">
+                เกณฑ์การได้รับดาว (Stars Criteria):
+              </h3>
+              <div className="flex flex-col gap-2.5">
+                {/* 3 Stars */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 rounded-xl bg-white/85 p-3 border border-gold/30">
+                  <div className="flex items-start sm:items-center gap-2">
+                    <div className="shrink-0 pt-0.5 sm:pt-0">
+                      <StarRow filled={3} />
+                    </div>
+                    <div className="text-xs sm:text-sm text-navy leading-snug">
+                      <strong className="text-navy">3 ดาว:</strong> ได้คะแนนตั้งแต่ {SCORING.starThresholds.three} คะแนนขึ้นไป (เล่นได้อย่างแม่นยำ ไม่ผิดเกิน 1 ครั้ง)
+                    </div>
+                  </div>
+                  <span className="self-end sm:self-auto shrink-0 whitespace-nowrap rounded-full bg-gold-light px-2.5 py-0.5 text-xs font-bold text-gold-dark">
+                    ยอดเยี่ยม
                   </span>
-                  <span className="font-bold text-gold-dark">ยอดเยี่ยม</span>
-                </li>
-                <li className="flex items-center justify-between border-b border-gold/20 pb-1.5">
-                  <span className="inline-flex items-center gap-2">
-                    <StarRow filled={2} />
-                    <strong>2 ดาว:</strong> ได้คะแนนตั้งแต่ {SCORING.starThresholds.two} - {SCORING.starThresholds.three - 1} คะแนน
+                </div>
+
+                {/* 2 Stars */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 rounded-xl bg-white/85 p-3 border border-gold/30">
+                  <div className="flex items-start sm:items-center gap-2">
+                    <div className="shrink-0 pt-0.5 sm:pt-0">
+                      <StarRow filled={2} />
+                    </div>
+                    <div className="text-xs sm:text-sm text-navy leading-snug">
+                      <strong className="text-navy">2 ดาว:</strong> ได้คะแนนตั้งแต่ {SCORING.starThresholds.two} - {SCORING.starThresholds.three - 1} คะแนน
+                    </div>
+                  </div>
+                  <span className="self-end sm:self-auto shrink-0 whitespace-nowrap rounded-full bg-blue/15 px-2.5 py-0.5 text-xs font-bold text-blue">
+                    ดีมาก
                   </span>
-                  <span className="font-bold text-blue">ดีมาก</span>
-                </li>
-                <li className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-2">
-                    <StarRow filled={1} />
-                    <strong>1 ดาว:</strong> ผ่านด่านโดยได้คะแนนอย่างน้อย {SCORING.starThresholds.one} คะแนน
+                </div>
+
+                {/* 1 Star */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 rounded-xl bg-white/85 p-3 border border-gold/30">
+                  <div className="flex items-start sm:items-center gap-2">
+                    <div className="shrink-0 pt-0.5 sm:pt-0">
+                      <StarRow filled={1} />
+                    </div>
+                    <div className="text-xs sm:text-sm text-navy leading-snug">
+                      <strong className="text-navy">1 ดาว:</strong> ผ่านด่านโดยได้คะแนนอย่างน้อย {SCORING.starThresholds.one} คะแนน
+                    </div>
+                  </div>
+                  <span className="self-end sm:self-auto shrink-0 whitespace-nowrap rounded-full bg-navy/10 px-2.5 py-0.5 text-xs font-bold text-navy/70">
+                    ผ่านเกณฑ์
                   </span>
-                  <span className="font-bold text-navy/60">ผ่านเกณฑ์</span>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
