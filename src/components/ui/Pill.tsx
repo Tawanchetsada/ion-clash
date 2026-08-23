@@ -11,7 +11,7 @@ const TONE_CLASS: Readonly<Record<PillTone, string>> = {
   navy: "bg-navy text-white",
   gold: "bg-gold text-navy",
   blue: "bg-blue text-white",
-  green: "bg-green text-white",
+  green: "bg-green-ink text-white",
   neutral: "bg-border text-navy",
 };
 

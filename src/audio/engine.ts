@@ -43,22 +43,42 @@ export class AudioEngine {
       options.fetchAudio ?? ((url: string): Promise<ArrayBuffer> => fetch(url).then((r) => r.arrayBuffer()));
   }
 
+  /** ปลดล็อกเสียงด้วย user gesture — ไม่ throw เช่นกัน เสียงห้ามทำให้เกมพัง */
   async unlock(): Promise<void> {
-    this.context ??= this.createContext();
-    if (this.context.state === "suspended") {
-      await this.context.resume();
+    try {
+      this.context ??= this.createContext();
+      if (this.context.state === "suspended") {
+        await this.context.resume();
+      }
+    } catch {
+      // เบราว์เซอร์ไม่ยอมให้เปิด AudioContext — เล่นเกมต่อได้แบบไม่มีเสียง
     }
   }
 
+  /**
+   * โหลดไฟล์เสียงล่วงหน้า — **ไม่ reject ไม่ว่าจะเกิดอะไรขึ้น**
+   *
+   * ดักข้อผิดพลาดทีละไฟล์ ไม่ใช่ดักรวมที่ Promise.all เพราะเสียงเป็นส่วนเสริม
+   * ไฟล์ที่โหลดไม่ได้ควรเงียบไปเฉพาะเสียงนั้น ส่วนที่เหลือต้องยังเล่นได้
+   *
+   * เจอจริงบน WebKit ใน CI: fetch ไฟล์เสียงล้มด้วย "due to access control
+   * checks" แล้ว rejection หลุดออกไปโผล่เป็น pageerror ทำให้เทสต์ที่ยืนยันว่า
+   * "ไม่มี error ในหน้าเลย" แดง ทั้งที่เกมเล่นจบด่านได้ตามปกติ — ตัวเกมไม่ควร
+   * ปล่อยข้อผิดพลาดของเสียงออกไปถึงหน้าเว็บตั้งแต่แรก
+   */
   async preload(): Promise<void> {
     this.context ??= this.createContext();
     const context = this.context;
 
     await Promise.all(
       (Object.entries(SOUND_FILES) as [SoundKey, string][]).map(async ([key, url]) => {
-        const data = await this.fetchAudio(url);
-        const buffer = await context.decodeAudioData(data);
-        this.buffers.set(key, buffer);
+        try {
+          const data = await this.fetchAudio(url);
+          const buffer = await context.decodeAudioData(data);
+          this.buffers.set(key, buffer);
+        } catch {
+          // ไฟล์นี้เล่นไม่ได้ — ข้ามไป ไม่กระทบไฟล์อื่นและไม่กระทบการเล่นเกม
+        }
       }),
     );
   }

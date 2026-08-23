@@ -84,4 +84,35 @@ describe("AudioEngine", () => {
     expect(connect).toHaveBeenCalledWith(ctx.destination);
     expect(start).toHaveBeenCalledOnce();
   });
+
+  it("preload ไม่ reject แม้ไฟล์เสียงโหลดไม่ได้ และไฟล์อื่นยังเล่นได้", async () => {
+    // เจอจริงบน WebKit ใน CI: fetch ไฟล์เสียงล้มแล้ว rejection หลุดไปโผล่เป็น
+    // pageerror ทำให้เทสต์ "ไม่มี error ในหน้าเลย" แดง ทั้งที่เกมเล่นได้ปกติ
+    const { ctx, createBufferSource } = fakeContext("running");
+    const engine = new AudioEngine({
+      createContext: () => ctx,
+      fetchAudio: (url) =>
+        url.includes("place")
+          ? Promise.reject(new TypeError("โหลดไม่ได้"))
+          : Promise.resolve(new ArrayBuffer(8)),
+    });
+
+    await expect(engine.preload()).resolves.toBeUndefined();
+
+    engine.play("place", { enabled: true });
+    expect(createBufferSource).not.toHaveBeenCalled();
+
+    engine.play("correct", { enabled: true });
+    expect(createBufferSource).toHaveBeenCalledOnce();
+  });
+
+  it("unlock ไม่ throw เมื่อเบราว์เซอร์ไม่ยอมเปิด AudioContext", async () => {
+    const engine = new AudioEngine({
+      createContext: () => {
+        throw new Error("ไม่อนุญาต");
+      },
+    });
+
+    await expect(engine.unlock()).resolves.toBeUndefined();
+  });
 });

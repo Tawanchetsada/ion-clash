@@ -12,7 +12,7 @@ const VARIANT_CLASS: Readonly<Record<ButtonVariant, string>> = {
   navy: "bg-navy text-white",
   gold: "bg-gold text-navy",
   blue: "bg-blue text-white",
-  green: "bg-green text-white",
+  green: "bg-green-ink text-white",
   outline: "border-2 border-navy bg-transparent text-navy",
 };
 

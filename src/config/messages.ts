@@ -109,6 +109,8 @@ export const MESSAGES = {
       placeholder: "ชื่อเล่นหรือรหัสนักเรียน",
       submit: "เริ่มเรียนรู้",
     },
+    problemLabel: "โจทย์",
+    problemUnknown: "ผลิตภัณฑ์ที่ต้องหาคำตอบ",
     rotatePrompt: {
       title: "หมุนเครื่องเป็นแนวนอน",
       description:

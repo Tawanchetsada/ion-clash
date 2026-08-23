@@ -62,26 +62,29 @@ export default function Home() {
       save.playerName !== "");
 
   return (
-    <PageShell>
-      <main className="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center">
-        <div className="flex max-w-lg flex-col items-center gap-8 rounded-card bg-white p-8 shadow-card border border-border sm:p-12 w-full">
-          {/* Logo & Title */}
-          <div className="flex flex-col items-center gap-3">
-            <h1 className="text-4xl font-extrabold tracking-tight text-navy">
-              ION CLASH
+    <PageShell variant="navy">
+      {/* หน้าแรกตามเอกสาร UI หน้า 04 — พื้นกรมเข้ม ชื่อเกมเด่น และสามเส้นทาง
+          เรียงเป็นปุ่มเต็มความกว้าง ไม่ใช่การ์ดขาวลอยบนพื้นอ่อน */}
+      <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-12 sm:flex-row sm:gap-12 sm:px-10">
+        <div className="flex w-full max-w-sm flex-col gap-7">
+          <div className="flex flex-col gap-3 text-center sm:text-left">
+            <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
+              ION <span className="text-gold">CLASH</span>
             </h1>
-            <p className="text-sm font-semibold text-navy/80">
-              แยกไอออน • สร้างตะกอน • ตัดไอออนตัวประกอบ
+            <p className="text-sm text-white/85">
+              เกมฝึกสร้างสมการไอออนิกสุทธิสำหรับนักเรียนชั้น ม.4
             </p>
-            <p className="text-xs text-navy/80">
-              เกมเคมี ม.4 สำหรับเรียนรู้สมการไอออนิกและปฏิกิริยาการตกตะกอน
+            <p className="text-xs font-semibold tracking-wide text-white/70">
+              แยกไอออน • สร้างตะกอน • ตัดไอออนตัวประกอบ
             </p>
           </div>
 
-          {/* Primary Action Buttons */}
           <div className="flex w-full flex-col gap-3">
             {save === null ? (
-              <div className="h-12 w-full animate-pulse rounded-card bg-navy/10" />
+              <>
+                <div className="h-12 w-full animate-pulse rounded-card bg-white/15" />
+                <div className="h-11 w-full animate-pulse rounded-card bg-white/10" />
+              </>
             ) : hasSaveData ? (
               <>
                 <Button
@@ -92,8 +95,8 @@ export default function Home() {
                   เล่นต่อด่าน {save.lastPlayedLevel || save.unlockedLevel || 1}
                 </Button>
                 <Button
-                  variant="outline"
-                  className="h-11 w-full text-sm font-semibold"
+                  variant="blue"
+                  className="h-12 w-full text-base font-bold"
                   onClick={() => router.push("/levels")}
                 >
                   เลือกด่าน (ปลดล็อกถึงด่าน {save.unlockedLevel})
@@ -108,36 +111,51 @@ export default function Home() {
                 เริ่มเกม
               </Button>
             )}
-          </div>
 
-          {/* Secondary Nav Links */}
-          <div className="flex flex-wrap items-center justify-center gap-3 border-t border-border pt-6 w-full text-sm">
             <Link
               href="/how-to-play"
-              className="min-h-11 inline-flex items-center justify-center rounded-card border border-blue/30 bg-blue/10 px-4 py-2 font-semibold text-navy hover:bg-blue/20"
+              className="inline-flex h-12 w-full items-center justify-center rounded-card bg-blue px-4 font-bold text-white shadow-card hover:brightness-110"
             >
               วิธีการเล่น
             </Link>
             <Link
               href="/knowledge"
-              className="min-h-11 inline-flex items-center justify-center rounded-card border border-green/30 bg-green/10 px-4 py-2 font-semibold text-navy hover:bg-green/20"
+              className="inline-flex h-12 w-full items-center justify-center rounded-card bg-green-ink px-4 font-bold text-white shadow-card hover:brightness-110"
             >
               ความรู้ก่อนเล่นเกม
             </Link>
-            <Link
-              href="/progress"
-              className="min-h-11 inline-flex items-center justify-center rounded-card border border-navy/20 px-4 py-2 font-semibold text-navy hover:bg-navy/5"
-            >
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 border-t border-white/15 pt-5 text-sm sm:justify-start">
+            <Link href="/progress" className="min-h-11 inline-flex items-center text-white/80 underline hover:text-white">
               ความก้าวหน้า
             </Link>
-            <Link
-              href="/settings"
-              className="min-h-11 inline-flex items-center justify-center rounded-card border border-navy/20 px-4 py-2 font-semibold text-navy hover:bg-navy/5"
-            >
+            <Link href="/settings" className="min-h-11 inline-flex items-center text-white/80 underline hover:text-white">
               ตั้งค่า
             </Link>
           </div>
         </div>
+
+        {/* ภาพประกอบวงโคจรไอออนรอบตะกอน — ตกแต่งล้วน ซ่อนจาก screen reader */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 220 220"
+          className="hidden h-56 w-56 shrink-0 sm:block lg:h-72 lg:w-72"
+        >
+          <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2" />
+          <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2" transform="rotate(60 110 110)" />
+          <ellipse cx="110" cy="110" rx="96" ry="52" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2" transform="rotate(120 110 110)" />
+          <circle cx="110" cy="110" r="46" fill="var(--color-gold)" />
+          <text x="110" y="118" textAnchor="middle" className="fill-navy text-xl font-bold">
+            AgCl
+          </text>
+          <circle cx="188" cy="86" r="14" fill="var(--color-green)" />
+          <text x="188" y="92" textAnchor="middle" className="fill-white text-base font-bold">−</text>
+          <circle cx="46" cy="146" r="14" fill="var(--color-blue)" />
+          <text x="46" y="152" textAnchor="middle" className="fill-white text-base font-bold">+</text>
+          <circle cx="150" cy="176" r="12" fill="var(--color-blue)" />
+          <text x="150" y="181" textAnchor="middle" className="fill-white text-sm font-bold">+</text>
+        </svg>
       </main>
 
       {/* Name Input Dialog for D-14 */}

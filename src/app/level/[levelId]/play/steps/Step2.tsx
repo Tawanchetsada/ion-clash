@@ -16,6 +16,7 @@ import { usePlacement } from "../../../../../components/interaction/usePlacement
 import { Button } from "../../../../../components/ui/Button";
 import { ionCardView } from "../../../../../presentation/cards";
 import { EquationArrow } from "../../../../../components/game/EquationArrow";
+import { ProblemBar } from "../../../../../components/game/ProblemBar";
 
 export type Step2Props = {
   state: GameState;
@@ -190,6 +191,15 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
             : "ลากหรือแตะเลือกไอออนบวกและไอออนลบเพื่อจับคู่ผลิตภัณฑ์ใหม่ (ไอออนบวกต้องอยู่หน้าไอออนลบ)"}
         </p>
       </div>
+
+      {/* แถบโจทย์ค้างไว้ตลอดขั้นเล่น ตามเอกสาร UI หน้า 07 — ผู้เล่นต้องมองย้อน
+          ได้ว่าโจทย์ให้สารอะไรมา โดยยังไม่เฉลยผลิตภัณฑ์ */}
+      <ProblemBar
+        reactants={[
+          { formula: level.reactantA.formula, phaseTh: level.reactantA.phase },
+          { formula: level.reactantB.formula, phaseTh: level.reactantB.phase },
+        ]}
+      />
 
       {/*
         แถวเดียวแนวนอน: ไอออนตั้งต้น 4 ใบ → ช่องผลิตภัณฑ์ 4 ช่อง ตามเอกสาร UI หน้า 07
