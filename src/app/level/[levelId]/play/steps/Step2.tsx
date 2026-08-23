@@ -19,8 +19,10 @@ import { ionCardView } from "../../../../../presentation/cards";
 import { EquationArrow } from "../../../../../components/game/EquationArrow";
 import { EquationView } from "../../../../../components/game/EquationView";
 import { ProblemBar } from "../../../../../components/game/ProblemBar";
+import { AtomBalanceTable } from "../../../../../components/game/AtomBalanceTable";
+import type { AtomBalanceRow } from "../../../../../components/game/AtomBalanceTable";
 import { getIon } from "../../../../../domain/chemistry/ions";
-import { renderIon } from "../../../../../domain/chemistry/formula";
+import { renderIon, renderCompoundFormula } from "../../../../../domain/chemistry/formula";
 
 export type Step2Props = {
   state: GameState;
@@ -101,8 +103,105 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
     return map;
   }, [allReactantCards]);
 
+  // ── Sub-step เมื่ออยู่ใน phase balanceEquation ─────────────────
+  // เริ่มที่ crissCross (ไขว้ประจุ) ก่อน แล้วผู้เล่นกดถัดไปเป็น balancing (ดุลสมการ)
+  const [balanceSubStep, setBalanceSubStep] = useState<"crissCross" | "balancing">("crissCross");
+
   const isArranging = state.phase === "arrangeProductIons";
-  const isBalancing = state.phase === "balanceEquation";
+  const isBalancing = state.phase === "balanceEquation" && balanceSubStep === "balancing";
+  const isCrissCross = state.phase === "balanceEquation" && balanceSubStep === "crissCross";
+
+  // ── Criss-Cross Data ─────────────────────────────────────────
+  const crissCrossData = useMemo(() => {
+    const precipitate = level.precipitate;
+    const aqueous = level.aqueousProduct;
+    const precipCation = getIon(precipitate.cationId);
+    const precipAnion = getIon(precipitate.anionId);
+    const aqCation = getIon(aqueous.cationId);
+    const aqAnion = getIon(aqueous.anionId);
+
+    return {
+      precip: {
+        cation: precipCation,
+        anion: precipAnion,
+        cationCount: precipitate.cationCount,
+        anionCount: precipitate.anionCount,
+        formula: precipitate.formula,
+      },
+      aqueous: {
+        cation: aqCation,
+        anion: aqAnion,
+        cationCount: aqueous.cationCount,
+        anionCount: aqueous.anionCount,
+        formula: renderCompoundFormula(aqCation, aqAnion, aqueous.cationCount, aqueous.anionCount),
+      },
+    };
+  }, [level]);
+
+  // ── Atom Balance Table Rows ──────────────────────────────────
+  const atomBalanceRows: AtomBalanceRow[] = useMemo(() => {
+    // 4 unique ions from reactants — some may be shared with products
+    const ions = [
+      { id: level.reactantA.cationId, ion: getIon(level.reactantA.cationId) },
+      { id: level.reactantA.anionId, ion: getIon(level.reactantA.anionId) },
+      { id: level.reactantB.cationId, ion: getIon(level.reactantB.cationId) },
+      { id: level.reactantB.anionId, ion: getIon(level.reactantB.anionId) },
+    ];
+
+    // Deduplicate by ionId (if reactants share an ion)
+    const seen = new Set<string>();
+    const uniqueIons = ions.filter((i) => {
+      if (seen.has(i.id)) return false;
+      seen.add(i.id);
+      return true;
+    });
+
+    return uniqueIons.map((entry) => {
+      const { id, ion } = entry;
+
+      // Left side: sum of this ion across reactant coefficients
+      let leftCount: number | null = null;
+      if (ionicCoeffs.every((c, idx) => idx >= 4 || c !== null)) {
+        leftCount = 0;
+        if (level.reactantA.cationId === id)
+          leftCount += (ionicCoeffs[0] ?? 0);
+        if (level.reactantA.anionId === id)
+          leftCount += (ionicCoeffs[1] ?? 0);
+        if (level.reactantB.cationId === id)
+          leftCount += (ionicCoeffs[2] ?? 0);
+        if (level.reactantB.anionId === id)
+          leftCount += (ionicCoeffs[3] ?? 0);
+      }
+
+      // Right side: sum of this ion across product coefficients
+      let rightCount: number | null = null;
+      if (ionicCoeffs.every((c, idx) => idx < 4 || c !== null)) {
+        rightCount = 0;
+        const precipCoeffIdx = 4;
+        const aqCatIdx = 5;
+        const aqAnIdx = 6;
+
+        // Precipitate: break into constituent ions × precipCoeff
+        if (level.precipitate.cationId === id)
+          rightCount += (ionicCoeffs[precipCoeffIdx] ?? 0) * level.precipitate.cationCount;
+        if (level.precipitate.anionId === id)
+          rightCount += (ionicCoeffs[precipCoeffIdx] ?? 0) * level.precipitate.anionCount;
+
+        // Aqueous ions
+        if (level.aqueousProduct.cationId === id)
+          rightCount += (ionicCoeffs[aqCatIdx] ?? 0);
+        if (level.aqueousProduct.anionId === id)
+          rightCount += (ionicCoeffs[aqAnIdx] ?? 0);
+      }
+
+      return {
+        key: id,
+        formula: renderIon(ion, 1),
+        leftCount,
+        rightCount,
+      };
+    });
+  }, [ionicCoeffs, level]);
 
   function renderTrayCard(card: (typeof allReactantCards)[number]) {
     const isAssigned = assignedSet.has(card.instanceId);
@@ -267,14 +366,18 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
 
       <div>
         <h2 className="text-xl font-bold text-navy">
-          {isBalancing
-            ? "ขั้นที่ 2 · ดุลสัมประสิทธิ์ของสมการไอออนิก"
-            : "ขั้นที่ 2 · แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์"}
+          {isCrissCross
+            ? "ขั้นที่ 2 · ไขว้ประจุสร้างสูตรสารประกอบ"
+            : isBalancing
+              ? "ขั้นที่ 2 · ดุลสัมประสิทธิ์ของสมการไอออนิก"
+              : "ขั้นที่ 2 · แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์"}
         </h2>
         <p className="text-sm text-navy/70">
-          {isBalancing
-            ? "กรอกตัวเลขสัมประสิทธิ์ข้างหน้าแต่ละไอออนและสารผลิตภัณฑ์ (สมมุติสารแต่ละตัวเป็น 1 โมล) เพื่อดุลสมการให้เท่ากันทั้งสองด้าน"
-            : "ลากหรือแตะเลือกไอออนบวกและไอออนลบเพื่อจับคู่ผลิตภัณฑ์ใหม่ (ไอออนบวกต้องอยู่หน้าไอออนลบ)"}
+          {isCrissCross
+            ? MESSAGES.ui.crissCrossDesc
+            : isBalancing
+              ? "กรอกตัวเลขสัมประสิทธิ์ข้างหน้าแต่ละไอออนและสารผลิตภัณฑ์ (สมมุติสารแต่ละตัวเป็น 1 โมล) เพื่อดุลสมการให้เท่ากันทั้งสองด้าน"
+              : "ลากหรือแตะเลือกไอออนบวกและไอออนลบเพื่อจับคู่ผลิตภัณฑ์ใหม่ (ไอออนบวกต้องอยู่หน้าไอออนลบ)"}
         </p>
       </div>
 
@@ -376,6 +479,78 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
           </div>
         </div>
       </div>
+
+      {/* ── Criss-Cross Visualization Panel ─────────────────────── */}
+      {isCrissCross && (
+        <div className="w-full max-w-3xl rounded-card border border-border bg-white p-4 shadow-card sm:p-5">
+          <div className="flex flex-col gap-5">
+            {/* แถวที่ 1: ตะกอน */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-gold">
+                {MESSAGES.ui.crissCrossPrecipLabel}
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-3 text-base sm:text-lg font-bold text-navy">
+                {/* Cation with charge */}
+                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
+                  <EquationView ast={renderIon(crissCrossData.precip.cation, 1)} />
+                </span>
+
+                <span className="text-navy/40">+</span>
+
+                {/* Anion with charge */}
+                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
+                  <EquationView ast={renderIon(crissCrossData.precip.anion, 1)} />
+                </span>
+
+                <span className="text-gold text-xl">→</span>
+
+                {/* Result compound */}
+                <span className="inline-flex items-baseline rounded-card border-2 border-gold bg-gold/10 px-3 py-2 shadow-2xs">
+                  <EquationView ast={crissCrossData.precip.formula} />
+                </span>
+              </div>
+              {/* Criss-cross annotation */}
+              <p className="text-xs text-navy/60 text-center">
+                {`ประจุ ${Math.abs(crissCrossData.precip.cation.charge)}+ ↔ ตัวห้อย ${crissCrossData.precip.anionCount} ของ ${crissCrossData.precip.anion.core}`}
+                {" · "}
+                {`ประจุ ${Math.abs(crissCrossData.precip.anion.charge)}− ↔ ตัวห้อย ${crissCrossData.precip.cationCount} ของ ${crissCrossData.precip.cation.core}`}
+              </p>
+            </div>
+
+            {/* เส้นคั่น */}
+            <hr className="border-border" />
+
+            {/* แถวที่ 2: สารละลาย */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-blue">
+                {MESSAGES.ui.crissCrossAqLabel}
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-3 text-base sm:text-lg font-bold text-navy">
+                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
+                  <EquationView ast={renderIon(crissCrossData.aqueous.cation, 1)} />
+                </span>
+
+                <span className="text-navy/40">+</span>
+
+                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
+                  <EquationView ast={renderIon(crissCrossData.aqueous.anion, 1)} />
+                </span>
+
+                <span className="text-blue text-xl">→</span>
+
+                <span className="inline-flex items-baseline rounded-card border border-border bg-panel px-3 py-2 shadow-2xs">
+                  <EquationView ast={crissCrossData.aqueous.formula} />
+                </span>
+              </div>
+              <p className="text-xs text-navy/60 text-center">
+                {`ประจุ ${Math.abs(crissCrossData.aqueous.cation.charge)}+ ↔ ตัวห้อย ${crissCrossData.aqueous.anionCount} ของ ${crissCrossData.aqueous.anion.core}`}
+                {" · "}
+                {`ประจุ ${Math.abs(crissCrossData.aqueous.anion.charge)}− ↔ ตัวห้อย ${crissCrossData.aqueous.cationCount} ของ ${crissCrossData.aqueous.cation.core}`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Coefficient Balancing Inputs (When in balanceEquation phase) */}
       {isBalancing && (
@@ -507,20 +682,24 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
               </div>
             </div>
           </div>
+
+          {/* Atom Balance Table */}
+          <div className="mt-4 border-t border-border pt-4">
+            <AtomBalanceTable rows={atomBalanceRows} />
+          </div>
         </div>
       )}
 
       {/* Action Check Buttons */}
       <div className="flex flex-wrap justify-center gap-3">
-        <Button
-          variant="outline"
-          onClick={() => dispatch({ type: "PREV_STEP" })}
-        >
-          {isBalancing ? MESSAGES.ui.backToArrangement : MESSAGES.ui.backToStep1}
-        </Button>
-
         {isArranging && (
           <>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "PREV_STEP" })}
+            >
+              {MESSAGES.ui.backToStep1}
+            </Button>
             <Button
               variant="outline"
               onClick={() => {
@@ -541,14 +720,39 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
           </>
         )}
 
+        {isCrissCross && (
+          <>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "PREV_STEP" })}
+            >
+              {MESSAGES.ui.backToArrangement}
+            </Button>
+            <Button
+              variant="gold"
+              onClick={() => setBalanceSubStep("balancing")}
+            >
+              {MESSAGES.ui.goToBalance}
+            </Button>
+          </>
+        )}
+
         {isBalancing && (
-          <Button
-            variant="gold"
-            disabled={!isIonicBalanceComplete}
-            onClick={handleCheckIonicBalance}
-          >
-            {MESSAGES.ui.checkBalance}
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setBalanceSubStep("crissCross")}
+            >
+              {MESSAGES.ui.backToCrissCross}
+            </Button>
+            <Button
+              variant="gold"
+              disabled={!isIonicBalanceComplete}
+              onClick={handleCheckIonicBalance}
+            >
+              {MESSAGES.ui.checkBalance}
+            </Button>
+          </>
         )}
       </div>
     </div>

@@ -32,18 +32,20 @@ export function Step3({ state, level, dispatch }: Step3Props) {
   const precipitateView = compoundCardView(level.precipitate, { revealed });
 
   const aqueous = level.aqueousProduct;
-  const freeIons = [
-    freeIonView(aqueous.cationId, {
-      count: aqueous.cationCount,
-      phase: "aq",
-      instanceId: `L${level.id}:aqion:cat`,
-    }),
-    freeIonView(aqueous.anionId, {
-      count: aqueous.anionCount,
-      phase: "aq",
-      instanceId: `L${level.id}:aqion:an`,
-    }),
-  ];
+  const aqCoeff = level.productA.phase === "s" ? level.coefficients.d : level.coefficients.c;
+  const cationTotalCount = aqCoeff * aqueous.cationCount;
+  const anionTotalCount = aqCoeff * aqueous.anionCount;
+
+  const cationIonView = freeIonView(aqueous.cationId, {
+    count: aqueous.cationCount,
+    phase: "aq",
+    instanceId: `L${level.id}:aqion:cat`,
+  });
+  const anionIonView = freeIonView(aqueous.anionId, {
+    count: aqueous.anionCount,
+    phase: "aq",
+    instanceId: `L${level.id}:aqion:an`,
+  });
 
   return (
     <div className="flex flex-col items-center gap-6 text-center">
@@ -72,9 +74,19 @@ export function Step3({ state, level, dispatch }: Step3Props) {
             <span>ไอออนที่ยังคงอยู่ในสารละลาย</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            {freeIons.map((ion) => (
-              <IonCard key={ion.instanceId} view={ion} />
-            ))}
+            <div className="flex items-center gap-2">
+              {cationTotalCount > 1 && (
+                <span className="text-lg font-bold text-navy">{cationTotalCount}</span>
+              )}
+              <IonCard view={cationIonView} />
+            </div>
+            <span className="text-lg font-bold text-navy">+</span>
+            <div className="flex items-center gap-2">
+              {anionTotalCount > 1 && (
+                <span className="text-lg font-bold text-navy">{anionTotalCount}</span>
+              )}
+              <IonCard view={anionIonView} />
+            </div>
           </div>
           <span className="text-xs text-navy/70">
             สถานะสารละลาย (aq) — ไม่รวมเป็นสารประกอบ ยังแยกกันอยู่เป็นไอออน
