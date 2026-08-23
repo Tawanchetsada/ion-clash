@@ -292,3 +292,12 @@ export function ChevronRightIcon(props: IconProps) {
   );
 }
 
+export function UserIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" {...STROKE} />
+      <circle cx="12" cy="7" r="4" {...STROKE} />
+    </svg>
+  );
+}
+

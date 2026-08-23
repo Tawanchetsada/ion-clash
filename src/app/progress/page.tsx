@@ -11,7 +11,15 @@ import type { GameSaveV1 } from "../../storage/schema";
 import { useOptionalResearch } from "../../session/ResearchProvider";
 import { useSave } from "../../session/SaveProvider";
 import { useToast } from "../../session/ToastProvider";
-import { CopyIcon, DownloadIcon, StarIcon, TrophyIcon } from "../../components/ui/Icon";
+import {
+  CheckIcon,
+  ClockIcon,
+  CopyIcon,
+  DownloadIcon,
+  StarIcon,
+  TrophyIcon,
+  UserIcon,
+} from "../../components/ui/Icon";
 
 export default function ProgressPage() {
   const router = useRouter();
@@ -172,26 +180,56 @@ export default function ProgressPage() {
           </p>
         </header>
 
-        {/* Player Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-card bg-navy p-6 text-white shadow-card">
-          <div className="flex items-center gap-4">
-            <span
-              aria-hidden="true"
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-gold font-bold text-navy text-xl"
-            >
-              {save.playerName ? save.playerName[0]?.toUpperCase() : "U"}
-            </span>
-            <div>
-              <div className="text-xs text-white/70">ผู้เรียน</div>
-              <div className="text-xl font-bold">
-                {save.playerName || "ผู้เล่นนิรนาม"}
+        {/* Player Profile Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br from-[#0F2238] via-[#162D4A] to-[#0A1829] p-5 sm:p-6 text-white shadow-card">
+          {/* Ambient Background Glow */}
+          <div className="pointer-events-none absolute -right-8 -top-8 h-44 w-44 rounded-full bg-gold/10 blur-2xl" />
+          <div className="pointer-events-none absolute -left-8 -bottom-8 h-44 w-44 rounded-full bg-blue/15 blur-2xl" />
+
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* Left: Avatar + Name */}
+            <div className="flex items-center gap-4">
+              <div className="relative shrink-0">
+                <span
+                  aria-hidden="true"
+                  className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-gold to-gold-light font-black text-navy text-2xl sm:text-3xl shadow-lg ring-4 ring-gold/20"
+                >
+                  {save.playerName ? save.playerName[0]?.toUpperCase() : "U"}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-[#0F2238] text-[10px] text-white shadow-xs"
+                  title="ผู้เรียน"
+                >
+                  <CheckIcon className="text-[10px]" />
+                </span>
+              </div>
+
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-gold-light">
+                  <UserIcon className="text-sm shrink-0" />
+                  <span>โปรไฟล์ผู้เรียน</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight truncate">
+                  {save.playerName || "ผู้เล่นนิรนาม"}
+                </h2>
+                <div className="text-xs text-white/60 mt-0.5">
+                  วิชาเคมี ม.4 · สมการไอออนิกสุทธิ
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="text-right text-xs text-white/70">
-            <div>ปลดล็อกถึง: ด่าน {save.unlockedLevel} / 50</div>
-            <div>บันทึกล่าสุด: {new Date(save.updatedAt).toLocaleString("th-TH")}</div>
+            {/* Right / Bottom: Status Badges */}
+            <div className="flex flex-wrap sm:flex-col items-start sm:items-end gap-2 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0">
+              <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-md border border-white/15 text-xs font-semibold text-white/90 shadow-2xs">
+                <TrophyIcon className="text-gold text-sm shrink-0" />
+                <span>ปลดล็อกถึง: <strong className="text-gold">ด่าน {save.unlockedLevel} / 50</strong></span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-md border border-white/15 text-xs text-white/70 shadow-2xs">
+                <ClockIcon className="text-white/60 text-sm shrink-0" />
+                <span>บันทึกล่าสุด: {new Date(save.updatedAt).toLocaleString("th-TH")}</span>
+              </div>
+            </div>
           </div>
         </div>
 
