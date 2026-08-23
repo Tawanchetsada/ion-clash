@@ -27,6 +27,32 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // component ต้องรับข้อมูลที่แปลแล้วจาก src/presentation/ เท่านั้น ห้ามเรียก
+    // domain/data เอง — ไม่งั้นตรรกะเคมีจะกระจายไปอยู่ใน UI ที่ทดสอบยาก
+    // อนุญาต import type ได้ เพราะถูกลบตอน build ไม่เหลือ runtime dependency
+    // ไฟล์เทสต์ยกเว้น — เทสต์ต้องสร้างข้อมูลด่านจริงมาเป็น fixture ได้
+    files: ["src/components/**/*.ts", "src/components/**/*.tsx"],
+    ignores: ["src/components/**/*.test.ts", "src/components/**/*.test.tsx"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              // "**" จำเป็น (ไม่ใช่ "*") เพราะ import ใน src/components/ ที่ซ้อนโฟลเดอร์
+              // ลึกหลายชั้นเขียนเป็น "../../domain/..." ซึ่งมีหลาย path segment
+              // ก่อน "domain" — "*" เดี่ยวจับได้แค่ path ลึกชั้นเดียวเท่านั้น
+              group: ["**/domain/**", "@/domain/**", "**/data/**", "@/data/**"],
+              message:
+                "component ห้ามเรียก domain/data ตรง ๆ — ใช้ view model จาก src/presentation/ แทน",
+              allowTypeImports: true,
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // ที่เก็บข้อมูลต้องผ่าน GameSaveRepository เท่านั้น
     // นอกจากเรื่องสถาปัตยกรรมแล้ว การอ่าน localStorage ตอน server render
     // ทำให้ Next.js พังทันทีเพราะไม่มี window บนเซิร์ฟเวอร์

@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -114,5 +114,67 @@ describe("ข้อจำกัดเชิงสถาปัตยกรรม"
     expect(
       pattern.test(stripComments("window.localStorage.setItem('k', v); // เซฟ")),
     ).toBe(true);
+  });
+
+  it("component ห้าม import ค่าจาก domain/data ตรง ๆ — import type เท่านั้นที่ผ่านได้", () => {
+    // ESLint (@typescript-eslint/no-restricted-imports) เป็นตัวบังคับจริง
+    // อันนี้เป็นชั้นสำรองแบบเดียวกับกฎ localStorage ข้างบน
+    const offenders: string[] = [];
+
+    for (const file of collectTsFiles(join(srcDir, "components"))) {
+      const relativePath = asPosix(relative(srcDir, file));
+      if (relativePath.endsWith(".test.ts") || relativePath.endsWith(".test.tsx")) continue;
+      const source = stripComments(readFileSync(file, "utf8"));
+      const importLines = source.match(/^import[^\n]*from\s+["'][^"']+["'];?/gm) ?? [];
+
+      for (const line of importLines) {
+        if (/^import\s+type\b/.test(line.trim())) continue; // import type ผ่านได้
+        const fromPath = line.match(/from\s+["']([^"']+)["']/)?.[1] ?? "";
+        if (/(^|\/)(domain|data)\//.test(fromPath)) {
+          offenders.push(`${relativePath}: ${line.trim()}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("ไม่มี dangerouslySetInnerHTML ที่ไหนใน src/ เลย", () => {
+    // สูตรเคมี render จาก FormulaAst เท่านั้น ตามข้อห้ามตรง ๆ ในสเปก
+    const offenders = findOffenders(/dangerouslySetInnerHTML/, () => false);
+    expect(offenders).toEqual([]);
+  });
+
+  it("โทเค็นสี 6 ตัวใน globals.css ตรงกับตาราง Design System ในสเปกเป๊ะ", () => {
+    const css = readFileSync(join(srcDir, "app", "globals.css"), "utf8");
+    const expected: Readonly<Record<string, string>> = {
+      navy: "#082541",
+      blue: "#1f5faa",
+      green: "#2b8846",
+      gold: "#f1be2d",
+      canvas: "#eaf4fb",
+      error: "#c63c45",
+    };
+
+    for (const [name, hex] of Object.entries(expected)) {
+      const match = css.match(new RegExp(`--color-${name}:\\s*(#[0-9a-fA-F]{6})`));
+      expect(match?.[1]?.toLowerCase(), `--color-${name}`).toBe(hex);
+    }
+  });
+
+  it("ไฟล์เสียงครบ 5 ไฟล์และรวมกันไม่เกิน 100 KB ตามงบ performance", () => {
+    const audioDir = join(srcDir, "..", "public", "audio");
+    expect(existsSync(audioDir), "public/audio/ ต้องมีอยู่ — รัน npm run gen:audio ก่อน").toBe(
+      true,
+    );
+
+    const files = readdirSync(audioDir).filter((entry) => entry.endsWith(".wav"));
+    expect(files).toHaveLength(5);
+
+    const totalBytes = files.reduce(
+      (sum, file) => sum + statSync(join(audioDir, file)).size,
+      0,
+    );
+    expect(totalBytes).toBeLessThanOrEqual(100 * 1024);
   });
 });

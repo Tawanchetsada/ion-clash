@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * โทเค็นสีทั้งหมดอยู่ที่นี่ที่เดียว — ตรงกับตาราง Design System ในสเปกเป๊ะ
+ * `architecture.test.ts` อ่านไฟล์นี้แล้วเทียบค่าตรง ๆ ห้ามแก้ค่าสีหลัก 6 ตัว
+ * โดยไม่แก้เทสต์ตามไปด้วยอย่างมีเหตุผล (เช่นอาจารย์ขอเปลี่ยนสี)
+ */
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --font-sans: var(--font-google-sans);
 
   --color-navy: #082541;
   --color-blue: #1f5faa;
@@ -10,29 +16,32 @@
   --color-gold: #f1be2d;
   --color-canvas: #eaf4fb;
   --color-error: #c63c45;
+
+  /* พื้นแผงและเส้นขอบ — ไม่ใช่ 6 สีบทบาทหลักในสเปก แต่ใช้ประกอบ UI */
+  --color-panel: #ffffff;
+  --color-border: #d7e6f2;
+  --color-focus-ring: #1f5faa;
+
   --radius-card: 16px;
   --shadow-card: 0 8px 24px rgba(8, 37, 65, 0.1);
-}
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-google-sans);
-
-  --color-navy: var(--color-navy);
-  --color-blue: var(--color-blue);
-  --color-green: var(--color-green);
-  --color-gold: var(--color-gold);
-  --color-canvas: var(--color-canvas);
-  --color-error: var(--color-error);
-  --radius-card: var(--radius-card);
-  --shadow-card: var(--shadow-card);
+  /* แอนิเมชันเปลี่ยนสี/สถานะ 150-250ms ตามกติกาข้อ 5.1 */
+  --duration-fast: 150ms;
+  --duration-slow: 250ms;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-background);
+  color: var(--color-foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* แถบสมการเลื่อนแนวนอนได้เฉพาะตัวมันเอง — ห้ามให้ทั้งหน้าเลื่อนตามข้อ 5.5 */
+.equation-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 @media (prefers-reduced-motion: reduce) {

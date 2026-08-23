@@ -12,3 +12,6 @@ test-results/
 *.pem
 *.tsbuildinfo
 npm-debug.log*
+
+# วัตถุดิบเสียงต้นฉบับ — โหลดใหม่ได้เสมอด้วย npm run gen:audio ไม่ต้อง commit
+scripts/audio-src/
