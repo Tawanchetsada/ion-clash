@@ -85,26 +85,25 @@ describe("Settings Page (/settings)", () => {
       </SaveProvider>,
     );
 
-    const switches = await screen.findAllByRole("switch");
-    const musicSwitch = switches[1];
-    const consentSwitch = switches[3];
+    const musicSwitch = screen.getByRole("switch", { name: "เปิดปิดเพลงพื้นหลัง" });
+    const consentSwitch = screen.getByRole("switch", { name: "เปิดปิดการยินยอมส่งข้อมูลวิจัย" });
     expect(consentSwitch).toBeDefined();
-    expect(consentSwitch?.getAttribute("aria-checked")).toBe("false");
+    expect(consentSwitch.getAttribute("aria-checked")).toBe("false");
 
     act(() => {
-      fireEvent.click(consentSwitch!);
+      fireEvent.click(consentSwitch);
     });
 
-    expect(consentSwitch?.getAttribute("aria-checked")).toBe("true");
+    expect(consentSwitch.getAttribute("aria-checked")).toBe("true");
     let saved = repo.load();
     expect(saved.settings.researchConsent).toBe(true);
 
     // ทดสอบเปิดเพลงพื้นหลัง
-    expect(musicSwitch?.getAttribute("aria-checked")).toBe("false");
+    expect(musicSwitch.getAttribute("aria-checked")).toBe("false");
     act(() => {
-      fireEvent.click(musicSwitch!);
+      fireEvent.click(musicSwitch);
     });
-    expect(musicSwitch?.getAttribute("aria-checked")).toBe("true");
+    expect(musicSwitch.getAttribute("aria-checked")).toBe("true");
     saved = repo.load();
     expect(saved.settings.music).toBe(true);
   });

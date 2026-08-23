@@ -3,21 +3,22 @@ import { describe, expect, it, vi } from "vitest";
 import { SolubilityDialog } from "./SolubilityDialog";
 
 describe("SolubilityDialog", () => {
-  it("render ตารางกฎ 11 ข้อเมื่อ open=true", () => {
+  it("render กฎการละลาย 7 ข้อและกรอบจำให้แม่นเมื่อ open=true", () => {
     const onClose = vi.fn();
     render(<SolubilityDialog open={true} onClose={onClose} />);
 
     expect(screen.getByRole("dialog", { name: "ดูกฎการละลาย" })).toBeInTheDocument();
-    expect(screen.getByRole("table")).toBeInTheDocument();
-
-    // Check all 11 rows exist
-    const rows = screen.getAllByRole("row");
-    // 1 header row + 11 content rows = 12
-    expect(rows).toHaveLength(12);
-
     expect(
-      screen.getByText("เกลือของ Na⁺, K⁺ และ NH₄⁺ ละลายน้ำได้ทั้งหมด"),
+      screen.getByText(/วิธีใช้: ตรวจสอบไอออนในสารประกอบตามลำดับจากข้อ 1 ลงไป/),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("ข้อ 1 — เกลือของ Na⁺, K⁺ และ NH₄⁺"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("ข้อ 7 — เกลือไทโอไซยาเนต"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("จำให้แม่น")).toBeInTheDocument();
+    expect(screen.getByText("Na⁺, K⁺, NH₄⁺ และ NO₃⁻")).toBeInTheDocument();
   });
 
   it("ไม่ render อะไรเมื่อ open=false", () => {

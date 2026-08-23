@@ -21,20 +21,20 @@ describe("Step2 · จัดเรียงไอออน, ไขว้ปร�
 
   it("เมื่อเข้าสู่ balanceEquation แสดงหน้าไขว้ประจุ (Criss-Cross) ก่อน พร้อมปุ่มถัดไป", () => {
     render(<Step2 state={stateAt("balanceEquation")} level={level25} dispatch={vi.fn()} />);
-    expect(screen.getByText(/ไขว้ประจุสร้างสูตรสารประกอบ/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ถัดไป: ดุลสมการ" })).toBeInTheDocument();
+    expect(screen.getByText("เขียนสูตรสารประกอบไอออนิก (คูณไขว้)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ถัดไป: 2.3 ดุลสมการเคมี" })).toBeInTheDocument();
   });
 
-  it("เมื่อกด 'ถัดไป: ดุลสมการ' จะสลับไปแสดงช่องกรอกสัมประสิทธิ์และตารางนับอะตอม", () => {
+  it("เมื่อกด 'ถัดไป: 2.3 ดุลสมการเคมี' จะสลับไปแสดงช่องกรอกสัมประสิทธิ์และตารางนับอะตอม", () => {
     render(<Step2 state={stateAt("balanceEquation")} level={level25} dispatch={vi.fn()} />);
     
     // กดปุ่มถัดไป
-    const nextBtn = screen.getByRole("button", { name: "ถัดไป: ดุลสมการ" });
+    const nextBtn = screen.getByRole("button", { name: "ถัดไป: 2.3 ดุลสมการเคมี" });
     fireEvent.click(nextBtn);
 
     // ตอนนี้ต้องเห็นตารางตรวจนับจำนวนอะตอมและปุ่มตรวจการดุลสมการ
     expect(screen.getByText("ตรวจนับจำนวนอะตอม/ไอออน")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ตรวจการดุลสมการ" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ย้อนกลับไปดูการไขว้ประจุ" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ย้อนกลับไปดูการคูณไขว้ (2.2)" })).toBeInTheDocument();
   });
 });

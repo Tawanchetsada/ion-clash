@@ -5,7 +5,7 @@ import type React from "react";
 import type { IonCardView } from "../../presentation/cards";
 import type { GameCardSize } from "./GameCard";
 import { IonCard } from "./IonCard";
-import { CloseIcon } from "../ui/Icon";
+import { TrashIcon } from "../ui/Icon";
 
 export type IonSlotProps = {
   slotId: string;
@@ -82,7 +82,7 @@ export function IonSlot({
             title={`${MESSAGES.ui.removeSlotPrefix}${slotLabelTh}`}
             className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-lg text-error transition-colors duration-150 hover:bg-error/10"
           >
-            <CloseIcon />
+            <TrashIcon />
           </button>
         )}
       </div>
@@ -99,7 +99,7 @@ export function IonSlot({
       aria-label={`${slotLabelTh} ${MESSAGES.ui.slotEmptySuffix}`}
       className={`flex touch-none select-none flex-col items-center justify-center rounded-card border-2 border-dashed text-navy/70 transition-colors duration-150 ${
         EMPTY_CLASS[size]
-      } ${isDropTarget ? "scale-105 border-gold bg-gold/10" : "border-border"}`}
+      } ${isDropTarget ? "scale-105 border-gold bg-gold-surface" : "border-border"}`}
     >
       <span aria-hidden="true" className="text-[1em] font-bold leading-none">
         +

@@ -58,7 +58,7 @@ export function Step3({ state, level, dispatch }: Step3Props) {
 
       <div className="flex w-full flex-col items-stretch justify-center gap-4 sm:flex-row sm:gap-6">
         {/* กล่องซ้าย — ผลิตภัณฑ์ที่เป็นตะกอน */}
-        <div className="flex flex-1 flex-col items-center gap-3 rounded-card border-2 border-gold bg-gold/10 p-4 shadow-card sm:min-w-[16rem] sm:max-w-sm sm:p-5">
+        <div className="flex flex-1 flex-col items-center gap-3 rounded-card border-2 border-gold bg-gold-surface p-4 shadow-card sm:min-w-[16rem] sm:max-w-sm sm:p-5">
           <div className="flex items-center gap-1.5 text-sm font-bold text-navy">
             <StarIcon className="text-gold" />
             <span>ผลิตภัณฑ์ที่เป็นตะกอน</span>

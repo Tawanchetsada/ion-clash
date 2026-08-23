@@ -10,6 +10,7 @@ import { EquationStrip } from "../../../components/game/EquationStrip";
 import { EquationView } from "../../../components/game/EquationView";
 import { FeedbackPanel } from "../../../components/game/FeedbackPanel";
 import { HintButton } from "../../../components/game/HintButton";
+import { HintViewer } from "../../../components/game/HintViewer";
 import { IonCard } from "../../../components/game/IonCard";
 import { IonSlot } from "../../../components/game/IonSlot";
 import { SaveStatus } from "../../../components/game/SaveStatus";
@@ -233,10 +234,20 @@ export function ComponentGallery() {
         />
       </Section>
 
-      <Section title="HintButton — เพดานอ่านจาก maxHints">
+      <Section title="HintButton & HintViewer — คำใบ้พร้อมระบบเปิดดูย้อนหลังและปัดซ้ายขวา">
         <HintButton hintsUsed={0} maxHints={3} onUseHint={() => {}} />
         <HintButton hintsUsed={2} maxHints={3} onUseHint={() => {}} />
         <HintButton hintsUsed={3} maxHints={3} onUseHint={() => {}} />
+        <div className="w-full">
+          <HintViewer
+            hints={[
+              "คำใบ้ที่หนึ่ง: สารนี้ตกตะกอนเป็นของแข็ง",
+              "คำใบ้ที่สอง: ประจุของแคลเซียมเป็น +2 จึงต้องการ 1 ซัลเฟต",
+              "คำใบ้ที่สาม: ดุลสมการด้วยสัมประสิทธิ์ 1, 1, 1, 2",
+            ]}
+            hintsUsed={3}
+          />
+        </div>
       </Section>
 
       <Section title="SaveStatus — ทั้ง 4 สถานะ">

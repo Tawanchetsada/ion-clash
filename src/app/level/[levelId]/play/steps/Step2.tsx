@@ -14,6 +14,7 @@ import { intentToEvent } from "../../../../../components/interaction/intentToEve
 import { useAnnouncer } from "../../../../../components/interaction/LiveAnnouncer";
 import { usePlacement } from "../../../../../components/interaction/usePlacement";
 import { Button } from "../../../../../components/ui/Button";
+import { CheckIcon } from "../../../../../components/ui/Icon";
 import { MESSAGES } from "../../../../../config/messages";
 import { ionCardView } from "../../../../../presentation/cards";
 import { EquationArrow } from "../../../../../components/game/EquationArrow";
@@ -36,15 +37,13 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
   const slotIds = useMemo(() => productSlotIds(level), [level]);
   const allReactantCards = useMemo(() => reactantIonCards(level), [level]);
 
-  // สัมประสิทธิ์หน้าทุกไอออนและสารในสมการไอออนิกครบ 7 ตัว
-  const [ionicCoeffs, setIonicCoeffs] = useState<(number | null)[]>([
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
+  // สัมประสิทธิ์หน้า 4 สารประกอบในสมการโมเลกุล [Reactant A, Reactant B, Precipitate, Aqueous]
+  // เริ่มต้นเป็น 1 ทุกตัวเพื่อความสะดวกในการดุลสมการ
+  const [molecularCoeffs, setMolecularCoeffs] = useState<(number | null)[]>([
+    1,
+    1,
+    1,
+    1,
   ]);
 
   const slotLabels: Record<string, string> = useMemo(
@@ -67,6 +66,8 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
     [slotIds],
   );
 
+  const isArranging = state.phase === "arrangeProductIons";
+
   const placement = usePlacement({
     onIntent: (intent) => {
       const event = intentToEvent(intent);
@@ -83,7 +84,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         }
       }
     },
-    disabled: state.phase !== "arrangeProductIons",
+    disabled: !isArranging,
   });
 
   const assignedMap = new Map<string, string>(); // slotId -> instanceId
@@ -104,10 +105,9 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
   }, [allReactantCards]);
 
   // ── Sub-step เมื่ออยู่ใน phase balanceEquation ─────────────────
-  // เริ่มที่ crissCross (ไขว้ประจุ) ก่อน แล้วผู้เล่นกดถัดไปเป็น balancing (ดุลสมการ)
+  // เริ่มที่ crissCross (2.2) ก่อน แล้วผู้เล่นกดถัดไปเป็น balancing (2.3)
   const [balanceSubStep, setBalanceSubStep] = useState<"crissCross" | "balancing">("crissCross");
 
-  const isArranging = state.phase === "arrangeProductIons";
   const isBalancing = state.phase === "balanceEquation" && balanceSubStep === "balancing";
   const isCrissCross = state.phase === "balanceEquation" && balanceSubStep === "crissCross";
 
@@ -127,6 +127,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         cationCount: precipitate.cationCount,
         anionCount: precipitate.anionCount,
         formula: precipitate.formula,
+        nameTh: precipitate.nameTh,
       },
       aqueous: {
         cation: aqCation,
@@ -134,13 +135,13 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         cationCount: aqueous.cationCount,
         anionCount: aqueous.anionCount,
         formula: renderCompoundFormula(aqCation, aqAnion, aqueous.cationCount, aqueous.anionCount),
+        nameTh: aqueous.nameTh,
       },
     };
   }, [level]);
 
-  // ── Atom Balance Table Rows ──────────────────────────────────
+  // ── Atom Balance Table Rows (นับตามสัมประสิทธิ์ 4 สารประกอบ) ──
   const atomBalanceRows: AtomBalanceRow[] = useMemo(() => {
-    // 4 unique ions from reactants — some may be shared with products
     const ions = [
       { id: level.reactantA.cationId, ion: getIon(level.reactantA.cationId) },
       { id: level.reactantA.anionId, ion: getIon(level.reactantA.anionId) },
@@ -148,7 +149,6 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
       { id: level.reactantB.anionId, ion: getIon(level.reactantB.anionId) },
     ];
 
-    // Deduplicate by ionId (if reactants share an ion)
     const seen = new Set<string>();
     const uniqueIons = ions.filter((i) => {
       if (seen.has(i.id)) return false;
@@ -156,42 +156,32 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
       return true;
     });
 
+    const coeffA = molecularCoeffs[0];
+    const coeffB = molecularCoeffs[1];
+    const coeffC = molecularCoeffs[2];
+    const coeffD = molecularCoeffs[3];
+
     return uniqueIons.map((entry) => {
       const { id, ion } = entry;
 
-      // Left side: sum of this ion across reactant coefficients
       let leftCount: number | null = null;
-      if (ionicCoeffs.every((c, idx) => idx >= 4 || c !== null)) {
+      if (coeffA !== null || coeffB !== null) {
         leftCount = 0;
-        if (level.reactantA.cationId === id)
-          leftCount += (ionicCoeffs[0] ?? 0);
-        if (level.reactantA.anionId === id)
-          leftCount += (ionicCoeffs[1] ?? 0);
-        if (level.reactantB.cationId === id)
-          leftCount += (ionicCoeffs[2] ?? 0);
-        if (level.reactantB.anionId === id)
-          leftCount += (ionicCoeffs[3] ?? 0);
+        if (level.reactantA.cationId === id) leftCount += (coeffA ?? 0) * level.reactantA.cationCount;
+        if (level.reactantA.anionId === id) leftCount += (coeffA ?? 0) * level.reactantA.anionCount;
+        if (level.reactantB.cationId === id) leftCount += (coeffB ?? 0) * level.reactantB.cationCount;
+        if (level.reactantB.anionId === id) leftCount += (coeffB ?? 0) * level.reactantB.anionCount;
       }
 
-      // Right side: sum of this ion across product coefficients
       let rightCount: number | null = null;
-      if (ionicCoeffs.every((c, idx) => idx < 4 || c !== null)) {
+      if (coeffC !== null || coeffD !== null) {
         rightCount = 0;
-        const precipCoeffIdx = 4;
-        const aqCatIdx = 5;
-        const aqAnIdx = 6;
-
-        // Precipitate: break into constituent ions × precipCoeff
-        if (level.precipitate.cationId === id)
-          rightCount += (ionicCoeffs[precipCoeffIdx] ?? 0) * level.precipitate.cationCount;
-        if (level.precipitate.anionId === id)
-          rightCount += (ionicCoeffs[precipCoeffIdx] ?? 0) * level.precipitate.anionCount;
-
-        // Aqueous ions
-        if (level.aqueousProduct.cationId === id)
-          rightCount += (ionicCoeffs[aqCatIdx] ?? 0);
-        if (level.aqueousProduct.anionId === id)
-          rightCount += (ionicCoeffs[aqAnIdx] ?? 0);
+        // c corresponds to precipitate (level.precipitate)
+        if (level.precipitate.cationId === id) rightCount += (coeffC ?? 0) * level.precipitate.cationCount;
+        if (level.precipitate.anionId === id) rightCount += (coeffC ?? 0) * level.precipitate.anionCount;
+        // d corresponds to aqueous product (level.aqueousProduct)
+        if (level.aqueousProduct.cationId === id) rightCount += (coeffD ?? 0) * level.aqueousProduct.cationCount;
+        if (level.aqueousProduct.anionId === id) rightCount += (coeffD ?? 0) * level.aqueousProduct.anionCount;
       }
 
       return {
@@ -201,7 +191,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         rightCount,
       };
     });
-  }, [ionicCoeffs, level]);
+  }, [molecularCoeffs, level]);
 
   function renderTrayCard(card: (typeof allReactantCards)[number]) {
     const isAssigned = assignedSet.has(card.instanceId);
@@ -227,6 +217,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
           placement.dragging.source.instanceId === card.instanceId
         }
         onSelect={() => {
+          if (!isArranging) return;
           placement.toggleHold(source);
           announce(
             isHeld
@@ -257,95 +248,48 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         roleHintTh={slotRoles[slotId]}
         assignedIon={cardView}
         size="fluid"
-        isDropTarget={placement.activeTargetId === slotId}
-        selected={source ? placement.isHeld(source) : false}
-        onActivate={() => placement.activateTarget({ kind: "slot", slotId })}
-        onSelect={source ? () => placement.toggleHold(source) : undefined}
+        isDropTarget={isArranging && placement.activeTargetId === slotId}
+        selected={isArranging && source ? placement.isHeld(source) : false}
+        onActivate={isArranging ? () => placement.activateTarget({ kind: "slot", slotId }) : undefined}
+        onSelect={isArranging && source ? () => placement.toggleHold(source) : undefined}
         onRemove={
-          assignedCardId
+          isArranging && assignedCardId
             ? () => {
                 dispatch({ type: "REMOVE_ION", slotId });
                 announce("นำไอออนออกจากช่องแล้ว");
               }
             : undefined
         }
-        onPointerDown={source ? placement.dragHandlersFor(source).onPointerDown : undefined}
+        onPointerDown={isArranging && source ? placement.dragHandlersFor(source).onPointerDown : undefined}
       />
     );
   }
 
-
-
-  const expectedCoeffs = useMemo(() => {
-    const { a, b } = level.coefficients;
-    const precipCoeff =
-      level.productA.phase === "s"
-        ? level.coefficients.c
-        : level.coefficients.d;
-    const aqCoeff =
-      level.productA.phase === "s"
-        ? level.coefficients.d
-        : level.coefficients.c;
-    return [
-      a * level.reactantA.cationCount,
-      a * level.reactantA.anionCount,
-      b * level.reactantB.cationCount,
-      b * level.reactantB.anionCount,
-      precipCoeff,
-      aqCoeff * level.aqueousProduct.cationCount,
-      aqCoeff * level.aqueousProduct.anionCount,
-    ];
-  }, [level]);
-
-  function handleIonicCoeffChange(index: number, value: number | null) {
-    setIonicCoeffs((prev) => {
+  function handleMolecularCoeffChange(index: number, value: number | null) {
+    setMolecularCoeffs((prev) => {
       const next = [...prev];
       next[index] = value;
       return next;
     });
   }
 
-  const isIonicBalanceComplete = ionicCoeffs.every((c) => c !== null);
+  const isMolecularBalanceComplete = molecularCoeffs.every((c) => c !== null);
 
-  function handleCheckIonicBalance() {
-    const isAllCorrect = ionicCoeffs.every(
-      (val, idx) => val === expectedCoeffs[idx],
-    );
-    if (isAllCorrect) {
+  function handleCheckMolecularBalance() {
+    // Dispatch values to stateMachine (0: A, 1: B, 2: C, 3: D)
+    for (let i = 0; i < 4; i++) {
       dispatch({
         type: "SET_COEFFICIENT",
-        index: 0,
-        value: level.coefficients.a,
+        index: i,
+        value: molecularCoeffs[i] ?? null,
       });
-      dispatch({
-        type: "SET_COEFFICIENT",
-        index: 1,
-        value: level.coefficients.b,
-      });
-      dispatch({
-        type: "SET_COEFFICIENT",
-        index: 2,
-        value: level.coefficients.c,
-      });
-      dispatch({
-        type: "SET_COEFFICIENT",
-        index: 3,
-        value: level.coefficients.d,
-      });
-      dispatch({ type: "CHECK_BALANCE" });
-    } else {
-      // Set invalid values to trigger E-BALANCE error feedback
-      dispatch({ type: "SET_COEFFICIENT", index: 0, value: 9 });
-      dispatch({ type: "SET_COEFFICIENT", index: 1, value: 9 });
-      dispatch({ type: "SET_COEFFICIENT", index: 2, value: 9 });
-      dispatch({ type: "SET_COEFFICIENT", index: 3, value: 9 });
-      dispatch({ type: "CHECK_BALANCE" });
     }
+    dispatch({ type: "CHECK_BALANCE" });
   }
 
   return (
     <div
-      className="flex flex-col items-center gap-6 text-center"
+      className="flex flex-col items-center gap-6 text-center w-full"
       onKeyDown={(e) => {
         if (e.key === "Escape") {
           placement.cancel();
@@ -366,23 +310,14 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
 
       <div>
         <h2 className="text-xl font-bold text-navy">
-          {isCrissCross
-            ? "ขั้นที่ 2 · ไขว้ประจุสร้างสูตรสารประกอบ"
-            : isBalancing
-              ? "ขั้นที่ 2 · ดุลสัมประสิทธิ์ของสมการไอออนิก"
-              : "ขั้นที่ 2 · แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์"}
+          ขั้นที่ 2 · แลกเปลี่ยนคู่ไอออนและดุลสมการเคมี
         </h2>
         <p className="text-sm text-navy/70">
-          {isCrissCross
-            ? MESSAGES.ui.crissCrossDesc
-            : isBalancing
-              ? "กรอกตัวเลขสัมประสิทธิ์ข้างหน้าแต่ละไอออนและสารผลิตภัณฑ์ (สมมุติสารแต่ละตัวเป็น 1 โมล) เพื่อดุลสมการให้เท่ากันทั้งสองด้าน"
-              : "ลากหรือแตะเลือกไอออนบวกและไอออนลบเพื่อจับคู่ผลิตภัณฑ์ใหม่ (ไอออนบวกต้องอยู่หน้าไอออนลบ)"}
+          จับคู่ไอออนบวก-ลบใหม่ เขียนสูตรสารประกอบโดยการคูณไขว้ประจุ และดุลสมการเคมี
         </p>
       </div>
 
-      {/* แถบโจทย์ค้างไว้ตลอดขั้นเล่น ตามเอกสาร UI หน้า 07 — ผู้เล่นต้องมองย้อน
-          ได้ว่าโจทย์ให้สารอะไรมา โดยยังไม่เฉลยผลิตภัณฑ์ */}
+      {/* แถบโจทย์ค้างไว้ตลอดขั้นเล่น */}
       <ProblemBar
         reactants={[
           { formula: level.reactantA.formula, phaseTh: level.reactantA.phase },
@@ -390,310 +325,114 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         ]}
       />
 
-      {/*
-        แถวเดียวแนวนอน: ไอออนตั้งต้น 4 ใบ → ช่องผลิตภัณฑ์ 4 ช่อง ตามเอกสาร UI หน้า 07
-      */}
-      <div
-        role="region"
-        aria-label="แถวจับคู่ไอออนเป็นผลิตภัณฑ์"
-        tabIndex={0}
-        className="equation-scroll fit-cards w-full min-w-0 rounded-card border border-border bg-white p-3 shadow-card sm:p-4"
-      >
-        <div className="fit-cards-track flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-[calc(var(--card-size,5rem)*0.25)]">
-          {/* ฝั่งซ้าย — ถาดไอออนตั้งต้น */}
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-semibold text-navy/70">ไอออนของสารตั้งต้น 4 ตัว</span>
-            <div
-              {...placement.targetPropsFor({ kind: "tray" })}
-              className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)] rounded-card border border-navy/10 bg-canvas p-[calc(var(--card-size,5rem)*0.12)]"
-            >
-              {allReactantCards.map((card, idx) => (
-                <span
-                  key={card.instanceId}
-                  className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)]"
-                >
-                  {idx > 0 && (
+      {/* ── กล่อง 2.1: แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์ ──────────────────────── */}
+      <div className="w-full max-w-4xl rounded-card border border-border bg-white p-4 shadow-card sm:p-6 text-left">
+        <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
+          <div className="flex items-center gap-2">
+            <span className="rounded-md bg-navy/10 px-2.5 py-1 text-xs font-bold text-navy">
+              2.1
+            </span>
+            <h3 className="text-base sm:text-lg font-bold text-navy">
+              {MESSAGES.ui.box21Title}
+            </h3>
+          </div>
+          {!isArranging && (
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 inline-flex items-center gap-1">
+              <CheckIcon className="text-xs" /> {MESSAGES.ui.box21Done}
+            </span>
+          )}
+        </div>
+
+        <div
+          role="region"
+          aria-label="แถวจับคู่ไอออนเป็นผลิตภัณฑ์"
+          tabIndex={0}
+          className="equation-scroll fit-cards w-full min-w-0"
+        >
+          <div className="fit-cards-track flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-[calc(var(--card-size,5rem)*0.25)]">
+            {/* ฝั่งซ้าย — ถาดไอออนตั้งต้น */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-xs font-semibold text-navy/70">ไอออนของสารตั้งต้น 4 ตัว</span>
+              <div
+                {...placement.targetPropsFor({ kind: "tray" })}
+                className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)] rounded-card border border-navy/10 bg-canvas p-[calc(var(--card-size,5rem)*0.12)]"
+              >
+                {allReactantCards.map((card, idx) => (
+                  <span
+                    key={card.instanceId}
+                    className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)]"
+                  >
+                    {idx > 0 && (
+                      <span
+                        aria-hidden="true"
+                        className="text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                      >
+                        +
+                      </span>
+                    )}
+                    {renderTrayCard(card)}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* ลูกศรกลางแถว */}
+            <div className="flex items-center justify-center px-1 md:min-h-[calc(var(--card-size,5rem)*1.6)]">
+              <EquationArrow breakpoint="md" className="text-gold" />
+            </div>
+
+            {/* ฝั่งขวา — ช่องผลิตภัณฑ์ */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.15)]">
+                {/* ช่องย่อยที่ 1: ผลิตภัณฑ์ที่เป็นตะกอน */}
+                <div className="flex flex-col items-center gap-1 rounded-card border border-gold/60 bg-gold-surface p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
+                  <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy">
+                    ผลิตภัณฑ์ที่เป็นตะกอน
+                  </span>
+                  <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
+                    {renderSlot(0)}
                     <span
                       aria-hidden="true"
-                      className="text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                      className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
                     >
                       +
                     </span>
-                  )}
-                  {renderTrayCard(card)}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* ลูกศรกลางแถว — ชี้ขวาเมื่อเรียงแถวเดียว ชี้ลงเมื่อพับสองชั้น */}
-          <div className="flex items-center justify-center px-1 md:min-h-[calc(var(--card-size,5rem)*1.6)]">
-            <EquationArrow breakpoint="md" className="text-gold" />
-          </div>
-
-          {/* ฝั่งขวา — ช่องผลิตภัณฑ์แบ่งเป็น 2 ช่องย่อย: ผลิตภัณฑ์ที่เป็นตะกอน + ไอออนที่ยังคงอยู่ในสารละลาย */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.15)]">
-              {/* ช่องย่อยที่ 1: ผลิตภัณฑ์ที่เป็นตะกอน */}
-              <div className="flex flex-col items-center gap-1 rounded-card border border-gold/60 bg-gold/10 p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
-                <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy">
-                  ผลิตภัณฑ์ที่เป็นตะกอน
-                </span>
-                <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
-                  {renderSlot(0)}
-                  <span
-                    aria-hidden="true"
-                    className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
-                  >
-                    +
-                  </span>
-                  {renderSlot(1)}
+                    {renderSlot(1)}
+                  </div>
                 </div>
-              </div>
 
-              {/* เครื่องหมาย + คั่นระหว่าง 2 กลุ่มผลิตภัณฑ์ */}
-              <span
-                aria-hidden="true"
-                className="mt-[calc(var(--card-size,5rem)*0.55)] text-[calc(var(--card-size,5rem)*0.32)] font-bold leading-none text-navy/60"
-              >
-                +
-              </span>
-
-              {/* ช่องย่อยที่ 2: ไอออนที่ยังคงอยู่ในสารละลาย */}
-              <div className="flex flex-col items-center gap-1 rounded-card border border-border bg-panel p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
-                <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy/80">
-                  ไอออนที่ยังคงอยู่ในสารละลาย
+                {/* เครื่องหมาย + */}
+                <span
+                  aria-hidden="true"
+                  className="mt-[calc(var(--card-size,5rem)*0.55)] text-[calc(var(--card-size,5rem)*0.32)] font-bold leading-none text-navy/60"
+                >
+                  +
                 </span>
-                <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
-                  {renderSlot(2)}
-                  <span
-                    aria-hidden="true"
-                    className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
-                  >
-                    +
+
+                {/* ช่องย่อยที่ 2: ไอออนที่ยังคงอยู่ในสารละลาย */}
+                <div className="flex flex-col items-center gap-1 rounded-card border border-border bg-panel p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
+                  <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy/80">
+                    ไอออนที่ยังคงอยู่ในสารละลาย
                   </span>
-                  {renderSlot(3)}
+                  <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
+                    {renderSlot(2)}
+                    <span
+                      aria-hidden="true"
+                      className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                    >
+                      +
+                    </span>
+                    {renderSlot(3)}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Criss-Cross Visualization Panel ─────────────────────── */}
-      {isCrissCross && (
-        <div className="w-full max-w-3xl rounded-card border border-border bg-white p-4 shadow-card sm:p-5">
-          <div className="flex flex-col gap-5">
-            {/* แถวที่ 1: ตะกอน */}
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-bold text-gold">
-                {MESSAGES.ui.crissCrossPrecipLabel}
-              </span>
-              <div className="flex flex-wrap items-center justify-center gap-3 text-base sm:text-lg font-bold text-navy">
-                {/* Cation with charge */}
-                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
-                  <EquationView ast={renderIon(crissCrossData.precip.cation, 1)} />
-                </span>
-
-                <span className="text-navy/40">+</span>
-
-                {/* Anion with charge */}
-                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
-                  <EquationView ast={renderIon(crissCrossData.precip.anion, 1)} />
-                </span>
-
-                <span className="text-gold text-xl">→</span>
-
-                {/* Result compound */}
-                <span className="inline-flex items-baseline rounded-card border-2 border-gold bg-gold/10 px-3 py-2 shadow-2xs">
-                  <EquationView ast={crissCrossData.precip.formula} />
-                </span>
-              </div>
-              {/* Criss-cross annotation */}
-              <p className="text-xs text-navy/60 text-center">
-                {`ประจุ ${Math.abs(crissCrossData.precip.cation.charge)}+ ↔ ตัวห้อย ${crissCrossData.precip.anionCount} ของ ${crissCrossData.precip.anion.core}`}
-                {" · "}
-                {`ประจุ ${Math.abs(crissCrossData.precip.anion.charge)}− ↔ ตัวห้อย ${crissCrossData.precip.cationCount} ของ ${crissCrossData.precip.cation.core}`}
-              </p>
-            </div>
-
-            {/* เส้นคั่น */}
-            <hr className="border-border" />
-
-            {/* แถวที่ 2: สารละลาย */}
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-bold text-blue">
-                {MESSAGES.ui.crissCrossAqLabel}
-              </span>
-              <div className="flex flex-wrap items-center justify-center gap-3 text-base sm:text-lg font-bold text-navy">
-                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
-                  <EquationView ast={renderIon(crissCrossData.aqueous.cation, 1)} />
-                </span>
-
-                <span className="text-navy/40">+</span>
-
-                <span className="inline-flex items-baseline rounded-card border border-navy/15 bg-canvas px-3 py-2 shadow-2xs">
-                  <EquationView ast={renderIon(crissCrossData.aqueous.anion, 1)} />
-                </span>
-
-                <span className="text-blue text-xl">→</span>
-
-                <span className="inline-flex items-baseline rounded-card border border-border bg-panel px-3 py-2 shadow-2xs">
-                  <EquationView ast={crissCrossData.aqueous.formula} />
-                </span>
-              </div>
-              <p className="text-xs text-navy/60 text-center">
-                {`ประจุ ${Math.abs(crissCrossData.aqueous.cation.charge)}+ ↔ ตัวห้อย ${crissCrossData.aqueous.anionCount} ของ ${crissCrossData.aqueous.anion.core}`}
-                {" · "}
-                {`ประจุ ${Math.abs(crissCrossData.aqueous.anion.charge)}− ↔ ตัวห้อย ${crissCrossData.aqueous.cationCount} ของ ${crissCrossData.aqueous.cation.core}`}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Coefficient Balancing Inputs (When in balanceEquation phase) */}
-      {isBalancing && (
-        <div className="w-full max-w-5xl rounded-card border border-border bg-white p-4 shadow-card sm:p-5">
-          <div className="flex flex-col items-center justify-center gap-3 md:flex-row md:gap-3 text-base sm:text-lg font-bold text-navy">
-            {/* ฝั่งสารตั้งต้น: 4 ไอออน */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-              {/* Cation A */}
-              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
-                <CoefficientInput
-                  value={ionicCoeffs[0] ?? null}
-                  compoundLabelTh={`${level.reactantA.cationId} สารตั้งต้น`}
-                  hideLabel
-                  size="sm"
-                  onChange={(val) => handleIonicCoeffChange(0, val)}
-                />
-                <span className="inline-flex items-baseline gap-0.5">
-                  <EquationView ast={renderIon(getIon(level.reactantA.cationId), 1)} />
-                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
-                </span>
-              </div>
-
-              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
-
-              {/* Anion A */}
-              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
-                <CoefficientInput
-                  value={ionicCoeffs[1] ?? null}
-                  compoundLabelTh={`${level.reactantA.anionId} สารตั้งต้น`}
-                  hideLabel
-                  size="sm"
-                  onChange={(val) => handleIonicCoeffChange(1, val)}
-                />
-                <span className="inline-flex items-baseline gap-0.5">
-                  <EquationView ast={renderIon(getIon(level.reactantA.anionId), 1)} />
-                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
-                </span>
-              </div>
-
-              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
-
-              {/* Cation B */}
-              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
-                <CoefficientInput
-                  value={ionicCoeffs[2] ?? null}
-                  compoundLabelTh={`${level.reactantB.cationId} สารตั้งต้น`}
-                  hideLabel
-                  size="sm"
-                  onChange={(val) => handleIonicCoeffChange(2, val)}
-                />
-                <span className="inline-flex items-baseline gap-0.5">
-                  <EquationView ast={renderIon(getIon(level.reactantB.cationId), 1)} />
-                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
-                </span>
-              </div>
-
-              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
-
-              {/* Anion B */}
-              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
-                <CoefficientInput
-                  value={ionicCoeffs[3] ?? null}
-                  compoundLabelTh={`${level.reactantB.anionId} สารตั้งต้น`}
-                  hideLabel
-                  size="sm"
-                  onChange={(val) => handleIonicCoeffChange(3, val)}
-                />
-                <span className="inline-flex items-baseline gap-0.5">
-                  <EquationView ast={renderIon(getIon(level.reactantB.anionId), 1)} />
-                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
-                </span>
-              </div>
-            </div>
-
-            {/* ลูกศรคั่น: แนวนอนชี้ขวา (md+) / แนวตั้งชี้ลง (< md) */}
-            <div className="flex items-center justify-center px-1">
-              <EquationArrow breakpoint="md" className="text-gold text-lg sm:text-xl" />
-            </div>
-
-            {/* ฝั่งสารผลิตภัณฑ์: 1 ตะกอน + 2 ไอออนในสารละลาย */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-              {/* Precipitate */}
-              <div className="inline-flex items-center gap-1 rounded-card border border-gold/50 bg-gold/10 px-2 py-1.5 shadow-2xs">
-                <CoefficientInput
-                  value={ionicCoeffs[4] ?? null}
-                  compoundLabelTh={`${level.precipitate.nameTh} ตะกอน`}
-                  hideLabel
-                  size="sm"
-                  onChange={(val) => handleIonicCoeffChange(4, val)}
-                />
-                <span className="inline-flex items-baseline gap-0.5">
-                  <EquationView ast={level.precipitate.formula} />
-                  <span className="text-xs font-semibold text-navy/70">(s)</span>
-                </span>
-              </div>
-
-              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
-
-              {/* Aqueous Cation */}
-              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
-                <CoefficientInput
-                  value={ionicCoeffs[5] ?? null}
-                  compoundLabelTh={`${level.aqueousProduct.cationId} ผลิตภัณฑ์`}
-                  hideLabel
-                  size="sm"
-                  onChange={(val) => handleIonicCoeffChange(5, val)}
-                />
-                <span className="inline-flex items-baseline gap-0.5">
-                  <EquationView ast={renderIon(getIon(level.aqueousProduct.cationId), 1)} />
-                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
-                </span>
-              </div>
-
-              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
-
-              {/* Aqueous Anion */}
-              <div className="inline-flex items-center gap-1 rounded-card border border-navy/15 bg-canvas px-2 py-1.5 shadow-2xs">
-                <CoefficientInput
-                  value={ionicCoeffs[6] ?? null}
-                  compoundLabelTh={`${level.aqueousProduct.anionId} ผลิตภัณฑ์`}
-                  hideLabel
-                  size="sm"
-                  onChange={(val) => handleIonicCoeffChange(6, val)}
-                />
-                <span className="inline-flex items-baseline gap-0.5">
-                  <EquationView ast={renderIon(getIon(level.aqueousProduct.anionId), 1)} />
-                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Atom Balance Table */}
-          <div className="mt-4 border-t border-border pt-4">
-            <AtomBalanceTable rows={atomBalanceRows} />
-          </div>
-        </div>
-      )}
-
-      {/* Action Check Buttons */}
-      <div className="flex flex-wrap justify-center gap-3">
+        {/* ปุ่มควบคุมเฉพาะ 2.1 */}
         {isArranging && (
-          <>
+          <div className="flex flex-wrap justify-center gap-3 mt-6 pt-4 border-t border-border">
             <Button
               variant="outline"
               onClick={() => dispatch({ type: "PREV_STEP" })}
@@ -717,28 +456,269 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
             >
               {MESSAGES.ui.checkArrangement}
             </Button>
-          </>
+          </div>
         )}
+      </div>
 
-        {isCrissCross && (
-          <>
-            <Button
-              variant="outline"
-              onClick={() => dispatch({ type: "PREV_STEP" })}
-            >
-              {MESSAGES.ui.backToArrangement}
-            </Button>
-            <Button
-              variant="gold"
-              onClick={() => setBalanceSubStep("balancing")}
-            >
-              {MESSAGES.ui.goToBalance}
-            </Button>
-          </>
-        )}
+      {/* ── กล่อง 2.2: เขียนสูตรสารประกอบไอออนิก (คูณไขว้) ────────────────────── */}
+      {!isArranging && (
+        <div className="w-full max-w-4xl rounded-card border border-border bg-white p-4 shadow-card sm:p-6 text-left">
+          <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-gold/20 px-2.5 py-1 text-xs font-bold text-navy">
+                2.2
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-navy">
+                {MESSAGES.ui.box22Title}
+              </h3>
+            </div>
+          </div>
 
-        {isBalancing && (
-          <>
+          <div className="flex flex-col gap-4">
+            {/* แถวที่ 1: ตะกอน */}
+            <div className="flex flex-col gap-3 rounded-xl border border-gold/40 bg-gold-surface p-4 sm:p-5">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="rounded-md bg-gold-light px-2.5 py-1 text-xs font-bold text-navy self-start">
+                  {MESSAGES.ui.crissCrossPrecipLabel}
+                </span>
+                <span className="text-sm font-semibold text-navy">
+                  {crissCrossData.precip.nameTh}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-3 sm:gap-6 py-2 md:flex-row">
+                {/* Cation + Anion Group */}
+                <div className="flex items-center justify-center gap-2 sm:gap-3">
+                  {/* Cation */}
+                  <div className="flex flex-col items-center">
+                    <span className="rounded-full bg-blue/15 px-2 py-0.5 text-[11px] font-bold text-blue">
+                      ประจุ +{crissCrossData.precip.cation.charge}
+                    </span>
+                    <div className="mt-1 rounded-lg border border-navy/15 bg-white px-3 py-2 text-lg sm:text-xl font-bold text-navy shadow-2xs">
+                      <EquationView ast={renderIon(crissCrossData.precip.cation, 1)} />
+                    </div>
+                  </div>
+
+                  <span className="text-lg font-bold text-navy/40">+</span>
+
+                  {/* Anion */}
+                  <div className="flex flex-col items-center">
+                    <span className="rounded-full bg-error/15 px-2 py-0.5 text-[11px] font-bold text-error">
+                      ประจุ -{Math.abs(crissCrossData.precip.anion.charge)}
+                    </span>
+                    <div className="mt-1 rounded-lg border border-navy/15 bg-white px-3 py-2 text-lg sm:text-xl font-bold text-navy shadow-2xs">
+                      <EquationView ast={renderIon(crissCrossData.precip.anion, 1)} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow / Transition */}
+                <div className="flex items-center gap-1.5 px-2 text-center text-gold font-bold text-sm sm:text-base md:flex-col">
+                  <span>คูณไขว้ประจุ</span>
+                  <EquationArrow breakpoint="md" className="text-gold text-lg sm:text-xl" />
+                </div>
+
+                {/* Result Formula */}
+                <div className="flex flex-col items-center">
+                  <span className="rounded-full bg-gold-light px-2.5 py-0.5 text-[11px] font-bold text-navy">
+                    สูตรตะกอน (s)
+                  </span>
+                  <div className="mt-1 rounded-lg border-2 border-gold bg-white px-4 py-2 text-lg sm:text-xl font-bold text-navy shadow-xs">
+                    <EquationView ast={crissCrossData.precip.formula} />
+                    <span className="ml-1 text-xs font-semibold text-navy/60">(s)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-white/90 p-3 text-center text-xs sm:text-sm leading-relaxed text-navy/80 border border-navy/10">
+                ประจุ <strong>+{crissCrossData.precip.cation.charge}</strong> ของ {crissCrossData.precip.cation.nameStemTh} ไขว้ไปเป็นตัวห้อย <strong>{crissCrossData.precip.anionCount}</strong> ของ {crissCrossData.precip.anion.nameStemTh} และประจุ <strong>-{Math.abs(crissCrossData.precip.anion.charge)}</strong> ไขว้ไปเป็นตัวห้อย <strong>{crissCrossData.precip.cationCount}</strong>{crissCrossData.precip.cationCount === 1 && crissCrossData.precip.anionCount === 1 ? " (ตัวห้อย 1 ละไว้ไม่เขียน)" : ""}
+              </div>
+            </div>
+
+            {/* แถวที่ 2: สารละลาย */}
+            <div className="flex flex-col gap-3 rounded-xl border border-navy/15 bg-canvas/60 p-4 sm:p-5">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span className="rounded-md bg-blue/15 px-2.5 py-1 text-xs font-bold text-navy self-start">
+                  {MESSAGES.ui.crissCrossAqLabel}
+                </span>
+                <span className="text-sm font-semibold text-navy">
+                  {crissCrossData.aqueous.nameTh}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-3 sm:gap-6 py-2 md:flex-row">
+                {/* Cation + Anion Group */}
+                <div className="flex items-center justify-center gap-2 sm:gap-3">
+                  {/* Cation */}
+                  <div className="flex flex-col items-center">
+                    <span className="rounded-full bg-blue/15 px-2 py-0.5 text-[11px] font-bold text-blue">
+                      ประจุ +{crissCrossData.aqueous.cation.charge}
+                    </span>
+                    <div className="mt-1 rounded-lg border border-navy/15 bg-white px-3 py-2 text-lg sm:text-xl font-bold text-navy shadow-2xs">
+                      <EquationView ast={renderIon(crissCrossData.aqueous.cation, 1)} />
+                    </div>
+                  </div>
+
+                  <span className="text-lg font-bold text-navy/40">+</span>
+
+                  {/* Anion */}
+                  <div className="flex flex-col items-center">
+                    <span className="rounded-full bg-error/15 px-2 py-0.5 text-[11px] font-bold text-error">
+                      ประจุ -{Math.abs(crissCrossData.aqueous.anion.charge)}
+                    </span>
+                    <div className="mt-1 rounded-lg border border-navy/15 bg-white px-3 py-2 text-lg sm:text-xl font-bold text-navy shadow-2xs">
+                      <EquationView ast={renderIon(crissCrossData.aqueous.anion, 1)} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow / Transition */}
+                <div className="flex items-center gap-1.5 px-2 text-center text-blue font-bold text-sm sm:text-base md:flex-col">
+                  <span>คูณไขว้ประจุ</span>
+                  <EquationArrow breakpoint="md" className="text-blue text-lg sm:text-xl" />
+                </div>
+
+                {/* Result Formula */}
+                <div className="flex flex-col items-center">
+                  <span className="rounded-full bg-navy/10 px-2.5 py-0.5 text-[11px] font-bold text-navy">
+                    สูตรสารละลาย (aq)
+                  </span>
+                  <div className="mt-1 rounded-lg border border-border bg-white px-4 py-2 text-lg sm:text-xl font-bold text-navy shadow-xs">
+                    <EquationView ast={crissCrossData.aqueous.formula} />
+                    <span className="ml-1 text-xs font-semibold text-navy/60">(aq)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-white/90 p-3 text-center text-xs sm:text-sm leading-relaxed text-navy/80 border border-navy/10">
+                ประจุ <strong>+{crissCrossData.aqueous.cation.charge}</strong> ของ {crissCrossData.aqueous.cation.nameStemTh} ไขว้ไปเป็นตัวห้อย <strong>{crissCrossData.aqueous.anionCount}</strong> ของ {crissCrossData.aqueous.anion.nameStemTh} และประจุ <strong>-{Math.abs(crissCrossData.aqueous.anion.charge)}</strong> ไขว้ไปเป็นตัวห้อย <strong>{crissCrossData.aqueous.cationCount}</strong>{crissCrossData.aqueous.cationCount === 1 && crissCrossData.aqueous.anionCount === 1 ? " (ตัวห้อย 1 ละไว้ไม่เขียน)" : ""}
+              </div>
+            </div>
+          </div>
+
+          {/* ปุ่มควบคุมเมื่ออยู่ที่ 2.2 */}
+          {isCrissCross && (
+            <div className="flex flex-wrap justify-center gap-3 mt-6 pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={() => dispatch({ type: "PREV_STEP" })}
+              >
+                {MESSAGES.ui.backToArrangement}
+              </Button>
+              <Button
+                variant="gold"
+                onClick={() => setBalanceSubStep("balancing")}
+              >
+                {MESSAGES.ui.goToBalance}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── กล่อง 2.3: ดุลสมการเคมี ────────────────────────────────────────── */}
+      {isBalancing && (
+        <div className="w-full max-w-4xl rounded-card border border-border bg-white p-4 shadow-card sm:p-6 text-left">
+          <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-navy/10 px-2.5 py-1 text-xs font-bold text-navy">
+                2.3
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-navy">
+                {MESSAGES.ui.box23Title}
+              </h3>
+            </div>
+          </div>
+
+          <p className="text-xs sm:text-sm text-navy/70 mb-4">
+            เติมตัวเลขสัมประสิทธิ์ข้างหน้าสารแต่ละชนิดเพื่อดุลจำนวนอะตอมทั้งสองข้างให้เท่ากัน
+          </p>
+
+          {/* สมการโมเลกุล 4 สารประกอบ */}
+          <div className="flex flex-col items-center justify-center gap-3 md:flex-row md:gap-3 text-base sm:text-lg font-bold text-navy p-3 sm:p-4 rounded-xl bg-canvas border border-border">
+            {/* ฝั่งสารตั้งต้น: Reactant A + Reactant B */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {/* Reactant A */}
+              <div className="inline-flex items-center gap-1.5 rounded-card border border-navy/15 bg-white px-2.5 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={molecularCoeffs[0] ?? null}
+                  compoundLabelTh={`${level.reactantA.nameTh} สารตั้งต้น`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleMolecularCoeffChange(0, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={level.reactantA.formula} />
+                  <span className="text-xs font-semibold text-navy/60">({level.reactantA.phase})</span>
+                </span>
+              </div>
+
+              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
+
+              {/* Reactant B */}
+              <div className="inline-flex items-center gap-1.5 rounded-card border border-navy/15 bg-white px-2.5 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={molecularCoeffs[1] ?? null}
+                  compoundLabelTh={`${level.reactantB.nameTh} สารตั้งต้น`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleMolecularCoeffChange(1, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={level.reactantB.formula} />
+                  <span className="text-xs font-semibold text-navy/60">({level.reactantB.phase})</span>
+                </span>
+              </div>
+            </div>
+
+            {/* ลูกศรชี้ขวา */}
+            <div className="flex items-center justify-center px-1">
+              <EquationArrow breakpoint="md" className="text-gold text-lg sm:text-xl" />
+            </div>
+
+            {/* ฝั่งผลิตภัณฑ์: Precipitate + Aqueous Product */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {/* Precipitate */}
+              <div className="inline-flex items-center gap-1.5 rounded-card border-2 border-gold/60 bg-gold-surface px-2.5 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={molecularCoeffs[2] ?? null}
+                  compoundLabelTh={`${level.precipitate.nameTh} ตะกอน`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleMolecularCoeffChange(2, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={level.precipitate.formula} />
+                  <span className="text-xs font-semibold text-navy/70">(s)</span>
+                </span>
+              </div>
+
+              <span className="text-navy/40 font-bold text-base sm:text-lg">+</span>
+
+              {/* Aqueous Product */}
+              <div className="inline-flex items-center gap-1.5 rounded-card border border-navy/15 bg-white px-2.5 py-1.5 shadow-2xs">
+                <CoefficientInput
+                  value={molecularCoeffs[3] ?? null}
+                  compoundLabelTh={`${level.aqueousProduct.nameTh} สารละลาย`}
+                  hideLabel
+                  size="sm"
+                  onChange={(val) => handleMolecularCoeffChange(3, val)}
+                />
+                <span className="inline-flex items-baseline gap-0.5">
+                  <EquationView ast={level.aqueousProduct.formula} />
+                  <span className="text-xs font-semibold text-navy/60">(aq)</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ตารางนับจำนวนอะตอม/ไอออน */}
+          <div className="mt-4 pt-4 border-t border-border">
+            <AtomBalanceTable rows={atomBalanceRows} />
+          </div>
+
+          {/* ปุ่มควบคุมเฉพาะ 2.3 */}
+          <div className="flex flex-wrap justify-center gap-3 mt-6 pt-4 border-t border-border">
             <Button
               variant="outline"
               onClick={() => setBalanceSubStep("crissCross")}
@@ -747,14 +727,14 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
             </Button>
             <Button
               variant="gold"
-              disabled={!isIonicBalanceComplete}
-              onClick={handleCheckIonicBalance}
+              disabled={!isMolecularBalanceComplete}
+              onClick={handleCheckMolecularBalance}
             >
               {MESSAGES.ui.checkBalance}
             </Button>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

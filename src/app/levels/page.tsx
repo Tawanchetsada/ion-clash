@@ -61,7 +61,7 @@ export default function LevelsPage() {
               <span>ผ่านแล้ว: </span>
               <span className="font-bold text-blue">{completedCount}/50</span>
             </div>
-            <div className="rounded-card bg-gold/10 px-3 py-1.5 border border-gold/30">
+            <div className="rounded-card bg-gold-surface px-3 py-1.5 border border-gold/40">
               <span>ดาวรวม: </span>
               <span className="inline-flex items-center gap-1 font-bold text-navy">
                 <StarIcon className="text-gold" />

@@ -21,7 +21,7 @@ import { Step2 } from "./steps/Step2";
 import { Step3 } from "./steps/Step3";
 import { Step4 } from "./steps/Step4";
 import { Step5 } from "./steps/Step5";
-import { HintIcon } from "../../../../components/ui/Icon";
+import { HintViewer } from "../../../../components/game/HintViewer";
 import { RotatePrompt } from "../../../../components/layout/RotatePrompt";
 
 type PageParams = { levelId: string };
@@ -112,10 +112,22 @@ function PlayContent({
   playAudio: (key: "place" | "correct" | "wrong" | "gold" | "levelup") => void;
 }) {
   const router = useRouter();
-  const { state, dispatch, step, hintText } = useLevelGame(level, { playAudio });
+  const { state, dispatch, step } = useLevelGame(level, { playAudio });
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [exitTarget, setExitTarget] = useState<string>("/levels");
   const [showRules, setShowRules] = useState(false);
+  const [dismissedFeedback, setDismissedFeedback] = useState<typeof state.lastFeedback>(null);
+
+  const activeFeedback =
+    state.lastFeedback === dismissedFeedback ? null : state.lastFeedback;
+
+  useEffect(() => {
+    if (!activeFeedback) return;
+    const timer = setTimeout(() => {
+      setDismissedFeedback(state.lastFeedback);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [activeFeedback, state.lastFeedback]);
 
   const isMidLevel =
     state.phase !== "levelIntro" && state.phase !== "levelComplete";
@@ -168,24 +180,23 @@ function PlayContent({
           </div>
         </div>
 
-        {/* Revealed Hint Box */}
-        {hintText && state.phase !== "levelComplete" && (
-          <div
-            role="status"
-            className="flex items-start gap-3 rounded-card bg-gold/15 p-4 text-navy border border-gold/40"
-          >
-            <span className="text-lg text-navy">
-              <HintIcon />
-            </span>
-            <div className="flex flex-col text-sm">
-              <span className="font-bold">{MESSAGES.ui.hintTitle(state.hintsUsed)}</span>
-              <span>{hintText}</span>
-            </div>
-          </div>
+        {/* Revealed Hint Carousel */}
+        {state.phase !== "levelComplete" && (
+          <HintViewer hints={level.hints} hintsUsed={state.hintsUsed} />
         )}
 
-        {/* Feedback Panel */}
-        <FeedbackPanel feedback={state.lastFeedback} />
+        {/* Floating Feedback Notification at Bottom (Zero Layout Shift & No Top Overlap) */}
+        <div
+          aria-live="polite"
+          className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-md px-4 transition-all duration-200"
+        >
+          <div className="pointer-events-auto">
+            <FeedbackPanel
+              feedback={activeFeedback}
+              onDismiss={() => setDismissedFeedback(state.lastFeedback)}
+            />
+          </div>
+        </div>
 
         {/* Step-specific components */}
         {(state.phase === "levelIntro" ||

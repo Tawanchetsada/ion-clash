@@ -29,6 +29,9 @@
   --color-panel: #ffffff;
   --color-border: #d7e6f2;
   --color-focus-ring: #1f5faa;
+  --color-gold-surface: #fffdf0;
+  --color-gold-subtle: #fef9db;
+  --color-gold-light: #fef08a;
 
   --radius-card: 16px;
   --shadow-card: 0 8px 24px rgba(8, 37, 65, 0.1);

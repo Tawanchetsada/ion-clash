@@ -1,23 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "../../components/layout/AppHeader";
 import { PageShell } from "../../components/layout/PageShell";
-import { IonCard } from "../../components/game/IonCard";
-import { IonSlot } from "../../components/game/IonSlot";
-import { EquationArrow } from "../../components/game/EquationArrow";
-import { ProblemBar } from "../../components/game/ProblemBar";
-import { DragLayer } from "../../components/interaction/DragLayer";
-import { usePlacement } from "../../components/interaction/usePlacement";
-import { Button } from "../../components/ui/Button";
 import { SCORING } from "../../config/scoring";
 import { MESSAGES } from "../../config/messages";
-import { getTutorialLevel } from "../../presentation/tutorial";
-import { ionCardView } from "../../presentation/cards";
-import { reactantIonCards } from "../../domain/game/instances";
-import { BookIcon, KeyboardIcon, MouseIcon, StarIcon, StarOutlineIcon, TapIcon } from "../../components/ui/Icon";
+import {
+  BookIcon,
+  FlaskIcon,
+  KeyboardIcon,
+  MouseIcon,
+  PlayIcon,
+  StarIcon,
+  StarOutlineIcon,
+  TapIcon,
+} from "../../components/ui/Icon";
 
 function StarRow({ filled }: { filled: number }) {
   return (
@@ -31,73 +29,6 @@ function StarRow({ filled }: { filled: number }) {
 
 export default function HowToPlayPage() {
   const router = useRouter();
-  const tutorialLevel = useMemo(() => getTutorialLevel(), []);
-  const allCards = useMemo(() => reactantIonCards(tutorialLevel), [tutorialLevel]);
-
-  // Interactive Sandbox Slot State: slotId -> instanceId
-  const [slotAssignments, setSlotAssignments] = useState<Record<string, string>>({});
-
-  const slotIds = ["tut-slot-0", "tut-slot-1", "tut-slot-2", "tut-slot-3"];
-  const slotLabels = [
-    "ช่องที่ 1 (ไอออนบวก คู่ที่ 1)",
-    "ช่องที่ 2 (ไอออนลบ คู่ที่ 1)",
-    "ช่องที่ 3 (ไอออนบวก คู่ที่ 2)",
-    "ช่องที่ 4 (ไอออนลบ คู่ที่ 2)",
-  ];
-  const slotRoles = ["ไอออนบวก", "ไอออนลบ", "ไอออนบวก", "ไอออนลบ"];
-
-  const placement = usePlacement({
-    onIntent: (intent) => {
-      if (intent.kind === "place") {
-        setSlotAssignments((prev) => ({
-          ...prev,
-          [intent.slotId]: intent.instanceId,
-        }));
-      } else if (intent.kind === "remove") {
-        setSlotAssignments((prev) => {
-          const next = { ...prev };
-          delete next[intent.slotId];
-          return next;
-        });
-      } else if (intent.kind === "move") {
-        setSlotAssignments((prev) => {
-          const next = { ...prev };
-          const movedId = next[intent.fromSlotId];
-          delete next[intent.fromSlotId];
-          if (movedId) {
-            next[intent.toSlotId] = movedId;
-          }
-          return next;
-        });
-      }
-    },
-  });
-
-  const assignedSet = new Set(Object.values(slotAssignments));
-  const cardMap = useMemo(() => {
-    const map = new Map<string, (typeof allCards)[0]>();
-    for (const c of allCards) {
-      map.set(c.instanceId, c);
-    }
-    return map;
-  }, [allCards]);
-
-  const handleResetSandbox = () => {
-    setSlotAssignments({});
-    placement.cancel();
-  };
-
-  const handleAutoFillSandbox = () => {
-    // Fill Ca2+ (0), SO4 2- (1), Na+ (2), Cl- (3)
-    if (allCards.length >= 4) {
-      setSlotAssignments({
-        "tut-slot-0": allCards[0]!.instanceId, // Ca2+
-        "tut-slot-1": allCards[3]!.instanceId, // SO4 2-
-        "tut-slot-2": allCards[2]!.instanceId, // Na+
-        "tut-slot-3": allCards[1]!.instanceId, // Cl-
-      });
-    }
-  };
 
   return (
     <PageShell>
@@ -124,7 +55,7 @@ export default function HowToPlayPage() {
         {/* Overview of 5 Steps */}
         <section className="rounded-card bg-white p-6 shadow-card border border-border">
           <h2 className="text-xl font-bold text-navy mb-4">5 ขั้นตอนสู่สมการไอออนิกสุทธิ</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 text-center mb-6">
             {MESSAGES.ui.steps.map((stepName, i) => (
               <div
                 key={i}
@@ -137,6 +68,117 @@ export default function HowToPlayPage() {
               </div>
             ))}
           </div>
+
+          <div className="flex flex-col gap-4 text-left">
+            {/* Step 1 */}
+            <div className="rounded-xl border border-navy/15 bg-canvas/60 p-4 sm:p-5">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <span className="shrink-0 whitespace-nowrap rounded-md bg-blue px-2.5 py-1 text-xs font-bold text-white shadow-2xs">
+                  ขั้นที่ 1
+                </span>
+                <h3 className="font-bold text-navy text-base leading-snug">แตกตัวสารตั้งต้นในสารละลาย</h3>
+              </div>
+              <p className="text-xs sm:text-sm text-navy/80 leading-relaxed">
+                สารประกอบไอออนิกที่ละลายน้ำได้ (aq) เมื่ออยู่ในน้ำจะแตกตัวออกเป็นไอออนบวกและไอออนลบอิสระ กดปุ่มเพื่อดูการแตกตัวของสารตั้งต้นทั้ง 2 ชนิด
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="rounded-xl border border-navy/15 bg-canvas/60 p-4 sm:p-5">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <span className="shrink-0 whitespace-nowrap rounded-md bg-blue px-2.5 py-1 text-xs font-bold text-white shadow-2xs">
+                  ขั้นที่ 2
+                </span>
+                <h3 className="font-bold text-navy text-base leading-snug">การแลกเปลี่ยนคู่ไอออนและดุลสมการเคมี</h3>
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                <div className="flex items-start gap-2 rounded-lg bg-white p-3 border border-border text-xs sm:text-sm">
+                  <span className="shrink-0 font-bold text-navy bg-navy/10 px-2 py-0.5 rounded text-xs">
+                    2.1
+                  </span>
+                  <span className="text-navy/85 leading-relaxed">
+                    <strong className="text-navy">แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์:</strong> จับคู่ไอออนบวกและลบใหม่ 2 คู่ (ไอออนบวกต้องอยู่หน้าไอออนลบเสมอ)
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 rounded-lg bg-white p-3 border border-border text-xs sm:text-sm">
+                  <span className="shrink-0 font-bold text-navy bg-navy/10 px-2 py-0.5 rounded text-xs">
+                    2.2
+                  </span>
+                  <span className="text-navy/85 leading-relaxed">
+                    <strong className="text-navy">เขียนสูตรสารประกอบไอออนิก (คูณไขว้):</strong> นำตัวเลขประจุมาคูณไขว้เป็นตัวห้อยของแต่ละไอออน (ตัวห้อย 1 ละไว้)
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 rounded-lg bg-white p-3 border border-border text-xs sm:text-sm">
+                  <span className="shrink-0 font-bold text-navy bg-navy/10 px-2 py-0.5 rounded text-xs">
+                    2.3
+                  </span>
+                  <span className="text-navy/85 leading-relaxed">
+                    <strong className="text-navy">ดุลสมการเคมี:</strong> เติมสัมประสิทธิ์หน้าสารประกอบทั้ง 4 ตัวให้จำนวนอะตอมทั้งสองฝั่งเท่ากัน
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="rounded-xl border border-navy/15 bg-canvas/60 p-4 sm:p-5">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <span className="shrink-0 whitespace-nowrap rounded-md bg-blue px-2.5 py-1 text-xs font-bold text-white shadow-2xs">
+                  ขั้นที่ 3
+                </span>
+                <h3 className="font-bold text-navy text-base leading-snug">ตรวจสอบสถานะการละลายของผลิตภัณฑ์</h3>
+              </div>
+              <p className="text-xs sm:text-sm text-navy/80 leading-relaxed">
+                เปิดตาราง <strong>กฎการละลาย 7 ข้อ</strong> เพื่อพิจารณาว่าสารประกอบใดเกิดตะกอน (s) และสารประกอบใดละลายน้ำ (aq) ซึ่งจะแตกตัวเป็นไอออนอิสระ
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="rounded-xl border border-navy/15 bg-canvas/60 p-4 sm:p-5">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <span className="shrink-0 whitespace-nowrap rounded-md bg-blue px-2.5 py-1 text-xs font-bold text-white shadow-2xs">
+                  ขั้นที่ 4
+                </span>
+                <h3 className="font-bold text-navy text-base leading-snug">ตัดไอออนผู้ชม (Spectator Ions)</h3>
+              </div>
+              <p className="text-xs sm:text-sm text-navy/80 leading-relaxed">
+                ไอออนที่ปรากฏทั้งสองฝั่งของสมการในสถานะเดียวกัน (aq) โดยไม่เปลี่ยนแปลง เรียกว่า <strong>ไอออนผู้ชม</strong> ให้จับคู่ไอออนตัวเดียวกันเพื่อตัดออก
+              </p>
+            </div>
+
+            {/* Step 5 */}
+            <div className="rounded-xl border border-green/30 bg-green/5 p-4 sm:p-5">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <span className="shrink-0 whitespace-nowrap rounded-md bg-green px-2.5 py-1 text-xs font-bold text-white shadow-2xs">
+                  ขั้นที่ 5
+                </span>
+                <h3 className="font-bold text-navy text-base leading-snug">สรุปสมการไอออนิกสุทธิ</h3>
+              </div>
+              <p className="text-xs sm:text-sm text-navy/80 leading-relaxed">
+                แสดงสมการไอออนิกสุทธิ (Net Ionic Equation) ที่สมบูรณ์ สรุปคะแนนที่ได้รับ และจำนวนดาวตามเกณฑ์ความแม่นยำ
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Dedicated Sandbox CTA Box */}
+        <section className="rounded-card border-2 border-gold/60 bg-gold-surface p-6 sm:p-8 shadow-card text-center flex flex-col items-center gap-4">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gold-light text-2xl text-navy">
+            <FlaskIcon />
+          </span>
+          <div className="space-y-1 max-w-lg">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-navy">
+              กระดานทดลองเล่นจริง (Interactive Sandbox)
+            </h2>
+            <p className="text-xs sm:text-sm text-navy/80 leading-relaxed">
+              ทดลองลากวางการ์ดไอออน สังเกตการคูณไขว้ประจุ และฝึกดุลสมการเคมีพร้อมระบบตรวจนับอะตอมแบบเรียลไทม์บนกระดานจำลองขนาดเต็ม
+            </p>
+          </div>
+          <Link
+            href="/how-to-play/sandbox"
+            className="inline-flex items-center justify-center gap-2 rounded-card bg-gold px-6 py-3 text-base font-extrabold text-navy shadow-md hover:bg-gold-light hover:scale-105 active:scale-95 transition-all"
+          >
+            <PlayIcon /> เปิดกระดานทดลองเล่นจริง
+          </Link>
         </section>
 
         {/* 3 Control Methods */}
@@ -169,403 +211,76 @@ export default function HowToPlayPage() {
                 <h3>3. คีย์บอร์ด (Keyboard)</h3>
               </div>
               <p className="text-xs text-navy/80 leading-relaxed">
-                กด <strong>Tab</strong> เลื่อนโฟกัส, กด <strong>Enter</strong> หรือ <strong>Space</strong> เพื่อเลือก/วางการ์ด, และกด <strong>Escape</strong> เพื่อยกเลิกการเลือก
+                กดปุ่มตัวเลข <strong>1 - 9</strong> เพื่อเลือกการ์ดไอออน จากนั้นกด <strong>A, B, C, D</strong> เพื่อวางลงในช่องผลิตภัณฑ์ที่ต้องการ หรือใช้ <strong>Tab</strong> และ <strong>Enter / Space</strong>
               </p>
             </div>
           </div>
         </section>
 
-        {/* Interactive Sandbox for Step 2 (Exchange & Place) */}
+        {/* Scoring & Star Criteria */}
         <section className="rounded-card bg-white p-6 shadow-card border border-border">
-          <div className="mb-4">
-            <span className="inline-block px-2.5 py-1 rounded bg-blue/15 text-xs font-bold text-blue mb-1">
-              ทดลองเล่นจริง
-            </span>
-            <h2 className="text-xl font-bold text-navy">
-              ขั้นที่ 2 · แลกเปลี่ยนคู่ไอออนสร้างผลิตภัณฑ์
-            </h2>
-            <p className="text-sm text-navy/70 mt-1">
-              ลากหรือแตะเลือกไอออนบวกและไอออนลบเพื่อจับคู่ผลิตภัณฑ์ใหม่ (กติกา: <strong>ไอออนบวกต้องอยู่หน้าไอออนลบ</strong> เสมอ)
-            </p>
-          </div>
+          <h2 className="text-xl font-bold text-navy mb-4">ระบบคะแนนและเกณฑ์การให้ดาว</h2>
+          <div className="space-y-4 text-left text-sm text-navy/85">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-card bg-canvas p-4 border border-border text-center">
+                <span className="text-xs text-navy/60">คะแนนเริ่มต้น</span>
+                <p className="text-2xl font-bold text-navy mt-1">{SCORING.startScore} คะแนน</p>
+              </div>
+              <div className="rounded-card bg-canvas p-4 border border-border text-center">
+                <span className="text-xs text-navy/60">หักคะแนนเมื่อผิด</span>
+                <p className="text-2xl font-bold text-error mt-1">-{SCORING.penaltyPerWrong} คะแนน/ครั้ง</p>
+              </div>
+              <div className="rounded-card bg-canvas p-4 border border-border text-center">
+                <span className="text-xs text-navy/60">หักคะแนนเมื่อใช้คำใบ้</span>
+                <p className="text-2xl font-bold text-gold-dark mt-1">-{SCORING.penaltyPerHint} คะแนน/ครั้ง</p>
+              </div>
+            </div>
 
-          <div className="flex flex-col items-center gap-6 rounded-card bg-panel p-4 sm:p-6 border border-border">
-            <DragLayer
-              dragging={placement.dragging}
-              renderGhost={(source) => {
-                const card = allCards.find((c) => c.instanceId === source.instanceId);
-                if (!card) return null;
-                return <IonCard view={ionCardView(card)} size="fluid" />;
-              }}
-            />
-
-            {/* แถบโจทย์สมการสารตั้งต้น */}
-            <ProblemBar
-              reactants={[
-                { formula: tutorialLevel.reactantA.formula, phaseTh: tutorialLevel.reactantA.phase },
-                { formula: tutorialLevel.reactantB.formula, phaseTh: tutorialLevel.reactantB.phase },
-              ]}
-            />
-
-            {/* แถบจับคู่ไอออนเป็นผลิตภัณฑ์ (โครงสร้างและสไตล์ตรงกับในเกมจริง 100%) */}
-            <div
-              role="region"
-              aria-label="แถวจับคู่ไอออนเป็นผลิตภัณฑ์"
-              tabIndex={0}
-              className="equation-scroll fit-cards w-full min-w-0 rounded-card border border-border bg-white p-3 shadow-card sm:p-4"
-            >
-              <div className="fit-cards-track flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-[calc(var(--card-size,5rem)*0.25)]">
-                {/* ฝั่งซ้าย — ถาดไอออนตั้งต้น 4 ตัว */}
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-xs font-semibold text-navy/70">
-                    ไอออนของสารตั้งต้น 4 ตัว
+            <div className="rounded-card bg-gold-surface p-4 border border-gold/40">
+              <h3 className="font-bold text-navy mb-2">เกณฑ์การได้รับดาว (Stars Criteria):</h3>
+              <ul className="space-y-2 text-xs sm:text-sm">
+                <li className="flex items-center justify-between border-b border-gold/20 pb-1.5">
+                  <span className="inline-flex items-center gap-2">
+                    <StarRow filled={3} />
+                    <strong>3 ดาว:</strong> ได้คะแนนตั้งแต่ {SCORING.starThresholds.three} คะแนนขึ้นไป (เล่นได้อย่างแม่นยำ ไม่ผิดเกิน 1 ครั้ง)
                   </span>
-                  <div
-                    {...placement.targetPropsFor({ kind: "tray" })}
-                    className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)] rounded-card border border-navy/10 bg-canvas p-[calc(var(--card-size,5rem)*0.12)]"
-                  >
-                    {allCards.map((card, idx) => {
-                      const isAssigned = assignedSet.has(card.instanceId);
-                      const isHeld = placement.isHeld({
-                        kind: "card",
-                        instanceId: card.instanceId,
-                      });
-                      const view = ionCardView(card);
-                      const dragHandlers = placement.dragHandlersFor({
-                        kind: "card",
-                        instanceId: card.instanceId,
-                      });
-
-                      return (
-                        <span
-                          key={card.instanceId}
-                          className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)]"
-                        >
-                          {idx > 0 && (
-                            <span
-                              aria-hidden="true"
-                              className="text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
-                            >
-                              +
-                            </span>
-                          )}
-                          {isAssigned ? (
-                            <span className="flex h-[calc(var(--card-size,5rem)*0.95)] w-[var(--card-size,5rem)] items-center justify-center rounded-card border border-dashed border-border px-1 text-center text-[calc(var(--card-size,5rem)*0.13)] leading-tight text-navy/40">
-                              (อยู่ในช่อง)
-                            </span>
-                          ) : (
-                            <IonCard
-                              view={view}
-                              size="fluid"
-                              selected={isHeld}
-                              isDragging={
-                                placement.dragging?.source.kind === "card" &&
-                                placement.dragging.source.instanceId === card.instanceId
-                              }
-                              onSelect={() => {
-                                placement.toggleHold({
-                                  kind: "card",
-                                  instanceId: card.instanceId,
-                                });
-                              }}
-                              onPointerDown={dragHandlers.onPointerDown}
-                            />
-                          )}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* ลูกศรกลางแถว — ชี้ขวาเมื่อเรียงแถวเดียว ชี้ลงเมื่อพับสองชั้น */}
-                <div className="flex items-center justify-center px-1 md:min-h-[calc(var(--card-size,5rem)*1.6)]">
-                  <EquationArrow breakpoint="md" className="text-gold" />
-                </div>
-
-                {/* ฝั่งขวา — ช่องไอออนสารผลิตภัณฑ์แบ่งเป็น 2 ช่องย่อย */}
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.15)]">
-                    {/* ช่องย่อยที่ 1: ผลิตภัณฑ์ที่เป็นตะกอน */}
-                    <div className="flex flex-col items-center gap-1 rounded-card border border-gold/60 bg-gold/10 p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
-                      <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy">
-                        ผลิตภัณฑ์ที่เป็นตะกอน
-                      </span>
-                      <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
-                        {[0, 1].map((idx) => {
-                          const slotId = slotIds[idx]!;
-                          const assignedCardId = slotAssignments[slotId] ?? null;
-                          const assignedCard = assignedCardId ? cardMap.get(assignedCardId) : null;
-                          const cardView = assignedCard ? ionCardView(assignedCard) : null;
-                          const isTarget = placement.activeTargetId === slotId;
-                          const isHeld =
-                            assignedCardId != null &&
-                            placement.isHeld({
-                              kind: "slot",
-                              slotId,
-                              instanceId: assignedCardId,
-                            });
-                          const dragHandlers = assignedCardId
-                            ? placement.dragHandlersFor({
-                                kind: "slot",
-                                slotId,
-                                instanceId: assignedCardId,
-                              })
-                            : undefined;
-
-                          return (
-                            <span
-                              key={slotId}
-                              className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]"
-                            >
-                              {idx > 0 && (
-                                <span
-                                  aria-hidden="true"
-                                  className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
-                                >
-                                  +
-                                </span>
-                              )}
-                              <IonSlot
-                                slotId={slotId}
-                                slotLabelTh={slotLabels[idx]!}
-                                roleHintTh={slotRoles[idx]!}
-                                assignedIon={cardView}
-                                size="fluid"
-                                isDropTarget={isTarget}
-                                selected={isHeld}
-                                onActivate={() => {
-                                  placement.activateTarget({ kind: "slot", slotId });
-                                }}
-                                onSelect={
-                                  assignedCardId
-                                    ? () => {
-                                        placement.toggleHold({
-                                          kind: "slot",
-                                          slotId,
-                                          instanceId: assignedCardId,
-                                        });
-                                      }
-                                    : undefined
-                                }
-                                onRemove={
-                                  assignedCardId
-                                    ? () => {
-                                        setSlotAssignments((prev) => {
-                                          const next = { ...prev };
-                                          delete next[slotId];
-                                          return next;
-                                        });
-                                      }
-                                    : undefined
-                                }
-                                onPointerDown={dragHandlers?.onPointerDown}
-                              />
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* เครื่องหมาย + คั่นระหว่าง 2 กลุ่ม */}
-                    <span
-                      aria-hidden="true"
-                      className="mt-[calc(var(--card-size,5rem)*0.55)] text-[calc(var(--card-size,5rem)*0.32)] font-bold leading-none text-navy/60"
-                    >
-                      +
-                    </span>
-
-                    {/* ช่องย่อยที่ 2: ไอออนที่ยังคงอยู่ในสารละลาย */}
-                    <div className="flex flex-col items-center gap-1 rounded-card border border-border bg-panel p-[calc(var(--card-size,5rem)*0.12)] shadow-xs">
-                      <span className="text-[calc(var(--card-size,5rem)*0.14)] font-bold text-navy/80">
-                        ไอออนที่ยังคงอยู่ในสารละลาย
-                      </span>
-                      <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]">
-                        {[2, 3].map((idx) => {
-                          const slotId = slotIds[idx]!;
-                          const assignedCardId = slotAssignments[slotId] ?? null;
-                          const assignedCard = assignedCardId ? cardMap.get(assignedCardId) : null;
-                          const cardView = assignedCard ? ionCardView(assignedCard) : null;
-                          const isTarget = placement.activeTargetId === slotId;
-                          const isHeld =
-                            assignedCardId != null &&
-                            placement.isHeld({
-                              kind: "slot",
-                              slotId,
-                              instanceId: assignedCardId,
-                            });
-                          const dragHandlers = assignedCardId
-                            ? placement.dragHandlersFor({
-                                kind: "slot",
-                                slotId,
-                                instanceId: assignedCardId,
-                              })
-                            : undefined;
-
-                          return (
-                            <span
-                              key={slotId}
-                              className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]"
-                            >
-                              {idx === 3 && (
-                                <span
-                                  aria-hidden="true"
-                                  className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
-                                >
-                                  +
-                                </span>
-                              )}
-                              <IonSlot
-                                slotId={slotId}
-                                slotLabelTh={slotLabels[idx]!}
-                                roleHintTh={slotRoles[idx]!}
-                                assignedIon={cardView}
-                                size="fluid"
-                                isDropTarget={isTarget}
-                                selected={isHeld}
-                                onActivate={() => {
-                                  placement.activateTarget({ kind: "slot", slotId });
-                                }}
-                                onSelect={
-                                  assignedCardId
-                                    ? () => {
-                                        placement.toggleHold({
-                                          kind: "slot",
-                                          slotId,
-                                          instanceId: assignedCardId,
-                                        });
-                                      }
-                                    : undefined
-                                }
-                                onRemove={
-                                  assignedCardId
-                                    ? () => {
-                                        setSlotAssignments((prev) => {
-                                          const next = { ...prev };
-                                          delete next[slotId];
-                                          return next;
-                                        });
-                                      }
-                                    : undefined
-                                }
-                                onPointerDown={dragHandlers?.onPointerDown}
-                              />
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button variant="outline" onClick={handleResetSandbox}>
-                ล้างทุกช่อง
-              </Button>
-              <Button variant="gold" onClick={handleAutoFillSandbox}>
-                แสดงตัวอย่างการวางที่ถูกต้อง
-              </Button>
+                  <span className="font-bold text-gold-dark">ยอดเยี่ยม</span>
+                </li>
+                <li className="flex items-center justify-between border-b border-gold/20 pb-1.5">
+                  <span className="inline-flex items-center gap-2">
+                    <StarRow filled={2} />
+                    <strong>2 ดาว:</strong> ได้คะแนนตั้งแต่ {SCORING.starThresholds.two} - {SCORING.starThresholds.three - 1} คะแนน
+                  </span>
+                  <span className="font-bold text-blue">ดีมาก</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-2">
+                    <StarRow filled={1} />
+                    <strong>1 ดาว:</strong> ผ่านด่านโดยได้คะแนนอย่างน้อย {SCORING.starThresholds.one} คะแนน
+                  </span>
+                  <span className="font-bold text-navy/60">ผ่านเกณฑ์</span>
+                </li>
+              </ul>
             </div>
           </div>
         </section>
 
-        {/* Card Colors Meaning */}
-        <section className="rounded-card bg-white p-6 shadow-card border border-border">
-          <h2 className="text-xl font-bold text-navy mb-4">ความหมายของแถบสีการ์ด 4 สี</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex flex-col items-center gap-2 rounded-card bg-navy/5 p-4 text-center border border-navy/20">
-              <span className="inline-block h-4 w-12 rounded-full bg-navy" />
-              <span className="font-bold text-navy text-sm">สีกรมท่า (Navy)</span>
-              <p className="text-xs text-navy/70">
-                ใช้กับการ์ด<strong>สารตั้งต้น</strong>เริ่มต้นในสารละลาย
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center gap-2 rounded-card bg-blue/5 p-4 text-center border border-blue/20">
-              <span className="inline-block h-4 w-12 rounded-full bg-blue" />
-              <span className="font-bold text-blue text-sm">สีน้ำเงิน (Blue)</span>
-              <p className="text-xs text-navy/70">
-                ใช้กับ<strong>ผลิตภัณฑ์ที่ละลายน้ำได้ (aq)</strong>
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center gap-2 rounded-card bg-gold/15 p-4 text-center border border-gold/40">
-              <span className="inline-block h-4 w-12 rounded-full bg-gold" />
-              <span className="font-bold text-navy text-sm">สีทอง (Gold)</span>
-              <p className="text-xs text-navy/70">
-                ใช้กับ<strong>ตะกอนที่ไม่ละลายน้ำ (s)</strong> ที่ผ่านการตรวจแล้ว
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center gap-2 rounded-card bg-green/10 p-4 text-center border border-green/30">
-              <span className="inline-block h-4 w-12 rounded-full bg-green" />
-              <span className="font-bold text-navy text-sm">สีเขียว (Green)</span>
-              <p className="text-xs text-navy/70">
-                ใช้ระบุ<strong>สถานะถูกต้อง</strong> หรือสมการที่ตรวจผ่านแล้ว
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Scoring and Stars (Derived directly from SCORING configuration) */}
-        <section className="rounded-card bg-white p-6 shadow-card border border-border">
-          <h2 className="text-xl font-bold text-navy mb-4">ระบบคะแนนและการคำนวณดาว</h2>
-          <div className="space-y-4 text-sm text-navy/85 leading-relaxed">
-            <p>
-              ในแต่ละด่าน ผู้เล่นจะเริ่มต้นด้วยคะแนนเต็ม <strong>{SCORING.startScore} คะแนน</strong>:
-            </p>
-
-            <ul className="list-disc pl-5 space-y-1">
-              <li>
-                <strong>ตรวจคำตอบผิด:</strong> หักครั้งละ {SCORING.penaltyPerWrong} คะแนน (หักสูงสุดไม่เกิน {SCORING.maxWrongPenalty} คะแนน)
-              </li>
-              <li>
-                <strong>กดขอคำใบ้:</strong> หักครั้งละ {SCORING.penaltyPerHint} คะแนน (หักได้สูงสุด 3 ครั้ง หรือ {SCORING.maxHintPenalty} คะแนน)
-              </li>
-              <li>
-                <strong>เกณฑ์ผ่านด่านขั้นต่ำ:</strong> ต้องได้คะแนนอย่างน้อย {SCORING.minPassScore} คะแนน
-              </li>
-            </ul>
-
-            <div className="rounded-card bg-canvas p-4 border border-border">
-              <h4 className="font-bold text-navy mb-2">เกณฑ์การได้รับดาว:</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                <div className="rounded-card bg-navy p-3 border border-navy text-white">
-                  <span className="flex items-center justify-center gap-2 text-lg font-bold text-gold"><StarRow filled={3} /> 3 ดาว</span>
-                  <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.three} – {SCORING.startScore} คะแนน</p>
-                </div>
-                <div className="rounded-card bg-navy p-3 border border-navy text-white">
-                  <span className="flex items-center justify-center gap-2 text-lg font-bold text-gold"><StarRow filled={2} /> 2 ดาว</span>
-                  <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.two} – {SCORING.starThresholds.three - 1} คะแนน</p>
-                </div>
-                <div className="rounded-card bg-navy p-3 border border-navy text-white">
-                  <span className="flex items-center justify-center gap-2 text-lg font-bold text-gold"><StarRow filled={1} /> 1 ดาว</span>
-                  <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.one} – {SCORING.starThresholds.two - 1} คะแนน</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Sticky Bottom Actions */}
-      <footer className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-white/95 px-4 py-3 backdrop-blur shadow-card">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4">
+        {/* Navigation Actions */}
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
           <Link
             href="/knowledge"
-            className="min-h-11 inline-flex items-center justify-center rounded-card border border-navy/20 px-6 py-2 text-sm font-bold text-navy hover:bg-canvas"
+            className="flex min-h-11 items-center justify-center rounded-card border-2 border-navy bg-white px-6 py-2.5 font-bold text-navy shadow-card hover:bg-canvas"
           >
-            ศึกษาคลังความรู้
+            ศึกษาคลังความรู้ (ทฤษฎีเคมี)
           </Link>
           <Link
             href="/levels"
-            className="min-h-11 inline-flex items-center justify-center rounded-card bg-gold px-8 py-2 font-bold text-navy shadow-card hover:bg-gold/90"
+            className="flex min-h-11 items-center justify-center rounded-card bg-gold px-8 py-2.5 font-bold text-navy shadow-card hover:bg-gold-light"
           >
             ไปยังหน้าเลือกด่าน
           </Link>
         </div>
-      </footer>
+      </main>
     </PageShell>
   );
 }

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { FeedbackPanel } from "./FeedbackPanel";
 
@@ -22,4 +22,22 @@ describe("FeedbackPanel", () => {
     expect(screen.getByRole("status")).toHaveTextContent("ถูกต้อง!");
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
+
+  it("เรียก onDismiss เมื่อกดปุ่มกากบาท", () => {
+    let dismissed = false;
+    render(
+      <FeedbackPanel
+        feedback={{ kind: "success", code: null, messageTh: "ถูกต้อง!" }}
+        onDismiss={() => {
+          dismissed = true;
+        }}
+      />,
+    );
+    const closeBtn = screen.getByRole("button", { name: "ปิดการแจ้งเตือน" });
+    act(() => {
+      closeBtn.click();
+    });
+    expect(dismissed).toBe(true);
+  });
 });
+

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { MESSAGES } from "../../config/messages";
-import { SettingsIcon } from "../ui/Icon";
+import { HomeIcon, SettingsIcon } from "../ui/Icon";
 import { useAudioOptional } from "../../audio/AudioProvider";
 
 export type AppHeaderProps = {
@@ -77,6 +77,24 @@ export function AppHeader({
               {MESSAGES.ui.howToPlay}
             </button>
           )}
+          <Link
+            href="/"
+            aria-label={MESSAGES.ui.home}
+            title={MESSAGES.ui.home}
+            onClick={(e) => {
+              audio?.playUiTap();
+              if (onHome) {
+                e.preventDefault();
+                onHome();
+              }
+            }}
+            className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-card px-3 py-2 text-sm hover:bg-white/10"
+          >
+            <HomeIcon className="text-base" />
+            <span aria-hidden="true" className="hidden sm:inline">
+              {MESSAGES.ui.home}
+            </span>
+          </Link>
           {!hideSettings && (
             <Link
               href="/settings"

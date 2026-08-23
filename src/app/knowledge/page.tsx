@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { AppHeader } from "../../components/layout/AppHeader";
 import { PageShell } from "../../components/layout/PageShell";
 import { EquationView } from "../../components/game/EquationView";
-import { solubilityTableView } from "../../presentation/solubility";
-import { CheckIcon, FlaskIcon } from "../../components/ui/Icon";
+import { SOLUBILITY_7_RULES } from "../../presentation/solubility";
+import { CheckIcon, FlaskIcon, HintIcon } from "../../components/ui/Icon";
 import {
   getKnowledgeTopic1Examples,
   getKnowledgeTopic3Example,
@@ -30,7 +30,6 @@ export default function KnowledgePage() {
     }));
   };
 
-  const rulesTable = solubilityTableView();
   const t1 = getKnowledgeTopic1Examples();
   const t3 = getKnowledgeTopic3Example();
   const t4 = getKnowledgeTopic4Examples();
@@ -160,48 +159,97 @@ export default function KnowledgePage() {
             </button>
 
             {openSections[2] && (
-              <div id="topic-2-content" className="space-y-4 p-6 text-navy/90">
-                <div className="rounded-card bg-gold/15 p-4 border border-gold/40 text-sm">
-                  <p className="font-bold text-navy mb-1">กฎครอบคลุมที่ต้องจำก่อน:</p>
+              <div id="topic-2-content" className="space-y-5 p-6 text-navy/90">
+                {/* คำแนะนำวิธีใช้ */}
+                <div className="rounded-card bg-blue/10 p-4 border border-blue/20 text-sm leading-relaxed text-navy">
                   <p>
-                    เกลือของ <strong>Na⁺, K⁺, NH₄⁺</strong> และเกลือ<strong>ไนเตรต (NO₃⁻)</strong> ละลายน้ำได้ทั้งหมดโดยไม่มีข้อยกเว้น
+                    <strong className="text-navy">วิธีใช้:</strong> ตรวจสอบไอออนในสารประกอบตามลำดับจากข้อ 1 ลงไป
+                    ละลายน้ำให้ใช้สถานะ <span className="font-bold text-blue">(aq)</span> ส่วนสารที่เกิดตะกอนให้ใช้สถานะ <span className="font-bold text-navy">(s)</span>
                   </p>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-border bg-panel text-navy font-bold">
-                        <th className="py-2.5 px-3 w-16 text-center">ข้อ</th>
-                        <th className="py-2.5 px-3">กฎการละลาย</th>
-                        <th className="py-2.5 px-3 w-28 text-center">สถานะ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {rulesTable.map((rule) => (
-                        <tr key={rule.order} className="hover:bg-canvas/50">
-                          <td className="py-2.5 px-3 text-center font-bold text-navy/70">
-                            {rule.order}
-                          </td>
-                          <td className="py-2.5 px-3 text-navy">{rule.descriptionTh}</td>
-                          <td className="py-2.5 px-3 text-center">
+                {/* รายการกฎการละลาย 7 ข้อ */}
+                <div className="flex flex-col gap-3">
+                  {SOLUBILITY_7_RULES.map((r) => (
+                    <div
+                      key={r.id}
+                      className="rounded-xl border border-navy/15 bg-white p-4 sm:p-5 shadow-2xs space-y-3"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-2.5">
+                        <h4 className="text-base font-bold text-navy">
+                          {r.title}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                          <span className="text-navy/70">
+                            {r.exception ? "สถานะปกติ:" : "สถานะ:"}
+                          </span>
+                          <span
+                            className={`inline-block px-2.5 py-0.5 rounded-full font-bold ${
+                              r.isNormalSoluble
+                                ? "bg-blue/15 text-blue"
+                                : "bg-gold-light text-navy"
+                            }`}
+                          >
+                            {r.normalStatus}
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-navy/90 leading-relaxed">
+                        {r.general}
+                      </p>
+
+                      {r.exception && (
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg bg-canvas p-3 border border-border text-sm">
+                          <div className="text-navy/90">
+                            <strong className="text-error font-bold">ข้อยกเว้น:</strong> {r.exception}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs shrink-0">
+                            <span className="text-navy/70">สถานะเมื่อพบข้อยกเว้น:</span>
                             <span
-                              className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                                rule.outcomeTh === "ละลาย"
+                              className={`inline-block px-2.5 py-0.5 rounded-full font-bold ${
+                                !r.isNormalSoluble
                                   ? "bg-blue/15 text-blue"
-                                  : "bg-gold/30 text-navy font-semibold"
+                                  : "bg-gold-light text-navy"
                               }`}
                             >
-                              {rule.outcomeTh === "ละลาย" ? "ละลาย (aq)" : "ตะกอน (s)"}
+                              {r.exceptionStatus}
                             </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <p className="text-xs text-navy/80">
-                  * ลำดับของกฎมีความสำคัญมาก: หากมีหลายกฎที่ดูเหมือนจะใช้ได้ ให้ใช้กฎที่อยู่ข้อบนสุดเป็นหลักในการตัดสิน
+
+                {/* กรอบ "จำให้แม่น" */}
+                <div className="rounded-xl bg-gold-surface p-5 border-2 border-gold/50 text-navy space-y-3 shadow-2xs">
+                  <div className="flex items-center gap-2 border-b border-gold/30 pb-2">
+                    <span className="text-lg text-navy">
+                      <HintIcon />
+                    </span>
+                    <h4 className="font-extrabold text-base text-navy">
+                      ข้อความในกรอบ “จำให้แม่น”
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                    <div className="rounded-lg bg-white/90 p-3.5 border border-gold/20 shadow-2xs">
+                      <p className="font-bold text-blue mb-1">ละลายน้ำเสมอ:</p>
+                      <p className="font-medium text-navy/90">Na⁺, K⁺, NH₄⁺ และ NO₃⁻</p>
+                    </div>
+                    <div className="rounded-lg bg-white/90 p-3.5 border border-gold/20 shadow-2xs">
+                      <p className="font-bold text-navy mb-1">ปกติละลาย แต่ต้องตรวจข้อยกเว้น:</p>
+                      <p className="font-medium text-navy/90">Cl⁻, Br⁻, I⁻, SO₄²⁻ และ SCN⁻</p>
+                    </div>
+                    <div className="rounded-lg bg-white/90 p-3.5 border border-gold/20 shadow-2xs">
+                      <p className="font-bold text-error mb-1">ปกติเกิดตะกอน แต่ต้องตรวจข้อยกเว้น:</p>
+                      <p className="font-medium text-navy/90">OH⁻, CO₃²⁻, PO₄³⁻ และ S²⁻</p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-xs text-navy/80 leading-relaxed pt-1">
+                  <strong>หมายเหตุ:</strong> หากสารประกอบตรงกับกฎหลายข้อ ให้ตรวจตามลำดับจากข้อ 1 ลงมา และใช้กฎข้อแรกที่ตรงกับสารประกอบนั้น
                 </p>
               </div>
             )}

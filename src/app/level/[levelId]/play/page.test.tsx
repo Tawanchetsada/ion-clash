@@ -144,7 +144,8 @@ describe("Play Page (/level/[levelId]/play)", () => {
     });
 
     expect(screen.getByRole("dialog", { name: "ดูกฎการละลาย" })).toBeInTheDocument();
-    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getByText("ข้อ 1 — เกลือของ Na⁺, K⁺ และ NH₄⁺")).toBeInTheDocument();
+    expect(screen.getByText("จำให้แม่น")).toBeInTheDocument();
 
     const closeBtn = screen.getByRole("button", { name: "ปิด" });
     act(() => {

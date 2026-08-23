@@ -61,7 +61,6 @@ export function CoefficientInput({
         autoComplete="off"
         value={value ?? ""}
         onChange={handleChange}
-        placeholder="1"
         aria-invalid={errorTh ? true : undefined}
         aria-describedby={errorTh ? errorId : undefined}
         className={`${sizeClasses} rounded-card border bg-white text-center font-bold text-navy shadow-xs transition-all focus:border-gold focus:ring-2 focus:ring-gold/30 ${

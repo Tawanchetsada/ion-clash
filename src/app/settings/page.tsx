@@ -101,9 +101,9 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Audio & Visual Settings */}
+        {/* Audio Settings */}
         <div className="flex flex-col gap-4 rounded-card bg-white p-6 shadow-card border border-border">
-          <h2 className="text-lg font-bold text-navy">เสียงและการแสดงผล</h2>
+          <h2 className="text-lg font-bold text-navy">ระบบเสียง</h2>
 
           {/* Sound toggle */}
           <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
@@ -136,7 +136,7 @@ export default function SettingsPage() {
             <div className="min-w-0 flex-1">
               <div className="font-semibold text-navy">เพลงพื้นหลัง (Music)</div>
               <div className="text-xs text-navy/80">
-                เพลงบรรเลงประกอบแบบ Lo-Fi ผ่อนคลาย เพื่อความเพลิดเพลินระหว่างการเรียนรู้
+                เพลงบรรเลงประกอบระหว่างการเล่นเกม
               </div>
             </div>
             <button
@@ -152,34 +152,6 @@ export default function SettingsPage() {
               <span
                 className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
                   save.settings.music ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Reduced Motion toggle */}
-          <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold text-navy">ลดการเคลื่อนไหว (Reduced Motion)</div>
-              <div className="text-xs text-navy/80">
-                ปิดอนิเมชันการลากและเอฟเฟกต์การเคลื่อนไหว เหมาะสำหรับผู้ที่ไวต่อภาพเคลื่อนไหว
-              </div>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-label="เปิดปิดการลดการเคลื่อนไหว"
-              aria-checked={save.settings.reducedMotion}
-              onClick={() =>
-                handleToggleSetting("reducedMotion", !save.settings.reducedMotion)
-              }
-              className={`shrink-0 relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                save.settings.reducedMotion ? "bg-green" : "bg-navy/20"
-              }`}
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                  save.settings.reducedMotion ? "translate-x-6" : "translate-x-1"
                 }`}
               />
             </button>

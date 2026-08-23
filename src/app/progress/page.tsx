@@ -149,7 +149,7 @@ export default function ProgressPage() {
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
         {/* Level 50 Complete Banner */}
         {isLevel50Completed && (
-          <div className="flex flex-col gap-2 rounded-card bg-gold/15 border-2 border-gold p-4 text-navy shadow-card sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 rounded-card bg-gold-surface border-2 border-gold p-4 text-navy shadow-card sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="font-bold text-base flex items-center gap-1.5 text-navy">
                 <TrophyIcon className="text-gold" />

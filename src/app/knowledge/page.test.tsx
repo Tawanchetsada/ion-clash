@@ -45,9 +45,9 @@ describe("Knowledge Page (/knowledge)", () => {
     act(() => {
       btn2.click();
     });
-    expect(btn2).toHaveAttribute("aria-expanded", "true");
-    // ตารางกฎ 11 ข้อปรากฏ
-    expect(screen.getByRole("table")).toBeInTheDocument();
+    // กฎการละลาย 7 ข้อและกรอบจำให้แม่นปรากฏ
+    expect(screen.getByText("ข้อ 1 — เกลือของ Na⁺, K⁺ และ NH₄⁺")).toBeInTheDocument();
+    expect(screen.getByText("ข้อความในกรอบ “จำให้แม่น”")).toBeInTheDocument();
   });
 
   it("ปุ่มหน้าหลักและวิธีเล่นใน Header ทำงานได้", () => {

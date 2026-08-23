@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import HowToPlayPage from "./page";
 import { SCORING } from "../../config/scoring";
@@ -39,24 +39,15 @@ describe("How to Play Page (/how-to-play)", () => {
     expect(screen.getByText(/3\. คีย์บอร์ด/)).toBeInTheDocument();
   });
 
-  it("มี Interactive Sandbox ที่สามารถลองวางการ์ดและกดเติมอัตโนมัติ/ล้างช่องได้", () => {
+  it("มีปุ่มลิงก์ไปยังหน้ากระดานทดลองเล่นจริง (/how-to-play/sandbox)", () => {
     render(<HowToPlayPage />);
 
-    const autoFillBtn = screen.getByRole("button", { name: "แสดงตัวอย่างการวางที่ถูกต้อง" });
-    const resetBtn = screen.getByRole("button", { name: "ล้างทุกช่อง" });
-
-    expect(autoFillBtn).toBeInTheDocument();
-    expect(resetBtn).toBeInTheDocument();
-
-    // Click auto fill
-    act(() => {
-      autoFillBtn.click();
-    });
-
-    // Reset
-    act(() => {
-      resetBtn.click();
-    });
+    expect(
+      screen.getByRole("heading", { name: /กระดานทดลองเล่นจริง/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /เปิดกระดานทดลองเล่นจริง/ }),
+    ).toHaveAttribute("href", "/how-to-play/sandbox");
   });
 
   it("แสดงคะแนนและเกณฑ์ดาวตรงกับ SCORING config", () => {
