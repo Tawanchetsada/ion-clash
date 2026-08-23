@@ -82,7 +82,7 @@ describe("ข้อมูล 50 ด่าน", () => {
     );
   });
 
-  it.each(LEVELS)("ด่าน $id — กฎ 8 · ไอออนตัวประกอบปรากฏสองข้างจำนวนเท่ากัน", (level) => {
+  it.each(LEVELS)("ด่าน $id — กฎ 8 · ไอออนผู้ชมปรากฏสองข้างจำนวนเท่ากัน", (level) => {
     expect(level.spectators.length).toBeGreaterThan(0);
     const left = new Map(
       level.completeIonic.reactants

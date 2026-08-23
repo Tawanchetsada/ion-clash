@@ -111,7 +111,7 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
     // Step 4
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
@@ -152,7 +152,7 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
     // Step 4
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });

@@ -64,22 +64,22 @@ describe("สมการไอออนิกสมบูรณ์", () => {
   });
 });
 
-describe("ไอออนตัวประกอบ", () => {
-  it("ด่าน 01 — ตัวประกอบคือ Na⁺ กับ NO₃⁻", () => {
+describe("ไอออนผู้ชม", () => {
+  it("ด่าน 01 — ผู้ชมคือ Na⁺ กับ NO₃⁻", () => {
     expect(findSpectators(LEVEL_01).map((s) => s.ionId).sort()).toEqual([
       "nitrate",
       "sodium-plus",
     ]);
   });
 
-  it("ด่าน 40 — ตัวประกอบคือ Al³⁺ กับ Cl⁻ ไม่ใช่ Na⁺", () => {
+  it("ด่าน 40 — ผู้ชมคือ Al³⁺ กับ Cl⁻ ไม่ใช่ Na⁺", () => {
     expect(findSpectators(LEVEL_40).map((s) => s.ionId).sort()).toEqual([
       "aluminium-3plus",
       "chloride",
     ]);
   });
 
-  it("ตัวประกอบปรากฏสองข้างในจำนวนเท่ากันเสมอ", () => {
+  it("ผู้ชมปรากฏสองข้างในจำนวนเท่ากันเสมอ", () => {
     for (const model of [LEVEL_01, LEVEL_35, LEVEL_40, LEVEL_42, LEVEL_50]) {
       const equation = buildCompleteIonic(model);
       for (const spectator of findSpectators(model)) {
@@ -95,7 +95,7 @@ describe("ไอออนตัวประกอบ", () => {
     }
   });
 
-  it("ไอออนที่กลายเป็นตะกอนไม่ใช่ตัวประกอบ", () => {
+  it("ไอออนที่กลายเป็นตะกอนไม่ใช่ผู้ชม", () => {
     const ids = findSpectators(LEVEL_01).map((s) => s.ionId);
     expect(ids).not.toContain("silver-plus");
     expect(ids).not.toContain("chloride");

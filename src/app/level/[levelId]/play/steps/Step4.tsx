@@ -101,7 +101,7 @@ export function Step4({ state, level, dispatch }: Step4Props) {
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div>
-        <h2 className="text-xl font-bold text-navy">ขั้นที่ 4 · ตัดไอออนตัวประกอบ</h2>
+        <h2 className="text-xl font-bold text-navy">ขั้นที่ 4 · ตัดไอออนผู้ชม</h2>
         <p className="text-sm text-navy/70">
           แตะไอออนฝั่งซ้ายและฝั่งขวาที่เหมือนกันทุกอย่างเพื่อตัดออกเป็นคู่
           เหลือไว้เฉพาะไอออนที่รวมกันเป็นตะกอน

@@ -32,7 +32,7 @@ describe("Home Page (/) ", () => {
     // Initial render / wait for save to load
     expect(await screen.findByRole("heading", { name: "ION CLASH" })).toBeInTheDocument();
     expect(
-      screen.getByText("แยกไอออน • สร้างตะกอน • ตัดไอออนตัวประกอบ"),
+      screen.getByText("แยกไอออน • สร้างตะกอน • ตัดไอออนผู้ชม"),
     ).toBeInTheDocument();
 
     const startBtn = await screen.findByRole("button", { name: "เริ่มเกม" });

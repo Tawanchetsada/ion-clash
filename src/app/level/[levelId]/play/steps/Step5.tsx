@@ -92,7 +92,7 @@ export function Step5({
           </div>
           {spectatorNames && (
             <div>
-              <span className="font-bold">ไอออนตัวประกอบที่ถูกตัด: </span>
+              <span className="font-bold">ไอออนผู้ชมที่ถูกตัด: </span>
               <span>{spectatorNames}</span>
             </div>
           )}

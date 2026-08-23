@@ -30,6 +30,41 @@ export function AudioProvider({ children, enabled }: AudioProviderProps) {
     });
   }, [enabled]);
 
+  /*
+   * ปลดล็อกเสียงที่การสัมผัสหน้าจอครั้งแรก ไม่ว่าจะแตะตรงไหน
+   *
+   * เบราว์เซอร์ทุกตัวสร้าง AudioContext ขึ้นมาในสถานะ `suspended` ถ้าไม่ได้สร้าง
+   * ระหว่าง user gesture และ `source.start()` บน context ที่ยัง suspended อยู่
+   * **จะไม่มีเสียงออกลำโพงเลย โดยไม่มี error ใด ๆ** — อาการคือเกมทำงานปกติทุก
+   * อย่างแต่เงียบสนิท ซึ่งเป็นสิ่งที่เกิดขึ้นจริงเพราะไม่มีใครเรียก unlock()
+   * สักที่ในแอป
+   *
+   * ดักที่ document แทนที่จะไปไล่ผูกกับปุ่มใดปุ่มหนึ่ง เพราะเสียงแรกที่ผู้เล่น
+   * ควรได้ยินคือเสียง "วางการ์ด" ซึ่งเกิดจากการลาก ไม่ใช่การกดปุ่ม ถ้าผูกกับ
+   * ปุ่มเริ่มเกมอย่างเดียว คนที่เข้าหน้าเล่นตรง ๆ จากลิงก์จะยังเงียบอยู่ดี
+   *
+   * `pointerdown` ครอบทั้งเมาส์และนิ้ว ส่วน `keydown` ไว้ให้คนที่เล่นด้วย
+   * คีย์บอร์ดล้วน — ทั้งสองนับเป็น user gesture ที่ถูกต้องตามข้อกำหนดของ iOS
+   * `once: true` ทำให้ถอดตัวเองหลังทำงานครั้งเดียว ไม่ต้องเช็กสถานะซ้ำทุกคลิก
+   */
+  useEffect(() => {
+    if (!enabled) return;
+
+    const unlock = () => {
+      void engineRef.current?.unlock();
+    };
+
+    document.addEventListener("pointerdown", unlock, { once: true });
+    document.addEventListener("keydown", unlock, { once: true });
+    document.addEventListener("touchend", unlock, { once: true });
+
+    return () => {
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", unlock);
+      document.removeEventListener("touchend", unlock);
+    };
+  }, [enabled]);
+
   const value = useMemo<AudioContextValue>(
     () => ({
       play: (key) => engineRef.current?.play(key, { enabled }),

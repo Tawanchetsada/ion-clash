@@ -97,7 +97,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
 
     if (isAssigned) {
       return (
-        <span className="flex min-h-[4.5rem] min-w-[4.5rem] items-center justify-center rounded-card border border-dashed border-border text-[10px] text-navy/40 sm:min-w-[5rem]">
+        <span className="flex h-[calc(var(--card-size,5rem)*0.95)] w-[var(--card-size,5rem)] items-center justify-center rounded-card border border-dashed border-border px-1 text-center text-[calc(var(--card-size,5rem)*0.13)] leading-tight text-navy/40">
           (อยู่ในช่อง)
         </span>
       );
@@ -106,6 +106,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
     return (
       <IonCard
         view={view}
+        size="fluid"
         selected={isHeld}
         isDragging={
           placement.dragging?.source.kind === "card" &&
@@ -141,6 +142,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
         slotLabelTh={slotLabels[slotId] ?? `ช่องที่ ${idx + 1}`}
         roleHintTh={slotRoles[slotId]}
         assignedIon={cardView}
+        size="fluid"
         isDropTarget={placement.activeTargetId === slotId}
         selected={source ? placement.isHeld(source) : false}
         onActivate={() => placement.activateTarget({ kind: "slot", slotId })}
@@ -204,29 +206,42 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
       {/*
         แถวเดียวแนวนอน: ไอออนตั้งต้น 4 ใบ → ช่องผลิตภัณฑ์ 4 ช่อง ตามเอกสาร UI หน้า 07
 
-        ต้องอยู่บรรทัดเดียวกันจริง ๆ ไม่ใช่ตัดขึ้นบรรทัดใหม่ เพราะนักเรียนที่ยัง
-        อ่านสมการไม่คล่องต้องเห็นพร้อมกันว่าอะไรอยู่หน้าลูกศรและอะไรอยู่หลัง
-        บนจอแคบจึงให้ "แถบนี้" เลื่อนในตัวเอง (ไม่ใช่ทั้งหน้า) และมี RotatePrompt
-        ชวนหมุนเครื่องเป็นแนวนอนตั้งแต่เข้าหน้าเล่นเกม
+        ต้องอยู่บรรทัดเดียวกันจริง ๆ เพราะนักเรียนที่ยังอ่านสมการไม่คล่องต้อง
+        เห็นพร้อมกันว่าอะไรอยู่หน้าลูกศรและอะไรอยู่หลัง — และต้อง **กว้างพอดีจอ**
+        ไม่ใช่เลื่อนดูทีละครึ่ง ซึ่งให้ผลเสียเดียวกับการตัดขึ้นบรรทัดใหม่
+
+        วิธีที่ใช้คือให้ขนาดการ์ดมาจาก `--card-size` ที่คำนวณจากความกว้างของแถบ
+        เอง (คลาส `fit-cards` / `fit-cards-track` ใน globals.css) การ์ด ช่องไฟ
+        เครื่องหมายบวก และลูกศร จึงย่อ–ขยายพร้อมกันทั้งแถวเป็นสัดส่วนเดิม
+
+        ต่ำกว่า 768px พับเป็นสองชั้น (ถาดบน–ช่องล่าง) พร้อมลูกศรชี้ลง เพราะมือถือ
+        แนวตั้งใส่การ์ด 8 ใบในบรรทัดเดียวแล้วเล็กจนอ่านไม่ออก — จุดพับตรงกับ
+        media query ของ RotatePrompt ที่ชวนให้หมุนเครื่องเป็นแนวนอนพอดี
       */}
       <div
         role="region"
         aria-label="แถวจับคู่ไอออนเป็นผลิตภัณฑ์"
         tabIndex={0}
-        className="equation-scroll w-full min-w-0 rounded-card border border-border bg-white p-3 shadow-card sm:p-4"
+        className="equation-scroll fit-cards w-full min-w-0 rounded-card border border-border bg-white p-3 shadow-card sm:p-4"
       >
-        <div className="flex min-w-max items-stretch justify-center gap-3 sm:gap-4">
+        <div className="fit-cards-track flex flex-col items-center justify-center gap-3 md:flex-row md:items-start md:gap-[calc(var(--card-size,5rem)*0.25)]">
           {/* ฝั่งซ้าย — ถาดไอออนตั้งต้น */}
           <div className="flex flex-col items-center gap-2">
             <span className="text-xs font-semibold text-navy/70">ไอออนของสารตั้งต้น 4 ตัว</span>
             <div
               {...placement.targetPropsFor({ kind: "tray" })}
-              className="flex items-center gap-2 rounded-card border border-navy/10 bg-canvas p-2"
+              className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)] rounded-card border border-navy/10 bg-canvas p-[calc(var(--card-size,5rem)*0.12)]"
             >
               {allReactantCards.map((card, idx) => (
-                <span key={card.instanceId} className="flex items-center gap-2">
+                <span
+                  key={card.instanceId}
+                  className="flex items-center gap-[calc(var(--card-size,5rem)*0.12)]"
+                >
                   {idx > 0 && (
-                    <span aria-hidden="true" className="text-lg font-bold text-navy/60">
+                    <span
+                      aria-hidden="true"
+                      className="text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                    >
                       +
                     </span>
                   )}
@@ -236,19 +251,25 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
             </div>
           </div>
 
-          {/* ลูกศรกลางแถว — ชี้ขวาเสมอ เพราะทั้งแถวเรียงแนวนอนอยู่แล้ว */}
-          <div className="flex items-center px-1">
-            <EquationArrow responsive={false} className="text-gold" />
+          {/* ลูกศรกลางแถว — ชี้ขวาเมื่อเรียงแถวเดียว ชี้ลงเมื่อพับสองชั้น */}
+          <div className="flex items-center justify-center px-1 md:min-h-[calc(var(--card-size,5rem)*1.6)]">
+            <EquationArrow breakpoint="md" className="text-gold" />
           </div>
 
           {/* ฝั่งขวา — ช่องผลิตภัณฑ์ 4 ช่องเรียงต่อกัน */}
           <div className="flex flex-col items-center gap-2">
             <span className="text-xs font-semibold text-navy/70">ช่องไอออนสารผลิตภัณฑ์ 4 ช่อง</span>
-            <div className="flex items-center gap-2 rounded-card border border-border bg-panel p-2">
+            <div className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)] rounded-card border border-border bg-panel p-[calc(var(--card-size,5rem)*0.12)]">
               {[0, 1, 2, 3].map((idx) => (
-                <span key={slotIds[idx]} className="flex items-center gap-2">
+                <span
+                  key={slotIds[idx]}
+                  className="flex items-start gap-[calc(var(--card-size,5rem)*0.12)]"
+                >
                   {idx > 0 && (
-                    <span aria-hidden="true" className="text-lg font-bold text-navy/60">
+                    <span
+                      aria-hidden="true"
+                      className="mt-[calc(var(--card-size,5rem)*0.33)] text-[calc(var(--card-size,5rem)*0.28)] font-bold leading-none text-navy/60"
+                    >
                       +
                     </span>
                   )}

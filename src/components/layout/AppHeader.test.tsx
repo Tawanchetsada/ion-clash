@@ -27,4 +27,17 @@ describe("AppHeader", () => {
     render(<AppHeader />);
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
+
+  it("มีทางไปหน้าตั้งค่าเสมอโดยไม่ต้องส่ง handler", () => {
+    // ปุ่มตั้งค่าไม่ผ่าน prop เหมือนอีกสองปุ่ม เพราะถ้าต้องไล่ส่งทีละหน้า
+    // จะมีวันที่ลืมสักหน้าแล้วผู้เล่นออกจากหน้านั้นไปปิดเสียงไม่ได้
+    render(<AppHeader />);
+    const link = screen.getByRole("link", { name: "ตั้งค่า" });
+    expect(link).toHaveAttribute("href", "/settings");
+  });
+
+  it("ซ่อนปุ่มตั้งค่าได้เมื่อสั่ง", () => {
+    render(<AppHeader hideSettings />);
+    expect(screen.queryByRole("link", { name: "ตั้งค่า" })).not.toBeInTheDocument();
+  });
 });

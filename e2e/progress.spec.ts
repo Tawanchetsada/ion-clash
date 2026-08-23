@@ -56,7 +56,7 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     await expect(page.getByRole("heading", { name: /ขั้นที่ 3/ })).toBeVisible();
 
     // 8.3 ไปยัง Step 4 ตัดไอออน 1 คู่แล้ว Refresh
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
     await expect(page.getByRole("heading", { name: /ขั้นที่ 4/ })).toBeVisible();
 
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
@@ -110,7 +110,7 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     await page1.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page1.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page1.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
     // Step 4
     const strip1 = page1.getByRole("region", { name: "สมการไอออนิก" });

@@ -52,9 +52,9 @@ test.describe("Phase 10: Gameplay E2E Scenarios (e2e/play.spec.ts)", () => {
     // Step 3: ตรวจสอบการ์ดทอง
     await expect(page.getByRole("heading", { name: /ขั้นที่ 3/ })).toBeVisible();
     await expect(page.getByText("ผลิตภัณฑ์ที่เป็นตะกอน")).toBeVisible();
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
-    // Step 4: ตัดไอออนตัวประกอบ
+    // Step 4: ตัดไอออนผู้ชม
     await expect(page.getByRole("heading", { name: /ขั้นที่ 4/ })).toBeVisible();
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
     const naButtons = strip.getByRole("button", { name: /โซเดียม/ });
@@ -113,7 +113,7 @@ test.describe("Phase 10: Gameplay E2E Scenarios (e2e/play.spec.ts)", () => {
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
     // Step 4
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
@@ -183,7 +183,7 @@ test.describe("Phase 10: Gameplay E2E Scenarios (e2e/play.spec.ts)", () => {
     await page.keyboard.press("Enter");
 
     // Step 3
-    const toStep4Btn = page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" });
+    const toStep4Btn = page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" });
     await toStep4Btn.focus();
     await page.keyboard.press("Enter");
 
@@ -383,7 +383,7 @@ test.describe("Phase 10: Gameplay E2E Scenarios (e2e/play.spec.ts)", () => {
     await expect(feedback).toContainText("ยังลดสัมประสิทธิ์ได้");
   });
 
-  test("Scenario 7: ตัดไอออนตัวประกอบผิดแล้วไม่ผ่าน; ทดสอบปุ่ม Undo และ Reset [AC-06]", async ({
+  test("Scenario 7: ตัดไอออนผู้ชมผิดแล้วไม่ผ่าน; ทดสอบปุ่ม Undo และ Reset [AC-06]", async ({
     page,
   }) => {
     await gotoPlay(page, "/level/1/play");
@@ -403,7 +403,7 @@ test.describe("Phase 10: Gameplay E2E Scenarios (e2e/play.spec.ts)", () => {
     await page.locator('[data-slot-id="L1:slot:3"]').click();
 
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
     // Step 4
     await expect(page.getByRole("heading", { name: /ขั้นที่ 4/ })).toBeVisible();
@@ -415,7 +415,7 @@ test.describe("Phase 10: Gameplay E2E Scenarios (e2e/play.spec.ts)", () => {
     await agLeft.click();
     await agclRight.click();
 
-    const feedback = page.getByRole("alert").filter({ hasText: /ตัดได้เฉพาะ|ไอออน|ตัวประกอบ/ });
+    const feedback = page.getByRole("alert").filter({ hasText: /ตัดได้เฉพาะ|ไอออน|ผู้ชม/ });
     await expect(feedback).toContainText("ตัดได้เฉพาะไอออนที่เหมือนกัน");
 
     // 7.2 ตัดคู่ Na+ ที่ถูกต้อง 1 คู่
@@ -510,9 +510,9 @@ test.describe("Phase 10: Gameplay E2E Scenarios (e2e/play.spec.ts)", () => {
 
     // Step 3: ตะกอน Ca3(PO4)2 เป็นการ์ดทอง
     await expect(page.getByRole("heading", { name: /ขั้นที่ 3/ })).toBeVisible();
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
-    // Step 4: ตัดไอออนตัวประกอบ (Cl- 6 ตัว, Na+ 6 ตัว)
+    // Step 4: ตัดไอออนผู้ชม (Cl- 6 ตัว, Na+ 6 ตัว)
     await expect(page.getByRole("heading", { name: /ขั้นที่ 4/ })).toBeVisible();
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
 

@@ -68,7 +68,7 @@ test.describe("Phase 9: Research Data Collection & Dashboard E2E", () => {
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
     // Step 4
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });

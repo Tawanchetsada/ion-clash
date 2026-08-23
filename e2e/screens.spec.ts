@@ -86,9 +86,9 @@ test.describe("Phase 7: Screens and Level Progression E2E", () => {
       page.getByRole("heading", { name: /ขั้นที่ 3/ }),
     ).toBeVisible();
     await expect(page.getByText("ผลิตภัณฑ์ที่เป็นตะกอน")).toBeVisible();
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม" }).click();
 
-    // 1.7 ขั้นที่ 4: ตัดไอออนตัวประกอบ (Na+ และ NO3-)
+    // 1.7 ขั้นที่ 4: ตัดไอออนผู้ชม (Na+ และ NO3-)
     await expect(
       page.getByRole("heading", { name: /ขั้นที่ 4/ }),
     ).toBeVisible();

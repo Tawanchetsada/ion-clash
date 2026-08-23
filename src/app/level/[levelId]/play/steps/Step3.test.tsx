@@ -43,7 +43,7 @@ describe("Step3 · ตรวจผลิตภัณฑ์", () => {
 
   it("ปุ่มไปขั้นถัดไปไม่มีลูกศรตกแต่งในข้อความ", () => {
     render(<Step3 state={stateAt("validateProducts")} level={level} dispatch={vi.fn()} />);
-    const next = screen.getByRole("button", { name: /ไปขั้นตัดไอออนตัวประกอบ/ });
+    const next = screen.getByRole("button", { name: /ไปขั้นตัดไอออนผู้ชม/ });
     expect(next.textContent).not.toContain("→");
   });
 });

@@ -75,7 +75,7 @@ export default function Home() {
               เกมฝึกสร้างสมการไอออนิกสุทธิสำหรับนักเรียนชั้น ม.4
             </p>
             <p className="text-xs font-semibold tracking-wide text-white/70">
-              แยกไอออน • สร้างตะกอน • ตัดไอออนตัวประกอบ
+              แยกไอออน • สร้างตะกอน • ตัดไอออนผู้ชม
             </p>
           </div>
 

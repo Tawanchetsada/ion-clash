@@ -27,7 +27,7 @@ describe("How to Play Page (/how-to-play)", () => {
     expect(screen.getByText("เข้าสู่เกม")).toBeInTheDocument();
     expect(screen.getByText("ไอออน 4 ไป 4")).toBeInTheDocument();
     expect(screen.getByText("ตรวจผลิตภัณฑ์")).toBeInTheDocument();
-    expect(screen.getByText("ตัดไอออนตัวประกอบ")).toBeInTheDocument();
+    expect(screen.getByText("ตัดไอออนผู้ชม")).toBeInTheDocument();
     expect(screen.getByText("สมการไอออนิกสุทธิ")).toBeInTheDocument();
   });
 

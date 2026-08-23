@@ -22,7 +22,7 @@ const ERROR_LABELS: Record<string, string> = {
   "E-PHASE": "ระบุสถานะสารผิด",
   "E-BALANCE": "ดุลสัมประสิทธิ์ไม่ถูกต้อง",
   "E-RATIO": "สัมประสิทธิ์ไม่ใช่อัตราส่วนอย่างต่ำ",
-  "E-SPECTATOR": "ตัดไอออนตัวประกอบไม่ถูกต้อง",
+  "E-SPECTATOR": "ตัดไอออนผู้ชมไม่ถูกต้อง",
 };
 
 export default function ResearchPage() {

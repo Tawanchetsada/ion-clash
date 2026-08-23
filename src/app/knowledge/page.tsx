@@ -206,7 +206,7 @@ export default function KnowledgePage() {
             )}
           </section>
 
-          {/* หัวข้อ 3: ไอออนตัวประกอบและสมการไอออนิกสุทธิ */}
+          {/* หัวข้อ 3: ไอออนผู้ชมและสมการไอออนิกสุทธิ */}
           <section className="overflow-hidden rounded-card border border-border bg-white shadow-card">
             <button
               type="button"
@@ -219,7 +219,7 @@ export default function KnowledgePage() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue text-sm text-white">
                   3
                 </span>
-                <span className="text-lg">ไอออนตัวประกอบ (Spectator Ions) และสมการไอออนิกสุทธิ</span>
+                <span className="text-lg">ไอออนผู้ชม (Spectator Ions) และสมการไอออนิกสุทธิ</span>
               </div>
               <span aria-hidden="true" className="text-xl text-navy/60">
                 {openSections[3] ? "▲" : "▼"}
@@ -229,8 +229,8 @@ export default function KnowledgePage() {
             {openSections[3] && (
               <div id="topic-3-content" className="space-y-4 p-6 text-navy/90">
                 <p className="leading-relaxed">
-                  <strong>ไอออนตัวประกอบ (Spectator Ions)</strong> คือ ไอออนที่อยู่ในสารละลายทั้งก่อนและหลังเกิดปฏิกิริยาโดยไม่เกิดการเปลี่ยนแปลงสถานะหรือจับตัวเป็นตะกอน
-                  เมื่อเราตัดไอออนตัวประกอบที่เหมือนกันทั้งสองข้างออก จะได้<strong>สมการไอออนิกสุทธิ (Net Ionic Equation)</strong> ซึ่งแสดงเฉพาะไอออนที่ทำปฏิกิริยาจริง
+                  <strong>ไอออนผู้ชม (Spectator Ions)</strong> คือ ไอออนที่อยู่ในสารละลายทั้งก่อนและหลังเกิดปฏิกิริยาโดยไม่เกิดการเปลี่ยนแปลงสถานะหรือจับตัวเป็นตะกอน
+                  เมื่อเราตัดไอออนผู้ชมที่เหมือนกันทั้งสองข้างออก จะได้<strong>สมการไอออนิกสุทธิ (Net Ionic Equation)</strong> ซึ่งแสดงเฉพาะไอออนที่ทำปฏิกิริยาจริง
                 </p>
 
                 <div className="space-y-4 rounded-card bg-canvas p-5 border border-border">
@@ -280,7 +280,7 @@ export default function KnowledgePage() {
                       <span className="line-through text-navy/70 font-bold bg-error/10 px-1 rounded">2Cl⁻(aq)</span>
                     </div>
                     <p className="text-xs text-error font-medium">
-                      * ตัด 2Na⁺(aq) และ 2Cl⁻(aq) ออกทั้งสองข้างเนื่องจากเป็นไอออนตัวประกอบ
+                      * ตัด 2Na⁺(aq) และ 2Cl⁻(aq) ออกทั้งสองข้างเนื่องจากเป็นไอออนผู้ชม
                     </p>
                   </div>
 
@@ -300,7 +300,7 @@ export default function KnowledgePage() {
                 </div>
 
                 <div className="rounded-card bg-panel p-4 text-xs text-navy/80 space-y-1">
-                  <p className="font-bold text-navy">กติกาการตัดไอออนตัวประกอบ:</p>
+                  <p className="font-bold text-navy">กติกาการตัดไอออนผู้ชม:</p>
                   <p>
                     จะตัดไอออนได้ก็ต่อเมื่อมี <strong>ชนิดเดียวกัน, ประจุเท่ากัน, สถานะเดียวกัน (aq), และจำนวนโมลเท่ากันทั้งสองข้างของสมการ</strong>
                   </p>

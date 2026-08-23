@@ -3,12 +3,14 @@
 import type React from "react";
 import type { IonCardView } from "../../presentation/cards";
 import { GameCardFace } from "./GameCard";
+import type { GameCardSize } from "./GameCard";
 
 export type IonCardProps = {
   view: IonCardView;
   selected?: boolean | undefined;
   disabled?: boolean | undefined;
   isDragging?: boolean | undefined;
+  size?: GameCardSize | undefined;
   onSelect?: (() => void) | undefined;
   onPointerDown?: ((e: React.PointerEvent<HTMLButtonElement>) => void) | undefined;
   style?: React.CSSProperties | undefined;
@@ -20,6 +22,7 @@ export function IonCard({
   selected = false,
   disabled = false,
   isDragging = false,
+  size = "md",
   onSelect,
   onPointerDown,
   style,
@@ -44,6 +47,7 @@ export function IonCard({
         nameTh={view.nameTh}
         phaseTh={view.phaseTh}
         tone={view.tone}
+        size={size}
       />
     </button>
   );

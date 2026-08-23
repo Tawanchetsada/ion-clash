@@ -9,7 +9,7 @@ test.describe("Phase 8: Knowledge and How-to-Play E2E Tests", () => {
 
     const topic1Btn = page.getByRole("button", { name: /การแตกตัวของสารประกอบไอออนิกในน้ำ/ });
     const topic2Btn = page.getByRole("button", { name: /กฎการละลายน้ำของสารประกอบไอออนิก/ });
-    const topic3Btn = page.getByRole("button", { name: /ไอออนตัวประกอบ/ });
+    const topic3Btn = page.getByRole("button", { name: /ไอออนผู้ชม/ });
     const topic4Btn = page.getByRole("button", { name: /การดุลสมการเคมีและอัตราส่วนอย่างต่ำ/ });
 
     await expect(topic1Btn).toBeVisible();

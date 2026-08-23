@@ -37,6 +37,34 @@ beforeEach(() => {
 });
 
 describe("AudioProvider", () => {
+  it("ปลดล็อกเสียงเองที่การแตะหน้าจอครั้งแรก", async () => {
+    // ถ้าไม่มีใครเรียก unlock() เลย AudioContext จะค้างอยู่ที่ suspended
+    // แล้วเกมจะเงียบสนิททั้งเกมโดยไม่มี error ให้เห็น
+    const user = userEvent.setup();
+    render(
+      <AudioProvider enabled={true}>
+        <button>อะไรก็ได้</button>
+      </AudioProvider>,
+    );
+
+    expect(unlockMock).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "อะไรก็ได้" }));
+    expect(unlockMock).toHaveBeenCalled();
+  });
+
+  it("ไม่แตะ AudioContext เลยเมื่อผู้เล่นปิดเสียงไว้", async () => {
+    const user = userEvent.setup();
+    render(
+      <AudioProvider enabled={false}>
+        <button>อะไรก็ได้</button>
+      </AudioProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "อะไรก็ได้" }));
+    expect(unlockMock).not.toHaveBeenCalled();
+    expect(preloadMock).not.toHaveBeenCalled();
+  });
+
   it("useAudio นอก AudioProvider throw ทันที", () => {
     expect(() => render(<Bare />)).toThrow("useAudio ต้องอยู่ใต้ AudioProvider");
   });
@@ -71,6 +99,8 @@ describe("AudioProvider", () => {
   });
 
   it("unlock() เรียก engine.unlock() ตรง ๆ", async () => {
+    // การกดปุ่มนี้ปลดล็อกสองทาง: ตัวดักที่ document (gesture แรกของหน้า)
+    // และ handler ที่ผู้เรียกเขียนเอง — ทั้งคู่ปลอดภัยเพราะ unlock() idempotent
     const user = userEvent.setup();
     render(
       <AudioProvider enabled>
@@ -78,6 +108,6 @@ describe("AudioProvider", () => {
       </AudioProvider>,
     );
     await user.click(screen.getByRole("button", { name: "ปลดล็อกเสียง" }));
-    expect(unlockMock).toHaveBeenCalledOnce();
+    expect(unlockMock).toHaveBeenCalled();
   });
 });

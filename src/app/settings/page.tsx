@@ -119,29 +119,35 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          {/* Music toggle */}
+          {/*
+            เพลงพื้นหลัง — ปิดสวิตช์ไว้เพราะ **ยังไม่มีไฟล์เพลงในโปรเจกต์**
+
+            ค่า `settings.music` ถูกบันทึกลงเซฟตั้งแต่ต้น แต่ไม่มีโค้ดส่วนไหน
+            อ่านค่านี้ไปเล่นอะไรเลย สวิตช์ที่กดแล้วเปลี่ยนสีโดยไม่มีเสียงออกมา
+            ทำให้ผู้เล่นเข้าใจว่าลำโพงหรือเครื่องตัวเองเสีย จึงบอกตรง ๆ ดีกว่า
+            ว่ารุ่นนี้ยังไม่มีเพลง — เปิดใช้งานได้ทันทีที่มีไฟล์เพลง CC0 ที่
+            อาจารย์เลือกและตกลงเรื่องขนาดไฟล์แล้ว (ตอนนี้ public/audio/ ถูกตรึง
+            ไว้ไม่เกิน 100 KB ด้วย architecture.test.ts ซึ่งเพลงหนึ่งเพลงเกินแน่)
+          */}
           <div className="flex items-center justify-between border-b border-border/60 pb-3">
             <div>
+              {/* ห้ามทำตัวหนังสือให้จาง ๆ เพื่อสื่อว่า "ปิดอยู่" — axe จับได้ว่า
+                  contrast ตก AA (3.18:1) และคนสายตาเลือนอ่านไม่ออกจริง ๆ
+                  ความ "ใช้ไม่ได้" สื่อผ่านตัวสวิตช์ที่ disabled และข้อความตรง ๆ แทน */}
               <div className="font-semibold text-navy">เพลงพื้นหลัง (Music)</div>
               <div className="text-xs text-navy/80">
-                เพลงบรรเลงประกอบระหว่างการเล่น (ปิดไว้เป็นค่าเริ่มต้นเพื่อสมาธิ)
+                รุ่นนี้ยังไม่มีเพลงบรรเลงประกอบ — มีเฉพาะเสียงเอฟเฟกต์ด้านบน
               </div>
             </div>
             <button
               type="button"
               role="switch"
-              aria-label="เปิดปิดเพลงพื้นหลัง"
-              aria-checked={save.settings.music}
-              onClick={() => handleToggleSetting("music", !save.settings.music)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                save.settings.music ? "bg-green" : "bg-navy/20"
-              }`}
+              disabled
+              aria-label="เปิดปิดเพลงพื้นหลัง (ยังไม่มีเพลงในรุ่นนี้)"
+              aria-checked={false}
+              className="relative inline-flex h-7 w-12 cursor-not-allowed items-center rounded-full bg-navy/10"
             >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                  save.settings.music ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
+              <span className="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-white/70" />
             </button>
           </div>
 
