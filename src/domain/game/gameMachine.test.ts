@@ -308,7 +308,7 @@ describe("ช่องกรอกสัมประสิทธิ์", () => {
   });
 });
 
-describe("ขั้นตัดไอออนผู้ชม", () => {
+describe("ขั้นตัดไอออนตัวประกอบ", () => {
   function atCancelStep(): GameState {
     const slots = productSlotIds(level1);
     const order = correctSlotOrder(level1);

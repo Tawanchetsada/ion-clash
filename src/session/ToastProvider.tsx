@@ -1,5 +1,6 @@
 "use client";
 
+import { CloseIcon } from "../components/ui/Icon";
 import {
   createContext,
   useCallback,
@@ -87,7 +88,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 aria-label="ปิดข้อความแจ้งเตือน"
                 className="ml-2 flex h-6 w-6 items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
               >
-                ✕
+                <CloseIcon className="text-sm" />
               </button>
             </div>
           ))}

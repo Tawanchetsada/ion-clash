@@ -59,7 +59,7 @@ describe("Play Page (/level/[levelId]/play)", () => {
     });
 
     expect(
-      screen.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }),
+      screen.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }),
     ).toBeInTheDocument();
   });
 

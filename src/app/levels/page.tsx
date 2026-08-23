@@ -6,6 +6,7 @@ import { PageShell } from "../../components/layout/PageShell";
 import { LevelGrid } from "../../components/levels/LevelGrid";
 import { levelGridView } from "../../presentation/levels";
 import { useSave } from "../../session/SaveProvider";
+import { StarIcon } from "../../components/ui/Icon";
 
 export default function LevelsPage() {
   const router = useRouter();
@@ -55,7 +56,10 @@ export default function LevelsPage() {
             </div>
             <div className="rounded-card bg-gold/10 px-3 py-1.5 border border-gold/30">
               <span>ดาวรวม: </span>
-              <span className="font-bold text-navy">★ {totalStars}</span>
+              <span className="inline-flex items-center gap-1 font-bold text-navy">
+                <StarIcon className="text-gold" />
+                {totalStars}
+              </span>
             </div>
           </div>
         </header>

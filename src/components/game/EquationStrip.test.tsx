@@ -31,7 +31,7 @@ describe("EquationStrip", () => {
     // (เช่น Na+ ปรากฏทั้งสองข้างของด่านนี้) จึงใช้นับจำนวน ไม่ใช่หาแบบไม่ซ้ำ
     // querySelectorAll จาก region เอง (ไม่ใช่ container) จึงไม่นับ aria-label
     // ของ region เข้าไปด้วย
-    expect(region.querySelectorAll(".shadow-card[aria-label]")).toHaveLength(
+    expect(region.querySelectorAll("[aria-label][role='img']")).toHaveLength(
       left.length + right.length,
     );
   });

@@ -2,8 +2,7 @@
 
 import type React from "react";
 import type { IonCardView } from "../../presentation/cards";
-import { EquationView } from "./EquationView";
-import { TONE_CLASS } from "./tone";
+import { GameCardFace } from "./GameCard";
 
 export type IonCardProps = {
   view: IonCardView;
@@ -34,13 +33,18 @@ export function IonCard({
       onClick={onSelect}
       onPointerDown={onPointerDown}
       style={style}
-      className={`min-h-11 min-w-11 touch-none select-none rounded-card px-3 py-2 text-xl font-bold shadow-card transition-colors duration-150 ${
-        TONE_CLASS[view.tone]
-      } ${selected ? "ring-4 ring-focus-ring" : ""} ${
-        isDragging ? "opacity-40" : "opacity-100"
+      className={`touch-none select-none rounded-card transition-transform duration-150 ${
+        selected ? "ring-4 ring-focus-ring" : ""
+      } ${isDragging ? "opacity-40" : "opacity-100"} ${
+        onSelect && !disabled ? "hover:-translate-y-0.5" : ""
       }`}
     >
-      <EquationView ast={view.formula} />
+      <GameCardFace
+        formula={view.formula}
+        nameTh={view.nameTh}
+        phaseTh={view.phaseTh}
+        tone={view.tone}
+      />
     </button>
   );
 }

@@ -20,6 +20,8 @@ import { Step2 } from "./steps/Step2";
 import { Step3 } from "./steps/Step3";
 import { Step4 } from "./steps/Step4";
 import { Step5 } from "./steps/Step5";
+import { HintIcon } from "../../../../components/ui/Icon";
+import { RotatePrompt } from "../../../../components/layout/RotatePrompt";
 
 type PageParams = { levelId: string };
 
@@ -121,6 +123,7 @@ function PlayContent({
 
   return (
     <PageShell>
+      <RotatePrompt />
       <AppHeader
         levelLabelTh={`ด่านที่ ${level.id}`}
         onHome={handleLeave}
@@ -159,8 +162,8 @@ function PlayContent({
             role="status"
             className="flex items-start gap-3 rounded-card bg-gold/15 p-4 text-navy border border-gold/40"
           >
-            <span aria-hidden="true" className="text-lg font-bold">
-              💡
+            <span className="text-lg text-navy">
+              <HintIcon />
             </span>
             <div className="flex flex-col text-sm">
               <span className="font-bold">{MESSAGES.ui.hintTitle(state.hintsUsed)}</span>

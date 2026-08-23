@@ -8,6 +8,11 @@ export type PageShellProps = {
 /**
  * โครงพื้นหลังของหน้าเกม — พื้น canvas หรือ navy พร้อม safe-area ด้านล่าง
  *
+ * เป็น `<div>` ไม่ใช่ `<main>` โดยตั้งใจ เพราะทุกหน้าวาง `<AppHeader>` ไว้ข้างใน
+ * แล้วตามด้วย `<main>` ของตัวเอง ถ้า PageShell เป็น main ด้วยจะได้ landmark
+ * ซ้อนกันสองชั้นและมี main มากกว่าหนึ่งอันในหน้าเดียว ซึ่งผิดทั้ง HTML และ
+ * ทำให้ผู้ใช้ screen reader กระโดดไปเนื้อหาหลักไม่ได้
+ *
  * `min-w-0` จำเป็นจริง ๆ — `<body>` ใน layout.tsx เป็น `flex flex-col` เสมอ
  * ทำให้ PageShell เป็น flex item ของมันโดยอัตโนมัติทุกหน้า ถ้าไม่กำหนด
  * min-width ไว้ Chromium จะให้ PageShell ขอความกว้างเท่ากับ min-content ของ
@@ -25,11 +30,12 @@ export function PageShell({ children, variant = "canvas" }: PageShellProps) {
   const background = variant === "navy" ? "bg-navy text-white" : "bg-canvas text-navy";
 
   return (
-    <main
-      className={`flex w-full min-w-0 flex-1 flex-col gap-4 px-4 py-6 ${background}`}
-      style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
+    <div
+      data-page-shell="true"
+      className={`flex w-full min-w-0 flex-1 flex-col ${background}`}
+      style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
     >
       {children}
-    </main>
+    </div>
   );
 }

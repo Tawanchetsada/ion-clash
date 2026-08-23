@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { gotoPlay } from "./helpers";
 
 const MAIN_ROUTES = [
   { path: "/", name: "หน้าแรก (Home)" },
@@ -47,7 +48,7 @@ test.describe("Phase 10: Automated & Manual Accessibility (e2e/a11y.spec.ts) [AC
   test("Axe scan: หน้าเล่นเกม (/level/1/play) ในแต่ละขั้นตอน ไม่มี serious/critical violations", async ({
     page,
   }) => {
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
 
     // Scan Step 1
     const scanStep1 = await new AxeBuilder({ page }).analyze();
@@ -57,7 +58,7 @@ test.describe("Phase 10: Automated & Manual Accessibility (e2e/a11y.spec.ts) [AC
 
     // Go to Step 2
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     const scanStep2 = await new AxeBuilder({ page }).analyze();
     expect(
@@ -87,9 +88,9 @@ test.describe("Phase 10: Automated & Manual Accessibility (e2e/a11y.spec.ts) [AC
   test("การอ่านออกเสียงสูตรเคมีภาษาไทย (aria-label) ถูกต้อง ไม่สะกดทีละตัวอักษร", async ({
     page,
   }) => {
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     const tray = page.locator('[data-drop-target="tray"]');
     const silverCard = tray.getByRole("button", { name: /ซิลเวอร์/ });
@@ -113,9 +114,9 @@ test.describe("Phase 10: Automated & Manual Accessibility (e2e/a11y.spec.ts) [AC
     await expect(level1Btn).toBeVisible();
 
     // ตรวจสอบ FeedbackPanel ในเกม
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     // วางการ์ดให้ผิดเพื่อดู error feedback
     const tray = page.locator('[data-drop-target="tray"]');
@@ -133,6 +134,6 @@ test.describe("Phase 10: Automated & Manual Accessibility (e2e/a11y.spec.ts) [AC
     // กล่องข้อความแจ้งเตือนความผิดพลาดต้องมี role="alert" มีไอคอนและข้อความอธิบาย
     const feedback = page.getByRole("alert").filter({ hasText: /ไอออน|ปฏิกิริยา/ });
     await expect(feedback).toBeVisible();
-    await expect(feedback).toContainText("ไม่ใช่ผลิตภัณฑ์");
+    await expect(feedback).toContainText("ยังไม่ถูกต้อง");
   });
 });

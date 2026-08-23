@@ -102,7 +102,7 @@ describe("ตรวจการจับคู่ผลิตภัณฑ์", (
   });
 });
 
-describe("ตรวจการตัดไอออนผู้ชม", () => {
+describe("ตรวจการตัดไอออนตัวประกอบ", () => {
   it.each(LEVELS)("ด่าน $id — คู่ที่ถูกผ่านทุกคู่", (level) => {
     for (const pair of correctSpectatorPairs(level)) {
       expect(
@@ -111,7 +111,7 @@ describe("ตรวจการตัดไอออนผู้ชม", () => {
     }
   });
 
-  it.each(LEVELS)("ด่าน $id — จำนวนคู่เท่ากับจำนวนไอออนผู้ชม", (level) => {
+  it.each(LEVELS)("ด่าน $id — จำนวนคู่เท่ากับจำนวนไอออนตัวประกอบ", (level) => {
     expect(correctSpectatorPairs(level)).toHaveLength(level.spectators.length);
   });
 

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { dismissRotatePrompt } from "./helpers";
 
 test.describe("Phase 7: Screens and Level Progression E2E", () => {
   test.beforeEach(async ({ page }) => {
@@ -39,11 +40,12 @@ test.describe("Phase 7: Screens and Level Progression E2E", () => {
 
     // 1.4 หน้า Play - ขั้นที่ 1
     await expect(page).toHaveURL("/level/1/play");
+    await dismissRotatePrompt(page);
     await expect(
       page.getByRole("heading", { name: /ขั้นที่ 1/ }),
     ).toBeVisible();
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     // 1.5 ขั้นที่ 2: วางไอออน 4 ช่อง
     await expect(
@@ -83,10 +85,10 @@ test.describe("Phase 7: Screens and Level Progression E2E", () => {
     await expect(
       page.getByRole("heading", { name: /ขั้นที่ 3/ }),
     ).toBeVisible();
-    await expect(page.getByText("เกิดตะกอน (ไม่ละลายน้ำ)")).toBeVisible();
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม →" }).click();
+    await expect(page.getByText("ผลิตภัณฑ์ที่เป็นตะกอน")).toBeVisible();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
 
-    // 1.7 ขั้นที่ 4: ตัดไอออนผู้ชม (Na+ และ NO3-)
+    // 1.7 ขั้นที่ 4: ตัดไอออนตัวประกอบ (Na+ และ NO3-)
     await expect(
       page.getByRole("heading", { name: /ขั้นที่ 4/ }),
     ).toBeVisible();
@@ -108,11 +110,11 @@ test.describe("Phase 7: Screens and Level Progression E2E", () => {
     await expect(
       page.getByRole("heading", { name: /ขั้นที่ 5/ }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน →" }).click();
+    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน" }).click();
 
     // ผ่านด่านสำเร็จ
-    await expect(page.getByText("ผ่านด่านสำเร็จ!")).toBeVisible();
-    await expect(page.getByRole("button", { name: "เล่นด่าน 2 ต่อ →" })).toBeVisible();
+    await expect(page.getByText("ผ่านด่านสำเร็จ")).toBeVisible();
+    await expect(page.getByRole("button", { name: "เล่นด่าน 2 ต่อ" })).toBeVisible();
   });
 
   test("2. Route Guard ป้องกันด่านที่ล็อกอยู่และ Redirect กลับ /levels", async ({ page }) => {

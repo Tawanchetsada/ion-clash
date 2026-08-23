@@ -31,7 +31,7 @@ describe("Levels Page (/levels)", () => {
 
     expect(await screen.findByRole("heading", { name: "เลือกด่าน" })).toBeInTheDocument();
     expect(screen.getByText("0/50")).toBeInTheDocument();
-    expect(screen.getByText("★ 0")).toBeInTheDocument();
+    expect(screen.getByText("0")).toBeInTheDocument();
 
     // First level is unlocked and can be clicked
     const level1Btn = screen.getByRole("button", { name: /^ด่าน 01/ });

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { dismissRotatePrompt, gotoPlay } from "./helpers";
 
 test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.ts)", () => {
   test.beforeEach(async ({ page }) => {
@@ -10,9 +11,9 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     page,
   }) => {
     // 8.1 เริ่มเล่นด่าน 1 และจัดวางไอออน 2 ช่องแรก
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     const tray = page.locator('[data-drop-target="tray"]');
     const slot0 = page.locator('[data-slot-id="L1:slot:0"]');
@@ -28,6 +29,7 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
 
     // Refresh หน้าจอ
     await page.reload();
+    await dismissRotatePrompt(page);
 
     // ตรวจสอบว่ายังอยู่ในขั้นที่ 2 และการ์ดในช่อง 0 และ 1 ยังอยู่
     await expect(page.getByRole("heading", { name: /ขั้นที่ 2/ })).toBeVisible();
@@ -50,10 +52,11 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
 
     // Refresh ใน Step 3
     await page.reload();
+    await dismissRotatePrompt(page);
     await expect(page.getByRole("heading", { name: /ขั้นที่ 3/ })).toBeVisible();
 
     // 8.3 ไปยัง Step 4 ตัดไอออน 1 คู่แล้ว Refresh
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม →" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
     await expect(page.getByRole("heading", { name: /ขั้นที่ 4/ })).toBeVisible();
 
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
@@ -66,6 +69,7 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     await page.waitForTimeout(400);
 
     await page.reload();
+    await dismissRotatePrompt(page);
     await expect(page.getByRole("heading", { name: /ขั้นที่ 4/ })).toBeVisible();
     await expect(page.getByText(/คู่ที่ 1:/)).toBeVisible();
   });
@@ -87,10 +91,11 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     await page1.waitForURL(/\/level\/1\/intro/);
     await page1.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
     await page1.waitForURL(/\/level\/1\/play/);
+    await dismissRotatePrompt(page1);
 
     // Step 1 -> Step 2
     await page1.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page1.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page1.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     // Step 2
     const tray1 = page1.locator('[data-drop-target="tray"]');
@@ -105,7 +110,7 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     await page1.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page1.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม →" }).click();
+    await page1.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
 
     // Step 4
     const strip1 = page1.getByRole("region", { name: "สมการไอออนิก" });
@@ -116,8 +121,8 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     await page1.getByRole("button", { name: "ยืนยันการตัดไอออน" }).click();
 
     // Step 5: จบด่าน
-    await page1.getByRole("button", { name: "ดูผลคะแนนและจบด่าน →" }).click();
-    await expect(page1.getByText("ผ่านด่านสำเร็จ!")).toBeVisible();
+    await page1.getByRole("button", { name: "ดูผลคะแนนและจบด่าน" }).click();
+    await expect(page1.getByText("ผ่านด่านสำเร็จ")).toBeVisible();
 
     // รอ save commit
     await page1.waitForTimeout(600);
@@ -195,6 +200,7 @@ test.describe("Phase 10: Progress & Checkpoint E2E Scenarios (e2e/progress.spec.
     // ล้าง localStorage
     await page.evaluate(() => localStorage.clear());
     await page.reload();
+    await dismissRotatePrompt(page);
 
     // ตรวจสอบว่าข้อมูลถูกล้างเป็น default (ด่าน 2 ล็อก)
     await page.goto("/levels");

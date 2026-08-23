@@ -90,29 +90,26 @@ export function Step4({ state, level, dispatch }: Step4Props) {
     rightInstanceId: p.rightInstanceId,
   }));
 
+  // ป้ายภาษาไทยของคู่ที่ตัดไปแล้ว — ต้องอ่านจาก view model ไม่ใช่ `term.ionId`
+  // ซึ่งเป็นรหัสภายในภาษาอังกฤษอย่าง "nitrate" แล้วหลุดขึ้นหน้าจอให้นักเรียนเห็น
   const pairLabels = state.canceledPairs.map((p, index) => {
     const cardLeft = initialLeftCards.find((c) => c.instanceId === p.leftInstanceId);
-    const label = cardLeft
-      ? cardLeft.term.kind === "ion"
-        ? cardLeft.term.ionId
-        : "ตะกอน"
-      : "";
-    return `คู่ที่ ${index + 1}: ${label}`;
+    const label = cardLeft ? equationCardView(cardLeft, { revealed: true }).nameTh : "";
+    return `คู่ที่ ${index + 1}: ${label} — ตัดออกทั้งสองข้าง`;
   });
 
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div>
-        <h2 className="text-xl font-bold text-navy">
-          ขั้นที่ 4 · ตัดไอออนผู้ชม (Spectator Ions)
-        </h2>
+        <h2 className="text-xl font-bold text-navy">ขั้นที่ 4 · ตัดไอออนตัวประกอบ</h2>
         <p className="text-sm text-navy/70">
-          แตะไอออนฝั่งซ้ายและฝั่งขวาที่มีหน้าตาเหมือนกันเพื่อตัดออก เหลือไว้เฉพาะไอออนที่สร้างตะกอน
+          แตะไอออนฝั่งซ้ายและฝั่งขวาที่เหมือนกันทุกอย่างเพื่อตัดออกเป็นคู่
+          เหลือไว้เฉพาะไอออนที่รวมกันเป็นตะกอน
         </p>
       </div>
 
       {/* Complete Ionic Equation Strip with SVG Connector */}
-      <div className="w-full max-w-4xl rounded-card bg-white p-6 shadow-card border border-border">
+      <div className="w-full max-w-4xl min-w-0 rounded-card border border-border bg-white p-4 shadow-card sm:p-6">
         <EquationStrip
           left={leftStripCards}
           right={rightStripCards}
@@ -134,7 +131,7 @@ export function Step4({ state, level, dispatch }: Step4Props) {
         </div>
 
         {/* Undo / Reset / Confirm Actions */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-2">
             <Button
               variant="outline"

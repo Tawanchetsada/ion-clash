@@ -46,4 +46,20 @@ describe("LevelTile", () => {
     await user.click(screen.getByRole("button"));
     expect(onOpen).toHaveBeenCalledOnce();
   });
+
+  it("ใช้ไอคอน SVG ไม่ใช่อิโมจิ และไม่มีข้อความสถานะบนหน้ากระเบื้อง", () => {
+    // อิโมจิหน้าตาต่างกันคนละ OS และ screen reader อ่านชื่ออิโมจิผิดบริบท
+    // ส่วนข้อความสถานะทำให้กระเบื้องกว้างจนเรียงไม่ครบ 10 ใบต่อแถวที่ 390px
+    const { container } = render(
+      <LevelTile
+        view={{ levelId: 7, status: "locked", statusLabelTh: "ยังไม่ปลดล็อก", stars: 0 }}
+      />,
+    );
+    const button = screen.getByRole("button");
+    expect(container.querySelector("svg")).toBeInTheDocument();
+    expect(button.textContent).not.toContain("ยังไม่ปลดล็อก");
+    expect(button.textContent ?? "").not.toMatch(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
+    // ข้อความยังอยู่ครบในชื่อที่ screen reader อ่าน
+    expect(button).toHaveAccessibleName(expect.stringContaining("ยังไม่ปลดล็อก"));
+  });
 });

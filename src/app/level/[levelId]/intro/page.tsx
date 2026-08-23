@@ -11,6 +11,7 @@ import { compoundCardView } from "../../../../presentation/cards";
 import { useSave } from "../../../../session/SaveProvider";
 import { useToast } from "../../../../session/ToastProvider";
 import { useLevelGuard } from "../../../../session/useLevelGuard";
+import { EquationArrow } from "../../../../components/game/EquationArrow";
 
 type PageParams = { levelId: string };
 
@@ -119,14 +120,14 @@ export default function LevelIntroPage({
         </div>
 
         {/* Reactants Equation Display */}
-        <div className="flex flex-wrap items-center justify-center gap-4 rounded-card bg-white p-6 shadow-card border border-border">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-card border border-border bg-white p-4 shadow-card sm:flex-row sm:gap-4 sm:p-6">
           <div className="flex items-center gap-3">
             <CompoundCard view={reactant1View} />
             <span className="text-2xl font-bold text-navy">+</span>
             <CompoundCard view={reactant2View} />
           </div>
 
-          <span className="text-2xl font-bold text-navy">→</span>
+          <EquationArrow />
 
           {/* Mystery Product */}
           <div

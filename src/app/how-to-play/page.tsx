@@ -15,6 +15,17 @@ import { MESSAGES } from "../../config/messages";
 import { getTutorialLevel } from "../../presentation/tutorial";
 import { ionCardView } from "../../presentation/cards";
 import { reactantIonCards } from "../../domain/game/instances";
+import { BookIcon, KeyboardIcon, MouseIcon, StarIcon, StarOutlineIcon, TapIcon } from "../../components/ui/Icon";
+
+function StarRow({ filled }: { filled: number }) {
+  return (
+    <span aria-hidden="true" className="inline-flex items-center gap-0.5 text-gold">
+      {[1, 2, 3].map((n) =>
+        n <= filled ? <StarIcon key={n} /> : <StarOutlineIcon key={n} className="opacity-50" />,
+      )}
+    </span>
+  );
+}
 
 export default function HowToPlayPage() {
   const router = useRouter();
@@ -96,9 +107,9 @@ export default function HowToPlayPage() {
         <div className="text-center">
           <span
             aria-hidden="true"
-            className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-blue/10 text-2xl font-bold text-blue"
+            className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-blue/10 text-2xl text-blue"
           >
-            📖
+            <BookIcon />
           </span>
           <h1 className="text-3xl font-bold text-navy">คู่มือวิธีการเล่นเกม Ion Clash</h1>
           <p className="mt-2 text-base text-navy/70">
@@ -130,7 +141,7 @@ export default function HowToPlayPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-card bg-panel p-4 border border-border">
               <div className="flex items-center gap-2 font-bold text-navy mb-2">
-                <span className="text-xl">🖱️</span>
+                <span className="text-xl text-blue"><MouseIcon /></span>
                 <h3>1. ลากและวาง (Drag & Drop)</h3>
               </div>
               <p className="text-xs text-navy/80 leading-relaxed">
@@ -140,7 +151,7 @@ export default function HowToPlayPage() {
 
             <div className="rounded-card bg-panel p-4 border border-border">
               <div className="flex items-center gap-2 font-bold text-navy mb-2">
-                <span className="text-xl">👆</span>
+                <span className="text-xl text-blue"><TapIcon /></span>
                 <h3>2. แตะสองครั้ง (Tap-to-Place)</h3>
               </div>
               <p className="text-xs text-navy/80 leading-relaxed">
@@ -150,7 +161,7 @@ export default function HowToPlayPage() {
 
             <div className="rounded-card bg-panel p-4 border border-border">
               <div className="flex items-center gap-2 font-bold text-navy mb-2">
-                <span className="text-xl">⌨️</span>
+                <span className="text-xl text-blue"><KeyboardIcon /></span>
                 <h3>3. คีย์บอร์ด (Keyboard)</h3>
               </div>
               <p className="text-xs text-navy/80 leading-relaxed">
@@ -237,7 +248,7 @@ export default function HowToPlayPage() {
               </div>
             </div>
 
-            <span className="text-base font-bold text-navy/70">↓ จับคู่เป็น 2 ผลิตภัณฑ์</span>
+            <span className="text-base font-bold text-navy/70">จับคู่เป็น 2 ผลิตภัณฑ์</span>
 
             {/* Product Slots */}
             <div className="flex flex-wrap items-center justify-center gap-4">
@@ -447,15 +458,15 @@ export default function HowToPlayPage() {
               <h4 className="font-bold text-navy mb-2">เกณฑ์การได้รับดาว:</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                 <div className="rounded-card bg-navy p-3 border border-navy text-white">
-                  <span className="text-lg text-gold font-bold">★★★ 3 ดาว</span>
+                  <span className="flex items-center justify-center gap-2 text-lg font-bold text-gold"><StarRow filled={3} /> 3 ดาว</span>
                   <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.three} – {SCORING.startScore} คะแนน</p>
                 </div>
                 <div className="rounded-card bg-navy p-3 border border-navy text-white">
-                  <span className="text-lg text-gold font-bold">★★☆ 2 ดาว</span>
+                  <span className="flex items-center justify-center gap-2 text-lg font-bold text-gold"><StarRow filled={2} /> 2 ดาว</span>
                   <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.two} – {SCORING.starThresholds.three - 1} คะแนน</p>
                 </div>
                 <div className="rounded-card bg-navy p-3 border border-navy text-white">
-                  <span className="text-lg text-gold font-bold">★☆☆ 1 ดาว</span>
+                  <span className="flex items-center justify-center gap-2 text-lg font-bold text-gold"><StarRow filled={1} /> 1 ดาว</span>
                   <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.one} – {SCORING.starThresholds.two - 1} คะแนน</p>
                 </div>
               </div>
@@ -471,13 +482,13 @@ export default function HowToPlayPage() {
             href="/knowledge"
             className="min-h-11 inline-flex items-center justify-center rounded-card border border-navy/20 px-6 py-2 text-sm font-bold text-navy hover:bg-canvas"
           >
-            ← ศึกษาคลังความรู้
+            ศึกษาคลังความรู้
           </Link>
           <Link
             href="/levels"
             className="min-h-11 inline-flex items-center justify-center rounded-card bg-gold px-8 py-2 font-bold text-navy shadow-card hover:bg-gold/90"
           >
-            ไปยังหน้าเลือกด่าน →
+            ไปยังหน้าเลือกด่าน
           </Link>
         </div>
       </footer>

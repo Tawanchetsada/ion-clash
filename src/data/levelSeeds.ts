@@ -55,7 +55,7 @@ export const LEVEL_SEEDS: readonly LevelSeed[] = [
   //
   // ทั้ง 10 ด่านให้ตะกอน M(OH)n ซึ่งบังคับให้ผู้เรียนใส่วงเล็บทุกด่าน และไล่
   // ไอออนคู่เดิมสามแบบต่อโลหะหนึ่งตัว (คลอไรด์ / ไนเตรต / ซัลเฟต) เพื่อฝึก
-  // ให้เห็นว่าไอออนผู้ชมเปลี่ยนแต่สมการสุทธิเหมือนเดิม
+  // ให้เห็นว่าไอออนตัวประกอบเปลี่ยนแต่สมการสุทธิเหมือนเดิม
   //   Mg(OH)2 -> 21, 22, 28   Cu(OH)2 -> 23, 24, 25
   //   Fe(OH)2 -> 26, 27, 29   Pb(OH)2 -> 30
   { id: 21, difficulty: "medium", reactantA: { cation: "magnesium-2plus", anion: "chloride" }, reactantB: { cation: "sodium-plus", anion: "hydroxide" } },

@@ -11,6 +11,7 @@ import type { GameSaveV1 } from "../../storage/schema";
 import { useOptionalResearch } from "../../session/ResearchProvider";
 import { useSave } from "../../session/SaveProvider";
 import { useToast } from "../../session/ToastProvider";
+import { CopyIcon, DownloadIcon, StarIcon, TrophyIcon } from "../../components/ui/Icon";
 
 export default function ProgressPage() {
   const router = useRouter();
@@ -150,7 +151,7 @@ export default function ProgressPage() {
           <div className="flex flex-col gap-2 rounded-card bg-gold/15 border-2 border-gold p-4 text-navy shadow-card sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="font-bold text-base flex items-center gap-1.5 text-navy">
-                <span>🎉</span>
+                <TrophyIcon className="text-gold" />
                 <span>ยินดีด้วย! คุณผ่านครบทั้ง 50 ด่านของ Ion Clash แล้ว</span>
               </div>
               <div className="text-xs text-navy/80 mt-0.5">
@@ -205,7 +206,7 @@ export default function ProgressPage() {
           <div className="flex flex-col items-center rounded-card bg-white p-4 text-center shadow-card border border-border">
             <span className="text-xs font-semibold text-navy/70">ดาวรวม</span>
             <span className="mt-1 text-2xl font-bold text-navy">
-              <span className="inline-flex items-center justify-center bg-navy text-gold px-1.5 py-0.5 rounded text-lg mr-1 shadow-xs">★</span>
+              <StarIcon className="mr-1 text-gold" />
               {totalStars}
             </span>
           </div>
@@ -239,11 +240,11 @@ export default function ProgressPage() {
 
           <div className="flex flex-wrap gap-3 pt-2">
             <Button variant="gold" onClick={handleCopyTsv} className="font-bold">
-              📋 คัดลอกผลการเรียน (TSV)
+              <CopyIcon className="mr-1.5" />คัดลอกผลการเรียน (TSV)
             </Button>
 
             <Button variant="outline" onClick={handleDownloadCsv}>
-              📥 ดาวน์โหลด CSV
+              <DownloadIcon className="mr-1.5" />ดาวน์โหลด CSV
             </Button>
           </div>
         </div>

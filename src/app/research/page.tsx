@@ -14,6 +14,7 @@ import {
 import type { ResearchEvent } from "../../research/types";
 import { useOptionalResearch } from "../../session/ResearchProvider";
 import { useToast } from "../../session/ToastProvider";
+import { CheckIcon, CloseIcon, StarIcon, UploadIcon, WarningIcon } from "../../components/ui/Icon";
 
 const ERROR_LABELS: Record<string, string> = {
   "E-CHARGE": "ผลรวมประจุไม่เป็นศูนย์",
@@ -21,7 +22,7 @@ const ERROR_LABELS: Record<string, string> = {
   "E-PHASE": "ระบุสถานะสารผิด",
   "E-BALANCE": "ดุลสัมประสิทธิ์ไม่ถูกต้อง",
   "E-RATIO": "สัมประสิทธิ์ไม่ใช่อัตราส่วนอย่างต่ำ",
-  "E-SPECTATOR": "ตัดไอออนผู้ชมไม่ถูกต้อง",
+  "E-SPECTATOR": "ตัดไอออนตัวประกอบไม่ถูกต้อง",
 };
 
 export default function ResearchPage() {
@@ -189,7 +190,7 @@ export default function ResearchPage() {
             </Button>
 
             <label className="min-h-11 inline-flex items-center justify-center rounded-card border border-navy/20 bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-navy/5 cursor-pointer">
-              <span>📂 อัปโหลดไฟล์ CSV/TSV</span>
+              <span className="inline-flex items-center gap-1.5"><UploadIcon />อัปโหลดไฟล์ CSV/TSV</span>
               <input
                 type="file"
                 accept=".csv,.tsv,.txt"
@@ -299,12 +300,12 @@ export default function ResearchPage() {
               <div className="mt-2">
                 {summary.benchmarkPassed === true && (
                   <span className="inline-flex items-center rounded-full bg-green px-2.5 py-0.5 text-xs font-bold text-white">
-                    ✓ ผ่านเกณฑ์ 80/80
+                    <CheckIcon className="mr-1" />ผ่านเกณฑ์ 80/80
                   </span>
                 )}
                 {summary.benchmarkPassed === false && (
                   <span className="inline-flex items-center rounded-full bg-error px-2.5 py-0.5 text-xs font-bold text-white">
-                    ✕ ยังไม่ถึงเกณฑ์ 80/80
+                    <CloseIcon className="mr-1" />ยังไม่ถึงเกณฑ์ 80/80
                   </span>
                 )}
                 {summary.benchmarkPassed === null && (
@@ -451,7 +452,7 @@ export default function ResearchPage() {
                 </div>
                 {summary.errorAnalysis.mostFrequent.length > 0 && (
                   <div className="mt-3 text-xs text-error font-bold flex items-center gap-1.5">
-                    <span>⚠️</span>
+                    <WarningIcon />
                     <span>
                       พบข้อผิดพลาดรหัส {summary.errorAnalysis.mostFrequent.join(", ")} บ่อยที่สุด
                     </span>
@@ -532,7 +533,7 @@ export default function ResearchPage() {
                         <td className="p-2.5 text-right font-bold text-blue">{ev.score}</td>
                         <td className="p-2.5 text-center">
                           <span className="inline-flex items-center justify-center bg-navy text-gold px-1.5 py-0.5 rounded text-xs font-bold shadow-xs">
-                            {"★".repeat(ev.stars)}
+                            {Array.from({ length: ev.stars }, (_, i) => <StarIcon key={i} className="text-gold" />)}
                           </span>
                         </td>
                         <td className="p-2.5 text-right">{Math.round(ev.elapsedMs / 1000)}วิ</td>

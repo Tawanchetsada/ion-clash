@@ -483,16 +483,16 @@ function HarnessContent() {
                 play("gold");
               }}
             >
-              ยืนยันและไปขั้นตัดไอออนผู้ชม
+              ยืนยันและไปขั้นตัดไอออนตัวประกอบ
             </Button>
           </Panel>
         )}
 
         {/* Phase 5: Cancel Spectator Ions with SpectatorConnector */}
         {state.phase === "cancelSpectatorIons" && (
-          <Panel title="ขั้นที่ 4 · ตัดไอออนผู้ชม (Spectator Ions Cancellation)">
+          <Panel title="ขั้นที่ 4 · ตัดไอออนตัวประกอบ (Spectator Ions Cancellation)">
             <p className="mb-4 text-sm text-navy/80">
-              แตะไอออนฝั่งซ้ายและฝั่งขวาเพื่อตัดคู่ไอออนผู้ชม เส้น SVG จะเชื่อมโยงคู่ที่ถูกตัด
+              แตะไอออนฝั่งซ้ายและฝั่งขวาเพื่อตัดคู่ไอออนตัวประกอบ เส้น SVG จะเชื่อมโยงคู่ที่ถูกตัด
             </p>
 
             <div className="flex flex-col gap-4">

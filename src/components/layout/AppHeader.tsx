@@ -7,7 +7,11 @@ export type AppHeaderProps = {
 };
 
 /**
- * แถบบนสุดของทุกหน้า — ตรา IC, เลขด่าน (ถ้ามี), ปุ่มหน้าหลัก/วิธีเล่น
+ * แถบบนสุดของทุกหน้า — ชื่อเกม เลขด่าน (ถ้ามี) และปุ่มหน้าหลัก/วิธีเล่น
+ *
+ * **ติดขอบบนตลอดการเลื่อน** (`sticky top-0`) เพราะปุ่มออกจากด่านกับปุ่มวิธีเล่น
+ * อยู่บนแถบนี้ ถ้าเลื่อนแล้วหาย ผู้เล่นที่ติดกลางด่านบนมือถือจะต้องเลื่อนกลับ
+ * ขึ้นไปสุดก่อนถึงจะออกได้ ซึ่งเป็นทางตันที่เจอบ่อยที่สุดของเกมบนจอเล็ก
  *
  * `flex-wrap` ที่ตัว header และการรวมป้ายด่าน+เมนูไว้ในกลุ่มเดียวกันจำเป็น
  * จริง ๆ — ทดสอบแล้วว่าที่ 390px (มือถือแนวตั้งขั้นต่ำตามสเปก) ถ้าจัดสามกลุ่ม
@@ -16,16 +20,8 @@ export type AppHeaderProps = {
  */
 export function AppHeader({ levelLabelTh, onHome, onHowToPlay }: AppHeaderProps) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-2 bg-navy px-4 py-3 text-white">
-      <div className="flex items-center gap-2 font-bold">
-        <span
-          aria-hidden="true"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-gold text-sm text-navy"
-        >
-          IC
-        </span>
-        <span>ION CLASH</span>
-      </div>
+    <header className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-navy px-4 py-3 text-white shadow-card">
+      <span className="text-lg font-bold tracking-wide">ION CLASH</span>
 
       <div className="flex flex-wrap items-center gap-2">
         {levelLabelTh && (

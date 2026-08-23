@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { dismissRotatePrompt } from "./helpers";
 
 test.describe("Phase 9: Research Data Collection & Dashboard E2E", () => {
   test.beforeEach(async ({ page }) => {
@@ -41,8 +42,9 @@ test.describe("Phase 9: Research Data Collection & Dashboard E2E", () => {
 
     // Step 1
     await expect(page).toHaveURL("/level/1/play");
+    await dismissRotatePrompt(page);
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     // Step 2: วางไอออน 4 ช่อง
     const tray = page.locator('[data-drop-target="tray"]');
@@ -66,7 +68,7 @@ test.describe("Phase 9: Research Data Collection & Dashboard E2E", () => {
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม →" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
 
     // Step 4
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
@@ -81,8 +83,8 @@ test.describe("Phase 9: Research Data Collection & Dashboard E2E", () => {
     await page.getByRole("button", { name: "ยืนยันการตัดไอออน" }).click();
 
     // Step 5: จบด่าน
-    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน →" }).click();
-    await expect(page.getByText("ผ่านด่านสำเร็จ!")).toBeVisible();
+    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน" }).click();
+    await expect(page.getByText("ผ่านด่านสำเร็จ")).toBeVisible();
 
     // 1.4 ไปยังหน้า /progress และตรวจสอบปุ่มส่งออกข้อมูลวิจัย
     await page.goto("/progress");
@@ -138,7 +140,7 @@ test.describe("Phase 9: Research Data Collection & Dashboard E2E", () => {
 
     // ตรวจสอบเกณฑ์ 80/80
     await expect(page.getByText("90.0 / 85.0")).toBeVisible();
-    await expect(page.getByText("✓ ผ่านเกณฑ์ 80/80")).toBeVisible();
+    await expect(page.getByText("ผ่านเกณฑ์ 80/80")).toBeVisible();
 
     // ตรวจสอบสถิติข้อผิดพลาด E-CHARGE
     await expect(

@@ -29,7 +29,7 @@ describe("Knowledge Page (/knowledge)", () => {
     // Check all 4 topic buttons
     const btn1 = screen.getByRole("button", { name: /การแตกตัวของสารประกอบไอออนิกในน้ำ/ });
     const btn2 = screen.getByRole("button", { name: /กฎการละลายน้ำของสารประกอบไอออนิก/ });
-    const btn3 = screen.getByRole("button", { name: /ไอออนผู้ชม/ });
+    const btn3 = screen.getByRole("button", { name: /ไอออนตัวประกอบ/ });
     const btn4 = screen.getByRole("button", { name: /การดุลสมการเคมีและอัตราส่วนอย่างต่ำ/ });
 
     expect(btn1).toBeInTheDocument();

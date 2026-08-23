@@ -165,6 +165,6 @@ describe("Research Dashboard Page (/research)", () => {
 
     // Overall E1 = 85.0%, Overall E2 = 85.0% -> ผ่านเกณฑ์ 80/80
     expect(screen.getByText("85.0 / 85.0")).toBeInTheDocument();
-    expect(screen.getByText("✓ ผ่านเกณฑ์ 80/80")).toBeInTheDocument();
+    expect(screen.getByText("ผ่านเกณฑ์ 80/80")).toBeInTheDocument();
   });
 });

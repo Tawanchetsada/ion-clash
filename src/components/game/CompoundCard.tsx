@@ -1,5 +1,4 @@
-import { EquationView } from "./EquationView";
-import { TONE_CLASS } from "./tone";
+import { GameCardFace } from "./GameCard";
 import type { CompoundCardView } from "../../presentation/cards";
 
 export type CompoundCardProps = {
@@ -9,15 +8,13 @@ export type CompoundCardProps = {
 /** การ์ดสารประกอบ — แสดงอย่างเดียว ไม่ส่ง event ตาม Component Contract ในสเปก */
 export function CompoundCard({ view }: CompoundCardProps) {
   return (
-    <div
-      role="group"
-      aria-label={view.ariaLabel}
-      className={`flex flex-col items-center gap-1 rounded-card px-4 py-3 shadow-card ${TONE_CLASS[view.tone]}`}
-    >
-      <EquationView ast={view.formula} className="text-lg font-bold" />
-      <span aria-hidden="true" className="text-xs font-normal">
-        {view.nameTh}
-      </span>
+    <div role="group" aria-label={view.ariaLabel} className="inline-flex">
+      <GameCardFace
+        formula={view.formula}
+        nameTh={view.nameTh}
+        phaseTh={view.phaseTh}
+        tone={view.tone}
+      />
     </div>
   );
 }

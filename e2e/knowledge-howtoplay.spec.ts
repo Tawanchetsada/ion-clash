@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { gotoPlay } from "./helpers";
 
 test.describe("Phase 8: Knowledge and How-to-Play E2E Tests", () => {
   test("1. หน้า /knowledge แสดงหัวข้อครบ 4 หัวข้อและเปิดปิด accordion ได้", async ({ page }) => {
@@ -8,7 +9,7 @@ test.describe("Phase 8: Knowledge and How-to-Play E2E Tests", () => {
 
     const topic1Btn = page.getByRole("button", { name: /การแตกตัวของสารประกอบไอออนิกในน้ำ/ });
     const topic2Btn = page.getByRole("button", { name: /กฎการละลายน้ำของสารประกอบไอออนิก/ });
-    const topic3Btn = page.getByRole("button", { name: /ไอออนผู้ชม/ });
+    const topic3Btn = page.getByRole("button", { name: /ไอออนตัวประกอบ/ });
     const topic4Btn = page.getByRole("button", { name: /การดุลสมการเคมีและอัตราส่วนอย่างต่ำ/ });
 
     await expect(topic1Btn).toBeVisible();
@@ -49,7 +50,7 @@ test.describe("Phase 8: Knowledge and How-to-Play E2E Tests", () => {
   });
 
   test("3. ในหน้าเล่นเกม (/level/1/play) สามารถเปิดดูกฎการละลายได้", async ({ page }) => {
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
 
     const rulesBtn = page.getByRole("button", { name: "ดูกฎการละลาย" });
     await expect(rulesBtn).toBeVisible();

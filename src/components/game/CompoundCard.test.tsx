@@ -10,14 +10,22 @@ describe("CompoundCard", () => {
   it("revealed: false ไม่มีคลาสสีทองแม้เป็นตะกอนจริง", () => {
     const view = compoundCardView(level.precipitate, { revealed: false });
     render(<CompoundCard view={view} />);
+    // สีอยู่ที่หน้าการ์ด (GameCardFace) ซึ่งเป็นลูกของ group ที่ถือ aria-label
     const card = screen.getByRole("group", { name: view.ariaLabel });
-    expect(card.className).not.toContain("bg-gold");
+    expect(card.innerHTML).not.toContain("bg-gold");
   });
 
   it("revealed: true และเป็นตะกอน จึงมีคลาสสีทอง", () => {
     const view = compoundCardView(level.precipitate, { revealed: true });
     render(<CompoundCard view={view} />);
     const card = screen.getByRole("group", { name: view.ariaLabel });
-    expect(card.className).toContain("bg-gold");
+    expect(card.innerHTML).toContain("bg-gold");
+  });
+
+  it("แสดงชื่อไทยและป้ายสถานะบนหน้าการ์ด ตามเอกสาร UI หน้า 09", () => {
+    const view = compoundCardView(level.precipitate, { revealed: true });
+    render(<CompoundCard view={view} />);
+    expect(screen.getByText(view.nameTh)).toBeInTheDocument();
+    expect(screen.getByText(`(${view.phaseTh})`)).toBeInTheDocument();
   });
 });

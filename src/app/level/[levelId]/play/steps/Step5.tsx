@@ -10,6 +10,7 @@ import { EquationView } from "../../../../../components/game/EquationView";
 import { SaveStatus } from "../../../../../components/game/SaveStatus";
 import { Button } from "../../../../../components/ui/Button";
 import { useSave } from "../../../../../session/SaveProvider";
+import { StarIcon, StarOutlineIcon } from "../../../../../components/ui/Icon";
 
 export type Step5Props = {
   state: GameState;
@@ -56,7 +57,7 @@ export function Step5({
     <div className="flex flex-col items-center gap-6 text-center">
       <div>
         <h2 className="text-xl font-bold text-navy">
-          {isComplete ? "🎉 ผ่านด่านสำเร็จ!" : "ขั้นที่ 5 · สมการไอออนิกสุทธิ (Net Ionic Equation)"}
+          {isComplete ? "ผ่านด่านสำเร็จ" : "ขั้นที่ 5 · สมการไอออนิกสุทธิ"}
         </h2>
         <p className="text-sm text-navy/70">
           {isComplete
@@ -91,7 +92,7 @@ export function Step5({
           </div>
           {spectatorNames && (
             <div>
-              <span className="font-bold">ไอออนผู้ชมที่ถูกตัด: </span>
+              <span className="font-bold">ไอออนตัวประกอบที่ถูกตัด: </span>
               <span>{spectatorNames}</span>
             </div>
           )}
@@ -106,7 +107,7 @@ export function Step5({
             className="px-8 py-3 text-lg"
             onClick={() => dispatch({ type: "COMPLETE_LEVEL", at: Date.now() })}
           >
-            ดูผลคะแนนและจบด่าน →
+            ดูผลคะแนนและจบด่าน
           </Button>
         </div>
       )}
@@ -116,14 +117,13 @@ export function Step5({
         <div className="flex flex-col items-center gap-6 w-full max-w-md rounded-card bg-white p-6 shadow-card border border-border">
           {/* Stars Display */}
           <div className="flex items-center justify-center gap-2 text-4xl text-gold" aria-label={`ได้รับ ${stars} ดาว`}>
-            {[1, 2, 3].map((starIndex) => (
-              <span
-                key={starIndex}
-                className={starIndex <= stars ? "opacity-100" : "opacity-20 text-navy"}
-              >
-                ★
-              </span>
-            ))}
+            {[1, 2, 3].map((starIndex) =>
+              starIndex <= stars ? (
+                <StarIcon key={starIndex} />
+              ) : (
+                <StarOutlineIcon key={starIndex} className="text-navy/25" />
+              ),
+            )}
           </div>
 
           {/* Stats */}
@@ -155,7 +155,7 @@ export function Step5({
                 className="flex-1 min-w-[140px]"
                 onClick={onNextLevel}
               >
-                เล่นด่าน {level.id + 1} ต่อ →
+                เล่นด่าน {level.id + 1} ต่อ
               </Button>
             )}
             <Button

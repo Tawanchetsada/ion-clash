@@ -7,6 +7,7 @@ import { AppHeader } from "../../components/layout/AppHeader";
 import { PageShell } from "../../components/layout/PageShell";
 import { EquationView } from "../../components/game/EquationView";
 import { solubilityTableView } from "../../presentation/solubility";
+import { CheckIcon, FlaskIcon } from "../../components/ui/Icon";
 import {
   getKnowledgeTopic1Examples,
   getKnowledgeTopic3Example,
@@ -45,9 +46,9 @@ export default function KnowledgePage() {
         <div className="text-center">
           <span
             aria-hidden="true"
-            className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-green/10 text-2xl font-bold text-green"
+            className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-green/10 text-2xl text-green"
           >
-            🧪
+            <FlaskIcon />
           </span>
           <h1 className="text-3xl font-bold text-navy">คลังความรู้เคมี ม.4</h1>
           <p className="mt-2 text-base text-navy/70">
@@ -205,7 +206,7 @@ export default function KnowledgePage() {
             )}
           </section>
 
-          {/* หัวข้อ 3: ไอออนผู้ชมและสมการไอออนิกสุทธิ */}
+          {/* หัวข้อ 3: ไอออนตัวประกอบและสมการไอออนิกสุทธิ */}
           <section className="overflow-hidden rounded-card border border-border bg-white shadow-card">
             <button
               type="button"
@@ -218,7 +219,7 @@ export default function KnowledgePage() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue text-sm text-white">
                   3
                 </span>
-                <span className="text-lg">ไอออนผู้ชม (Spectator Ions) และสมการไอออนิกสุทธิ</span>
+                <span className="text-lg">ไอออนตัวประกอบ (Spectator Ions) และสมการไอออนิกสุทธิ</span>
               </div>
               <span aria-hidden="true" className="text-xl text-navy/60">
                 {openSections[3] ? "▲" : "▼"}
@@ -228,8 +229,8 @@ export default function KnowledgePage() {
             {openSections[3] && (
               <div id="topic-3-content" className="space-y-4 p-6 text-navy/90">
                 <p className="leading-relaxed">
-                  <strong>ไอออนผู้ชม (Spectator Ions)</strong> คือ ไอออนที่อยู่ในสารละลายทั้งก่อนและหลังเกิดปฏิกิริยาโดยไม่เกิดการเปลี่ยนแปลงสถานะหรือจับตัวเป็นตะกอน
-                  เมื่อเราตัดไอออนผู้ชมที่เหมือนกันทั้งสองข้างออก จะได้<strong>สมการไอออนิกสุทธิ (Net Ionic Equation)</strong> ซึ่งแสดงเฉพาะไอออนที่ทำปฏิกิริยาจริง
+                  <strong>ไอออนตัวประกอบ (Spectator Ions)</strong> คือ ไอออนที่อยู่ในสารละลายทั้งก่อนและหลังเกิดปฏิกิริยาโดยไม่เกิดการเปลี่ยนแปลงสถานะหรือจับตัวเป็นตะกอน
+                  เมื่อเราตัดไอออนตัวประกอบที่เหมือนกันทั้งสองข้างออก จะได้<strong>สมการไอออนิกสุทธิ (Net Ionic Equation)</strong> ซึ่งแสดงเฉพาะไอออนที่ทำปฏิกิริยาจริง
                 </p>
 
                 <div className="space-y-4 rounded-card bg-canvas p-5 border border-border">
@@ -279,7 +280,7 @@ export default function KnowledgePage() {
                       <span className="line-through text-navy/70 font-bold bg-error/10 px-1 rounded">2Cl⁻(aq)</span>
                     </div>
                     <p className="text-xs text-error font-medium">
-                      * ตัด 2Na⁺(aq) และ 2Cl⁻(aq) ออกทั้งสองข้างเนื่องจากเป็นไอออนผู้ชม
+                      * ตัด 2Na⁺(aq) และ 2Cl⁻(aq) ออกทั้งสองข้างเนื่องจากเป็นไอออนตัวประกอบ
                     </p>
                   </div>
 
@@ -299,7 +300,7 @@ export default function KnowledgePage() {
                 </div>
 
                 <div className="rounded-card bg-panel p-4 text-xs text-navy/80 space-y-1">
-                  <p className="font-bold text-navy">กติกาการตัดไอออนผู้ชม:</p>
+                  <p className="font-bold text-navy">กติกาการตัดไอออนตัวประกอบ:</p>
                   <p>
                     จะตัดไอออนได้ก็ต่อเมื่อมี <strong>ชนิดเดียวกัน, ประจุเท่ากัน, สถานะเดียวกัน (aq), และจำนวนโมลเท่ากันทั้งสองข้างของสมการ</strong>
                   </p>
@@ -372,7 +373,7 @@ export default function KnowledgePage() {
                       <span>→</span>
                       <EquationView ast={t4.agclCompound} />
                       <span>(s)</span>
-                      <span className="text-xs text-green font-normal">✓ (อัตราส่วนอย่างต่ำ 1:1:1 ถูกต้อง)</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-normal text-green"><CheckIcon />(อัตราส่วนอย่างต่ำ 1:1:1 ถูกต้อง)</span>
                     </div>
                   </div>
                 </div>
@@ -392,7 +393,7 @@ export default function KnowledgePage() {
             href="/levels"
             className="min-h-11 inline-flex w-full sm:w-auto items-center justify-center rounded-card bg-gold px-8 py-3 font-bold text-navy shadow-card transition-colors hover:bg-gold/90"
           >
-            เริ่มเล่นเลย →
+            เริ่มเล่นเลย
           </Link>
         </div>
       </footer>

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { gotoPlay } from "./helpers";
 
 test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.ts) [AC-10]", () => {
   test("Case 1: LocalStorage เต็ม (QuotaExceededError) -> แสดง SaveStatus error badge, ผู้เล่นเล่นต่อได้ และมีปุ่ม Export", async ({
@@ -16,11 +17,11 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
       };
     });
 
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
 
     // เล่นขั้นที่ 1
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     // วางไอออน
     const tray = page.locator('[data-drop-target="tray"]');
@@ -91,11 +92,11 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
       });
     });
 
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
 
     // Step 1
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     // Step 2
     const tray = page.locator('[data-drop-target="tray"]');
@@ -110,7 +111,7 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม →" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
 
     // Step 4
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
@@ -121,22 +122,22 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
     await page.getByRole("button", { name: "ยืนยันการตัดไอออน" }).click();
 
     // Step 5: จบด่าน
-    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน →" }).click();
-    await expect(page.getByText("ผ่านด่านสำเร็จ!")).toBeVisible();
+    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน" }).click();
+    await expect(page.getByText("ผ่านด่านสำเร็จ")).toBeVisible();
   });
 
   test("Case 6: เน็ตหลุดกลางเกม (Offline Mode) -> เล่นต่อจนจบด่านได้ตามธรรมชาติ (D-18)", async ({
     context,
     page,
   }) => {
-    await page.goto("/level/1/play");
+    await gotoPlay(page, "/level/1/play");
 
     // หลุดเน็ตระหว่างเล่น
     await context.setOffline(true);
 
     // Step 1
     await page.getByRole("button", { name: "เริ่มแยกไอออน" }).click();
-    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน →" }).click();
+    await page.getByRole("button", { name: "ไปยังขั้นจัดเรียงไอออน" }).click();
 
     // Step 2
     const tray = page.locator('[data-drop-target="tray"]');
@@ -151,7 +152,7 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
     await page.getByRole("button", { name: "ตรวจการจัดเรียงไอออน" }).click();
 
     // Step 3
-    await page.getByRole("button", { name: "ไปขั้นตัดไอออนผู้ชม →" }).click();
+    await page.getByRole("button", { name: "ไปขั้นตัดไอออนตัวประกอบ" }).click();
 
     // Step 4
     const strip = page.getByRole("region", { name: "สมการไอออนิก" });
@@ -162,8 +163,8 @@ test.describe("Phase 10: Fault Injection & Resilience (e2e/fault-injection.spec.
     await page.getByRole("button", { name: "ยืนยันการตัดไอออน" }).click();
 
     // Step 5: จบด่าน
-    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน →" }).click();
-    await expect(page.getByText("ผ่านด่านสำเร็จ!")).toBeVisible();
+    await page.getByRole("button", { name: "ดูผลคะแนนและจบด่าน" }).click();
+    await expect(page.getByText("ผ่านด่านสำเร็จ")).toBeVisible();
 
     await context.setOffline(false);
   });

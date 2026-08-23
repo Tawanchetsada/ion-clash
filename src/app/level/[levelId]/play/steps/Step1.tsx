@@ -69,7 +69,7 @@ export function Step1({ state, level, dispatch }: Step1Props) {
             variant="gold"
             onClick={() => dispatch({ type: "CONTINUE" })}
           >
-            ไปยังขั้นจัดเรียงไอออน →
+            ไปยังขั้นจัดเรียงไอออน
           </Button>
         )}
       </div>

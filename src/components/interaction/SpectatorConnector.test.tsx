@@ -12,7 +12,7 @@ describe("SpectatorConnector", () => {
     vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {});
   });
 
-  it("วาดเส้นตรง <line> เมื่อการ์ดสองใบอยู่แถวเดียวกัน", () => {
+  it("อ้อมขึ้นด้านบนของการ์ด ไม่ลากตรงผ่ากลางแถว", () => {
     const containerEl = document.createElement("div");
     vi.spyOn(containerEl, "getBoundingClientRect").mockReturnValue({
       left: 0,
@@ -72,15 +72,67 @@ describe("SpectatorConnector", () => {
     expect(svg).toBeInTheDocument();
     expect(svg).toHaveAttribute("aria-hidden", "true");
 
-    const line = container.querySelector("line");
-    expect(line).toBeInTheDocument();
-    expect(line).toHaveAttribute("x1", "80"); // 50 + 30
-    expect(line).toHaveAttribute("y1", "40"); // 20 + 20
-    expect(line).toHaveAttribute("x2", "230"); // 200 + 30
-    expect(line).toHaveAttribute("y2", "40"); // 20 + 20
+    // ห้ามมีเส้นตรงอีกต่อไป — เส้นตรงจะพาดทับการ์ดทุกใบที่ขวางอยู่ระหว่างทาง
+    // รวมทั้งการ์ดตะกอนซึ่งห้ามตัด (เอกสาร UI หน้า 10 วาดเป็นเส้นอ้อม)
+    expect(container.querySelector("line")).toBeNull();
+
+    const path = container.querySelector("path");
+    expect(path).toBeInTheDocument();
+
+    // คู่แรก (index 0) อ้อมด้านบน จึงเริ่มที่ขอบบนของการ์ด (top = 20) ไม่ใช่กลางใบ
+    // และจุดควบคุมต้องอยู่เหนือขึ้นไปอีก (ค่า y ติดลบเทียบกับ 20)
+    expect(path?.getAttribute("d")).toContain("M 80 20 C");
+    expect(path?.getAttribute("d")).toContain("80 2,");
+
+    // มีจุดปลายทั้งสองข้างตามเอกสาร UI
+    expect(container.querySelectorAll("circle")).toHaveLength(2);
   });
 
-  it("วาดเส้นโค้ง <path> เมื่อการ์ดสองใบอยู่คนละแถว (top ต่างกันมาก)", () => {
+  it("คู่ที่สองอ้อมด้านล่าง เพื่อไม่ให้เส้นสองเส้นทับกัน", () => {
+    const containerEl = document.createElement("div");
+    vi.spyOn(containerEl, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, width: 500, height: 100, right: 500, bottom: 100, x: 0, y: 0,
+      toJSON: () => {},
+    });
+
+    const makeCard = (left: number) => {
+      const el = document.createElement("div");
+      vi.spyOn(el, "getBoundingClientRect").mockReturnValue({
+        left, top: 20, width: 60, height: 40, right: left + 60, bottom: 60, x: left, y: 20,
+        toJSON: () => {},
+      });
+      return el;
+    };
+
+    const containerRef = { current: containerEl };
+    const cardRefs = {
+      current: new Map([
+        ["a1", makeCard(10)],
+        ["b1", makeCard(100)],
+        ["a2", makeCard(200)],
+        ["b2", makeCard(300)],
+      ]),
+    };
+
+    const { container } = render(
+      <SpectatorConnector
+        containerRef={containerRef}
+        cardRefs={cardRefs}
+        pairs={[
+          { leftInstanceId: "a1", rightInstanceId: "b1" },
+          { leftInstanceId: "a2", rightInstanceId: "b2" },
+        ]}
+      />,
+    );
+
+    const paths = container.querySelectorAll("path");
+    expect(paths).toHaveLength(2);
+    // คู่แรกเริ่มที่ขอบบน (y = 20) คู่ที่สองเริ่มที่ขอบล่าง (y = 60)
+    expect(paths[0]?.getAttribute("d")).toContain("M 40 20 C");
+    expect(paths[1]?.getAttribute("d")).toContain("M 230 60 C");
+  });
+
+  it("อ้อมไกลขึ้นเมื่อการ์ดสองใบขึ้นบรรทัดใหม่คนละแถว", () => {
     const containerEl = document.createElement("div");
     vi.spyOn(containerEl, "getBoundingClientRect").mockReturnValue({
       left: 0,
@@ -138,7 +190,9 @@ describe("SpectatorConnector", () => {
 
     const path = container.querySelector("path");
     expect(path).toBeInTheDocument();
-    expect(path?.getAttribute("d")).toContain("M 80 40 C");
+    // เริ่มที่ขอบบนของการ์ดซ้าย (20) ไปจบที่ขอบบนของการ์ดขวา (100)
+    expect(path?.getAttribute("d")).toContain("M 80 20 C");
+    expect(path?.getAttribute("d")).toContain("230 26");
   });
 
   it("ไม่ throw และไม่วาดเส้นเมื่อหา element ของการ์ดไม่เจอ", () => {

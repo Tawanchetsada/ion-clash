@@ -8,6 +8,8 @@ import { IonCard } from "./IonCard";
 export type IonSlotProps = {
   slotId: string;
   slotLabelTh: string;
+  /** บทบาทที่ช่องนี้รับ เช่น "ไอออนบวก" — แสดงในช่องว่างเพื่อกันวางสลับ */
+  roleHintTh?: string | undefined;
   assignedIon: IonCardView | null;
   isDropTarget?: boolean | undefined;
   disabled?: boolean | undefined;
@@ -27,6 +29,7 @@ export type IonSlotProps = {
 export function IonSlot({
   slotId,
   slotLabelTh,
+  roleHintTh,
   assignedIon,
   isDropTarget = false,
   disabled = false,
@@ -73,11 +76,20 @@ export function IonSlot({
       disabled={disabled}
       onClick={onActivate}
       aria-label={`${slotLabelTh} ${MESSAGES.ui.slotEmptySuffix}`}
-      className={`min-h-11 min-w-11 touch-none select-none rounded-card border-2 border-dashed px-4 py-3 text-2xl font-bold text-navy/70 transition-colors duration-150 ${
-        isDropTarget ? "border-gold bg-gold/10 scale-105" : "border-border"
+      className={`flex min-h-[4.5rem] min-w-[4.5rem] touch-none select-none flex-col items-center justify-center gap-0.5 rounded-card border-2 border-dashed px-3 py-2 text-navy/70 transition-colors duration-150 sm:min-w-[5rem] ${
+        isDropTarget ? "scale-105 border-gold bg-gold/10" : "border-border"
       }`}
     >
-      +
+      <span aria-hidden="true" className="text-2xl font-bold leading-none">
+        +
+      </span>
+      {/* บอกด้วยตาว่าช่องนี้รับไอออนบวกหรือลบ — ไม่ใช่รู้ได้เฉพาะ screen reader
+          ผู้เล่นที่จับคู่ถูกแล้วแต่วางสลับช่องจะโดนตีว่าตอบผิดโดยไม่รู้สาเหตุ */}
+      {roleHintTh && (
+        <span aria-hidden="true" className="text-[10px] leading-tight">
+          {roleHintTh}
+        </span>
+      )}
     </button>
   );
 }

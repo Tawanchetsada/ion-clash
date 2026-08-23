@@ -85,7 +85,7 @@ export function freeIonCounts(
 }
 
 /**
- * หาไอออนผู้ชม — species เดียวกัน ประจุเท่ากัน สถานะ aq ทั้งคู่
+ * หาไอออนตัวประกอบ — species เดียวกัน ประจุเท่ากัน สถานะ aq ทั้งคู่
  * และจำนวนเท่ากันทั้งสองข้าง
  *
  * จับคู่ด้วย ionId + charge + phase + count เท่านั้น ห้ามเทียบสตริงสูตร
@@ -124,7 +124,7 @@ export function findSpectators(model: ReactionModel): SpectatorPair[] {
 }
 
 /**
- * ตรวจว่าคู่ที่ผู้เล่นเลือกตัดเป็นไอออนผู้ชมจริงหรือไม่
+ * ตรวจว่าคู่ที่ผู้เล่นเลือกตัดเป็นไอออนตัวประกอบจริงหรือไม่
  * ตะกอนตัดไม่ได้เพราะไม่ได้แตกตัวเป็นไอออนอิสระ
  */
 export function isSpectator(model: ReactionModel, ionId: string): boolean {

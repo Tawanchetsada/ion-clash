@@ -1,12 +1,11 @@
 import { MESSAGES } from "../../config/messages";
 import type React from "react";
 import type { EquationCardView } from "../../presentation/cards";
-import { EquationView } from "./EquationView";
-import { TONE_CLASS } from "./tone";
+import { GameCardFace } from "./GameCard";
 
 export type EquationStripCard = {
   view: EquationCardView;
-  /** ตัดออกแล้ว (ไอออนผู้ชม) — เส้นขีดทับ + ต่อท้ายป้ายเสียง ไม่ใช่แค่สื่อด้วยสี */
+  /** ตัดออกแล้ว (ไอออนตัวประกอบ) — เส้นขีดทับ + ต่อท้ายป้ายเสียง ไม่ใช่แค่สื่อด้วยสี */
   struck?: boolean | undefined;
   selected?: boolean | undefined;
   onSelect?: (() => void) | undefined;
@@ -40,7 +39,7 @@ export function EquationStrip({
       tabIndex={0}
       className="equation-scroll min-w-0 flex items-center rounded-card bg-panel p-4 shadow-card"
     >
-      <div ref={innerRef} className="relative flex min-w-max items-center gap-2">
+      <div ref={innerRef} className="relative flex min-w-max items-center gap-2 py-7">
         {connector}
         {left.map((card, index) => (
           <EquationChip
@@ -50,7 +49,7 @@ export function EquationStrip({
             registerCardRef={registerCardRef}
           />
         ))}
-        <span aria-hidden="true" className="px-2 text-xl text-navy">
+        <span aria-hidden="true" className="px-2 text-2xl font-bold text-navy">
           →
         </span>
         {right.map((card, index) => (
@@ -78,18 +77,14 @@ function EquationChip({
   const { view, struck = false, selected = false, onSelect } = card;
   const ariaLabel = struck ? `${view.ariaLabel} ${MESSAGES.ui.struckSuffix}` : view.ariaLabel;
 
-  const chip = (
-    <span
-      ref={registerCardRef ? (el) => registerCardRef(view.instanceId, el) : undefined}
-      aria-label={onSelect ? undefined : ariaLabel}
-      className={`inline-flex min-h-11 items-center rounded-card px-3 py-2 font-bold shadow-card transition-colors duration-150 ${
-        TONE_CLASS[view.tone]
-      } ${struck ? "line-through opacity-50" : ""} ${
-        selected ? "ring-4 ring-focus-ring" : ""
-      }`}
-    >
-      <EquationView ast={view.formula} />
-    </span>
+  const face = (
+    <GameCardFace
+      formula={view.formula}
+      nameTh={view.nameTh}
+      phaseTh={view.phaseTh}
+      tone={view.tone}
+      struck={struck}
+    />
   );
 
   return (
@@ -100,15 +95,25 @@ function EquationChip({
           onClick={onSelect}
           aria-pressed={selected}
           aria-label={ariaLabel}
-          className="rounded-card"
+          ref={registerCardRef ? (el) => registerCardRef(view.instanceId, el) : undefined}
+          className={`rounded-card transition-transform duration-150 hover:-translate-y-0.5 ${
+            selected ? "ring-4 ring-focus-ring" : ""
+          }`}
         >
-          {chip}
+          {face}
         </button>
       ) : (
-        chip
+        <span
+          ref={registerCardRef ? (el) => registerCardRef(view.instanceId, el) : undefined}
+          aria-label={ariaLabel}
+          role="img"
+          className="inline-flex rounded-card"
+        >
+          {face}
+        </span>
       )}
       {showPlus && (
-        <span aria-hidden="true" className="text-navy">
+        <span aria-hidden="true" className="text-lg font-bold text-navy">
           +
         </span>
       )}

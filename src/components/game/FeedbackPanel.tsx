@@ -1,5 +1,6 @@
 import { MESSAGES } from "../../config/messages";
 import type { Feedback } from "../../domain/game/types";
+import { CheckCircleIcon, WarningIcon } from "../ui/Icon";
 
 export type FeedbackPanelProps = {
   feedback: Feedback | null;
@@ -23,8 +24,8 @@ export function FeedbackPanel({ feedback, onRetry }: FeedbackPanelProps) {
         isError ? "border-2 border-error text-navy" : "border-2 border-green text-navy"
       }`}
     >
-      <span aria-hidden="true" className={isError ? "text-error text-lg" : "text-green text-lg"}>
-        {isError ? "⚠" : "✓"}
+      <span className={isError ? "text-lg text-error" : "text-lg text-green"}>
+        {isError ? <WarningIcon /> : <CheckCircleIcon />}
       </span>
       <span>{feedback.messageTh}</span>
       {isError && onRetry && (

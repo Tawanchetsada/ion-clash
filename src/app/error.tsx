@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppHeader } from "../components/layout/AppHeader";
 import { PageShell } from "../components/layout/PageShell";
 import { Button } from "../components/ui/Button";
+import { WarningIcon } from "../components/ui/Icon";
 
 export default function ErrorBoundary({
   error,
@@ -27,9 +28,9 @@ export default function ErrorBoundary({
         <div className="max-w-md rounded-card bg-white p-8 shadow-card border border-error/30">
           <span
             aria-hidden="true"
-            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-error/10 text-2xl font-bold text-error"
+            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-error/10 text-2xl text-error"
           >
-            ⚠️
+            <WarningIcon />
           </span>
           <h1 className="text-2xl font-bold text-navy">เกิดข้อผิดพลาดในการทำงาน</h1>
           <p className="mt-2 text-sm text-navy/70">

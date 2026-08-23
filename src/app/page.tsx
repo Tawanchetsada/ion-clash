@@ -67,17 +67,11 @@ export default function Home() {
         <div className="flex max-w-lg flex-col items-center gap-8 rounded-card bg-white p-8 shadow-card border border-border sm:p-12 w-full">
           {/* Logo & Title */}
           <div className="flex flex-col items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="flex h-16 w-16 items-center justify-center rounded-full bg-gold text-2xl font-black text-navy shadow-card"
-            >
-              IC
-            </span>
             <h1 className="text-4xl font-extrabold tracking-tight text-navy">
               ION CLASH
             </h1>
             <p className="text-sm font-semibold text-navy/80">
-              แยกไอออน • สร้างตะกอน • ตัดไอออนผู้ชม
+              แยกไอออน • สร้างตะกอน • ตัดไอออนตัวประกอบ
             </p>
             <p className="text-xs text-navy/80">
               เกมเคมี ม.4 สำหรับเรียนรู้สมการไอออนิกและปฏิกิริยาการตกตะกอน

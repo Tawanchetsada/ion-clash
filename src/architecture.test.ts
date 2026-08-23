@@ -145,6 +145,16 @@ describe("ข้อจำกัดเชิงสถาปัตยกรรม"
     expect(offenders).toEqual([]);
   });
 
+  it("ไม่มีอิโมจิใน src/ — ไอคอนต้องมาจาก components/ui/Icon.tsx เท่านั้น", () => {
+    // อิโมจิเรนเดอร์ต่างกันคนละระบบปฏิบัติการ ปรับสีตามโทเค็นไม่ได้ และ
+    // screen reader อ่านชื่ออิโมจิออกมาเป็นคำที่ไม่เกี่ยวกับบริบท (เช่น "หยดน้ำ"
+    // แทนที่จะเป็น "ยังคงอยู่ในสารละลาย") — ทั้งสามข้อขัดข้อบังคับ a11y ของสเปก
+    const emoji =
+      /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{2705}\u{274C}\u{2713}\u{2714}\u{2717}\u{2718}\u{2605}\u{2606}]/u;
+    const offenders = findOffenders(emoji, () => false);
+    expect(offenders).toEqual([]);
+  });
+
   it("โทเค็นสี 6 ตัวใน globals.css ตรงกับตาราง Design System ในสเปกเป๊ะ", () => {
     const css = readFileSync(join(srcDir, "app", "globals.css"), "utf8");
     const expected: Readonly<Record<string, string>> = {
