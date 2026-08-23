@@ -72,6 +72,9 @@ export class AudioEngine {
 
     await Promise.all(
       (Object.entries(SOUND_FILES) as [SoundKey, string][]).map(async ([key, url]) => {
+        // โหลดแล้วไม่โหลดซ้ำ — preload() ถูกเรียกได้หลายครั้ง (เช่นผู้เล่นปิด
+        // แล้วเปิดเสียงใหม่ในหน้าตั้งค่า) ไม่ควรยิง network ซ้ำทุกครั้ง
+        if (this.buffers.has(key)) return;
         try {
           const data = await this.fetchAudio(url);
           const buffer = await context.decodeAudioData(data);

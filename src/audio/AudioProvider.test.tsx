@@ -37,9 +37,11 @@ beforeEach(() => {
 });
 
 describe("AudioProvider", () => {
-  it("ปลดล็อกเสียงเองที่การแตะหน้าจอครั้งแรก", async () => {
+  it("ปลดล็อกและโหลดไฟล์เสียงที่การแตะหน้าจอครั้งแรก ไม่ใช่ตอน mount", async () => {
     // ถ้าไม่มีใครเรียก unlock() เลย AudioContext จะค้างอยู่ที่ suspended
     // แล้วเกมจะเงียบสนิททั้งเกมโดยไม่มี error ให้เห็น
+    // ส่วนที่ไม่โหลดตอน mount เพราะ fetch ที่ค้างอยู่จะถูกยกเลิกถ้าเปลี่ยนหน้าทันที
+    // แล้ว WebKit รายงานเป็น error ระดับหน้า (เจอจริงบน CI)
     const user = userEvent.setup();
     render(
       <AudioProvider enabled={true}>
@@ -48,8 +50,11 @@ describe("AudioProvider", () => {
     );
 
     expect(unlockMock).not.toHaveBeenCalled();
+    expect(preloadMock).not.toHaveBeenCalled();
+
     await user.click(screen.getByRole("button", { name: "อะไรก็ได้" }));
     expect(unlockMock).toHaveBeenCalled();
+    expect(preloadMock).toHaveBeenCalled();
   });
 
   it("ไม่แตะ AudioContext เลยเมื่อผู้เล่นปิดเสียงไว้", async () => {
@@ -69,13 +74,25 @@ describe("AudioProvider", () => {
     expect(() => render(<Bare />)).toThrow("useAudio ต้องอยู่ใต้ AudioProvider");
   });
 
-  it("preload ถูกเรียกตอน mount เมื่อ enabled: true", () => {
-    render(
+  it("เปิดเสียงทีหลังหลังจากแตะหน้าจอไปแล้ว ต้องโหลดเสียงทันทีไม่ต้องรอแตะซ้ำ", async () => {
+    const user = userEvent.setup();
+    const view = render(
+      <AudioProvider enabled={false}>
+        <Harness />
+      </AudioProvider>,
+    );
+    // แตะระหว่างที่ปิดเสียงอยู่ — ยังไม่โหลดอะไร
+    await user.click(screen.getByRole("button", { name: "เล่นเสียง" }));
+    expect(preloadMock).not.toHaveBeenCalled();
+
+    // ผู้เล่นไปเปิดเสียงในหน้าตั้งค่า แล้วกลับมา — ตอนนี้แตะไปแล้วจึงโหลดได้เลย
+    view.rerender(
       <AudioProvider enabled>
         <Harness />
       </AudioProvider>,
     );
-    expect(preloadMock).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole("button", { name: "เล่นเสียง" }));
+    expect(preloadMock).toHaveBeenCalled();
   });
 
   it("ไม่ preload เมื่อ enabled: false — ไม่โหลดเสียงถ้าผู้เล่นปิดไว้", () => {

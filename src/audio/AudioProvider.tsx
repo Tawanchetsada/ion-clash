@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { AudioEngine } from "./engine";
 import type { ReactNode } from "react";
 import type { SoundKey } from "./sounds";
@@ -23,47 +23,58 @@ export function AudioProvider({ children, enabled }: AudioProviderProps) {
   const engineRef = useRef<AudioEngine | null>(null);
   engineRef.current ??= new AudioEngine();
 
-  useEffect(() => {
-    if (!enabled) return;
-    engineRef.current?.preload().catch(() => {
+  /*
+   * โหลดไฟล์เสียงและปลดล็อก AudioContext ที่การสัมผัสหน้าจอครั้งแรก ไม่ใช่ตอน mount
+   *
+   * **เรื่องปลดล็อก:** เบราว์เซอร์ทุกตัวสร้าง AudioContext มาในสถานะ `suspended`
+   * ถ้าไม่ได้สร้างระหว่าง user gesture และ `source.start()` บน context ที่ยัง
+   * suspended อยู่ **จะไม่มีเสียงออกลำโพงเลย โดยไม่มี error ใด ๆ** — อาการคือ
+   * เกมทำงานปกติทุกอย่างแต่เงียบสนิท ซึ่งเป็นสิ่งที่เกิดขึ้นจริงตลอดมาเพราะ
+   * ไม่มีใครเรียก `unlock()` สักที่ในแอป
+   *
+   * **เรื่องเวลาโหลด:** เดิม `preload()` ยิงตอน mount ทำให้มี fetch ค้างอยู่
+   * ระหว่างที่ผู้ใช้ยังไม่ได้ทำอะไรเลย ถ้าเปลี่ยนหน้าทันทีหลังเปิด (ซึ่งเทสต์ E2E
+   * ทำตลอด) fetch ถูกยกเลิกกลางคัน แล้ว WebKit รายงานเป็น error ระดับหน้าว่า
+   * "cannot load ... due to access control checks" ทั้งที่เกมไม่ได้พังอะไร
+   * — เจอจริงบน CI (Linux WebKit) เท่านั้น ในเครื่องพัฒนาไม่เคยเกิด
+   * โหลดตอนแตะครั้งแรกจึงดีกว่าทุกทาง: ไม่มี fetch ค้างตอนเปิดหน้า ไม่กิน
+   * แบนด์วิดท์ของคนที่เปิดผ่านแล้วปิดไป และตรงกับจังหวะที่ iOS ต้องการพอดี
+   *
+   * ดักที่ document แทนที่จะไปผูกกับปุ่มใดปุ่มหนึ่ง เพราะเสียงแรกที่ผู้เล่นควร
+   * ได้ยินคือเสียง "วางการ์ด" ซึ่งเกิดจากการลาก ไม่ใช่การกดปุ่ม ถ้าผูกกับปุ่ม
+   * เริ่มเกมอย่างเดียว คนที่เข้าหน้าเล่นตรง ๆ จากลิงก์จะยังเงียบอยู่ดี
+   */
+  const startedRef = useRef(false);
+
+  const start = useCallback(() => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    startedRef.current = true;
+    void engine.unlock();
+    engine.preload().catch(() => {
       // โหลดเสียงไม่สำเร็จ — เกมเล่นต่อได้ปกติ เสียงเป็นส่วนเสริมเท่านั้น
     });
-  }, [enabled]);
+  }, []);
 
-  /*
-   * ปลดล็อกเสียงที่การสัมผัสหน้าจอครั้งแรก ไม่ว่าจะแตะตรงไหน
-   *
-   * เบราว์เซอร์ทุกตัวสร้าง AudioContext ขึ้นมาในสถานะ `suspended` ถ้าไม่ได้สร้าง
-   * ระหว่าง user gesture และ `source.start()` บน context ที่ยัง suspended อยู่
-   * **จะไม่มีเสียงออกลำโพงเลย โดยไม่มี error ใด ๆ** — อาการคือเกมทำงานปกติทุก
-   * อย่างแต่เงียบสนิท ซึ่งเป็นสิ่งที่เกิดขึ้นจริงเพราะไม่มีใครเรียก unlock()
-   * สักที่ในแอป
-   *
-   * ดักที่ document แทนที่จะไปไล่ผูกกับปุ่มใดปุ่มหนึ่ง เพราะเสียงแรกที่ผู้เล่น
-   * ควรได้ยินคือเสียง "วางการ์ด" ซึ่งเกิดจากการลาก ไม่ใช่การกดปุ่ม ถ้าผูกกับ
-   * ปุ่มเริ่มเกมอย่างเดียว คนที่เข้าหน้าเล่นตรง ๆ จากลิงก์จะยังเงียบอยู่ดี
-   *
-   * `pointerdown` ครอบทั้งเมาส์และนิ้ว ส่วน `keydown` ไว้ให้คนที่เล่นด้วย
-   * คีย์บอร์ดล้วน — ทั้งสองนับเป็น user gesture ที่ถูกต้องตามข้อกำหนดของ iOS
-   * `once: true` ทำให้ถอดตัวเองหลังทำงานครั้งเดียว ไม่ต้องเช็กสถานะซ้ำทุกคลิก
-   */
   useEffect(() => {
     if (!enabled) return;
 
-    const unlock = () => {
-      void engineRef.current?.unlock();
-    };
+    // ผู้เล่นเปิดเสียงทีหลังในหน้าตั้งค่า — แตะหน้าจอไปแล้วแน่นอน โหลดได้เลย
+    if (startedRef.current) {
+      start();
+      return;
+    }
 
-    document.addEventListener("pointerdown", unlock, { once: true });
-    document.addEventListener("keydown", unlock, { once: true });
-    document.addEventListener("touchend", unlock, { once: true });
+    document.addEventListener("pointerdown", start, { once: true });
+    document.addEventListener("keydown", start, { once: true });
+    document.addEventListener("touchend", start, { once: true });
 
     return () => {
-      document.removeEventListener("pointerdown", unlock);
-      document.removeEventListener("keydown", unlock);
-      document.removeEventListener("touchend", unlock);
+      document.removeEventListener("pointerdown", start);
+      document.removeEventListener("keydown", start);
+      document.removeEventListener("touchend", start);
     };
-  }, [enabled]);
+  }, [enabled, start]);
 
   const value = useMemo<AudioContextValue>(
     () => ({
