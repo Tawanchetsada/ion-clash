@@ -139,21 +139,21 @@ export default function LevelIntroPage({
         </div>
 
         {/* Reactants Equation Display — แถวเดียวเสมอ */}
-        <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 rounded-2xl border border-border bg-white p-4 shadow-card sm:p-6 max-w-full overflow-x-auto">
+        <div className="flex flex-row items-center justify-center gap-1.5 sm:gap-4 rounded-2xl border border-border bg-white p-3 sm:p-6 shadow-card max-w-full overflow-hidden">
           <CompoundCard view={reactant1View} />
-          <span className="text-xl sm:text-2xl font-bold text-navy shrink-0">+</span>
+          <span className="text-lg sm:text-2xl font-bold text-navy shrink-0">+</span>
           <CompoundCard view={reactant2View} />
 
-          <EquationArrow responsive={false} className="shrink-0 mx-1" />
+          <EquationArrow responsive={false} className="shrink-0 mx-0.5 sm:mx-1 text-sm sm:text-base" />
 
           {/* Mystery Product */}
           <div
             role="group"
             aria-label="ผลิตภัณฑ์ที่ต้องค้นหา"
-            className="flex min-w-[72px] sm:min-w-[96px] flex-col items-center justify-center rounded-card border-2 border-dashed border-navy/30 bg-canvas px-3 py-3 sm:px-6 sm:py-4 shrink-0"
+            className="flex min-w-[3.75rem] sm:min-w-[5rem] flex-col items-center justify-center rounded-card border-2 border-dashed border-navy/30 bg-canvas px-2.5 py-2 sm:px-4 sm:py-3 shrink-0"
           >
-            <span className="text-xl sm:text-2xl font-bold text-navy">?</span>
-            <span className="text-[11px] sm:text-xs text-navy/80">ผลิตภัณฑ์</span>
+            <span className="text-lg sm:text-2xl font-bold text-navy">?</span>
+            <span className="text-[9px] sm:text-xs text-navy/80">ผลิตภัณฑ์</span>
           </div>
         </div>
 

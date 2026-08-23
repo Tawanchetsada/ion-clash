@@ -1,12 +1,13 @@
-import { GameCardFace } from "./GameCard";
+import { GameCardFace, type GameCardSize } from "./GameCard";
 import type { CompoundCardView } from "../../presentation/cards";
 
 export type CompoundCardProps = {
   view: CompoundCardView;
+  size?: GameCardSize;
 };
 
 /** การ์ดสารประกอบ — แสดงอย่างเดียว ไม่ส่ง event ตาม Component Contract ในสเปก */
-export function CompoundCard({ view }: CompoundCardProps) {
+export function CompoundCard({ view, size }: CompoundCardProps) {
   return (
     <div role="group" aria-label={view.ariaLabel} className="inline-flex">
       <GameCardFace
@@ -14,6 +15,7 @@ export function CompoundCard({ view }: CompoundCardProps) {
         nameTh={view.nameTh}
         phaseTh={view.phaseTh}
         tone={view.tone}
+        {...(size !== undefined ? { size } : {})}
       />
     </div>
   );
