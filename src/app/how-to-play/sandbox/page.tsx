@@ -203,7 +203,7 @@ export default function HowToPlaySandboxPage() {
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 pb-32">
         {/* Navigation Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border pb-4">
+        <div className="flex items-center justify-between gap-2 border-b border-border pb-3">
           <Button
             variant="outline"
             className="text-xs py-1.5 px-3"
@@ -211,18 +211,19 @@ export default function HowToPlaySandboxPage() {
           >
             กลับไปหน้าวิธีเล่น
           </Button>
-          <div className="flex items-center gap-2 text-sm font-bold text-navy">
-            <FlaskIcon className="text-gold text-lg shrink-0" />
-            <span>กระดานทดลองเล่นจริง (Interactive Sandbox)</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-gold-surface border border-gold/40 px-3 py-1 text-xs font-bold text-navy shadow-2xs">
+            <FlaskIcon className="text-gold text-sm shrink-0" />
+            <span className="hidden sm:inline">กระดานทดลองเล่นจริง (Interactive Sandbox)</span>
+            <span className="sm:hidden">กระดานทดลองเล่น</span>
           </div>
         </div>
 
         {/* Title */}
-        <div className="text-center">
+        <div className="text-center space-y-1">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-navy">
             ทดลองจัดเรียงไอออนและดุลสมการเคมี
           </h1>
-          <p className="mt-1 text-sm text-navy/70">
+          <p className="text-xs sm:text-sm text-navy/70 max-w-xl mx-auto">
             สารตั้งต้นตัวอย่าง: แคลเซียมคลอไรด์ (CaCl₂) + โซเดียมซัลเฟต (Na₂SO₄)
           </p>
         </div>
@@ -247,7 +248,7 @@ export default function HowToPlaySandboxPage() {
 
           <div className="flex flex-col gap-4">
             {/* สมการสารตั้งต้น -> ช่องผลิตภัณฑ์ */}
-            <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-navy/15 bg-canvas/60 p-4 md:flex-row">
+            <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 rounded-xl border border-navy/15 bg-canvas/60 p-3 sm:p-4 md:flex-row">
               {/* สารตั้งต้นทั้งสองตัว */}
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <span className="rounded-card border border-navy/15 bg-white px-3 py-2 text-sm sm:text-base font-bold text-navy shadow-2xs">
@@ -267,9 +268,9 @@ export default function HowToPlaySandboxPage() {
               </div>
 
               {/* ช่องวางไอออนผลิตภัณฑ์ 2 คู่ */}
-              <div className="flex flex-wrap items-center justify-center gap-3">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
                 {/* คู่ที่ 1 (ตะกอน) */}
-                <div className="flex items-center gap-2 rounded-xl border-2 border-gold/60 bg-gold-surface p-2 shadow-2xs">
+                <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl border-2 border-gold/60 bg-gold-surface p-2 shadow-2xs">
                   {renderSlot("tut-slot-0", "ช่องที่ 1 (ไอออนบวก คู่ที่ 1)", "ไอออนบวก")}
                   {renderSlot("tut-slot-1", "ช่องที่ 2 (ไอออนลบ คู่ที่ 1)", "ไอออนลบ")}
                 </div>
@@ -277,7 +278,7 @@ export default function HowToPlaySandboxPage() {
                 <span className="text-lg font-bold text-navy/40">+</span>
 
                 {/* คู่ที่ 2 (สารละลาย) */}
-                <div className="flex items-center gap-2 rounded-xl border border-navy/20 bg-white/60 p-2 shadow-2xs">
+                <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-navy/20 bg-white/60 p-2 shadow-2xs">
                   {renderSlot("tut-slot-2", "ช่องที่ 3 (ไอออนบวก คู่ที่ 2)", "ไอออนบวก")}
                   {renderSlot("tut-slot-3", "ช่องที่ 4 (ไอออนลบ คู่ที่ 2)", "ไอออนลบ")}
                 </div>
@@ -285,8 +286,8 @@ export default function HowToPlaySandboxPage() {
             </div>
 
             {/* แหล่งการ์ดไอออนอิสระให้หยิบวาง */}
-            <div className="flex flex-col gap-2 rounded-xl border border-border bg-panel p-4">
-              <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 rounded-xl border border-border bg-panel p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span className="text-xs font-bold text-navy">
                   การ์ดไอออนสารตั้งต้นที่แตกตัวแล้ว (ลากหรือแตะเพื่อนำไปวางในช่องด้านบน):
                 </span>
@@ -294,11 +295,13 @@ export default function HowToPlaySandboxPage() {
                   เหลือ {freeCards.length} / {allCards.length} ใบ
                 </span>
               </div>
-              <div className="flex min-h-[5.5rem] flex-wrap items-center justify-center gap-3 py-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 min-h-[5.5rem] py-2 justify-items-center">
                 {freeCards.length === 0 ? (
-                  <span className="text-xs text-navy/50 italic">
-                    วางการ์ดครบทุกใบแล้ว (กดปุ่มถังขยะใต้ช่องเพื่อนำออก)
-                  </span>
+                  <div className="col-span-2 sm:col-span-4 flex items-center justify-center py-4">
+                    <span className="text-xs text-navy/50 italic">
+                      วางการ์ดครบทุกใบแล้ว (กดปุ่มถังขยะใต้ช่องเพื่อนำออก)
+                    </span>
+                  </div>
                 ) : (
                   freeCards.map((c) => {
                     const source: PlacementSource = { kind: "card", instanceId: c.instanceId };
@@ -360,11 +363,11 @@ export default function HowToPlaySandboxPage() {
           <div className="flex flex-col gap-4">
             {/* ตะกอน CaSO4 */}
             <div className="flex flex-col gap-3 rounded-xl border border-gold/40 bg-gold-surface p-4 sm:p-5">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <span className="rounded-md bg-gold-light px-2.5 py-1 text-xs font-bold text-navy self-start">
+              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1.5 border-b border-gold/30 pb-2.5 text-center sm:text-left">
+                <span className="rounded-full bg-gold-light px-3 py-1 text-xs font-bold text-navy shadow-2xs">
                   {MESSAGES.ui.crissCrossPrecipLabel}
                 </span>
-                <span className="text-sm font-semibold text-navy">
+                <span className="text-sm sm:text-base font-bold text-navy">
                   {tutorialLevel.precipitate.nameTh}
                 </span>
               </div>
@@ -392,9 +395,9 @@ export default function HowToPlaySandboxPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 px-2 text-center text-gold font-bold text-sm sm:text-base md:flex-col">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 text-center text-gold font-bold text-xs sm:text-base">
                   <span>คูณไขว้ประจุ</span>
-                  <EquationArrow breakpoint="md" className="text-gold text-lg sm:text-xl" />
+                  <EquationArrow breakpoint="md" className="text-gold text-base sm:text-xl" />
                 </div>
 
                 <div className="flex flex-col items-center">
@@ -415,11 +418,11 @@ export default function HowToPlaySandboxPage() {
 
             {/* สารละลาย NaCl */}
             <div className="flex flex-col gap-3 rounded-xl border border-navy/15 bg-canvas/60 p-4 sm:p-5">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <span className="rounded-md bg-blue/15 px-2.5 py-1 text-xs font-bold text-navy self-start">
+              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1.5 border-b border-navy/10 pb-2.5 text-center sm:text-left">
+                <span className="rounded-full bg-blue/15 px-3 py-1 text-xs font-bold text-blue shadow-2xs">
                   {MESSAGES.ui.crissCrossAqLabel}
                 </span>
-                <span className="text-sm font-semibold text-navy">
+                <span className="text-sm sm:text-base font-bold text-navy">
                   {tutorialLevel.aqueousProduct.nameTh}
                 </span>
               </div>
@@ -447,9 +450,9 @@ export default function HowToPlaySandboxPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 px-2 text-center text-blue font-bold text-sm sm:text-base md:flex-col">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 text-center text-blue font-bold text-xs sm:text-base">
                   <span>คูณไขว้ประจุ</span>
-                  <EquationArrow breakpoint="md" className="text-blue text-lg sm:text-xl" />
+                  <EquationArrow breakpoint="md" className="text-blue text-base sm:text-xl" />
                 </div>
 
                 <div className="flex flex-col items-center">
