@@ -169,7 +169,7 @@ export function Step2({ state, level, dispatch, onPlaySound }: Step2Props) {
       </div>
 
       {/* Arrow Down Indicator */}
-      <span className="text-lg font-bold text-navy/40">↓ จับคู่เป็นผลิตภัณฑ์</span>
+      <span className="text-lg font-bold text-navy/70">↓ จับคู่เป็นผลิตภัณฑ์</span>
 
       {/* Product Target Slots (2 pairs) */}
       <div className="flex flex-wrap items-center justify-center gap-6">

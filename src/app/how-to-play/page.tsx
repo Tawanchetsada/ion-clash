@@ -237,7 +237,7 @@ export default function HowToPlayPage() {
               </div>
             </div>
 
-            <span className="text-base font-bold text-navy/40">↓ จับคู่เป็น 2 ผลิตภัณฑ์</span>
+            <span className="text-base font-bold text-navy/70">↓ จับคู่เป็น 2 ผลิตภัณฑ์</span>
 
             {/* Product Slots */}
             <div className="flex flex-wrap items-center justify-center gap-4">
@@ -415,7 +415,7 @@ export default function HowToPlayPage() {
 
             <div className="flex flex-col items-center gap-2 rounded-card bg-green/10 p-4 text-center border border-green/30">
               <span className="inline-block h-4 w-12 rounded-full bg-green" />
-              <span className="font-bold text-green text-sm">สีเขียว (Green)</span>
+              <span className="font-bold text-navy text-sm">สีเขียว (Green)</span>
               <p className="text-xs text-navy/70">
                 ใช้ระบุ<strong>สถานะถูกต้อง</strong> หรือสมการที่ตรวจผ่านแล้ว
               </p>
@@ -446,17 +446,17 @@ export default function HowToPlayPage() {
             <div className="rounded-card bg-canvas p-4 border border-border">
               <h4 className="font-bold text-navy mb-2">เกณฑ์การได้รับดาว:</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                <div className="rounded-card bg-white p-3 border border-border">
+                <div className="rounded-card bg-navy p-3 border border-navy text-white">
                   <span className="text-lg text-gold font-bold">★★★ 3 ดาว</span>
-                  <p className="text-xs text-navy/70 mt-1">{SCORING.starThresholds.three} – {SCORING.startScore} คะแนน</p>
+                  <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.three} – {SCORING.startScore} คะแนน</p>
                 </div>
-                <div className="rounded-card bg-white p-3 border border-border">
+                <div className="rounded-card bg-navy p-3 border border-navy text-white">
                   <span className="text-lg text-gold font-bold">★★☆ 2 ดาว</span>
-                  <p className="text-xs text-navy/70 mt-1">{SCORING.starThresholds.two} – {SCORING.starThresholds.three - 1} คะแนน</p>
+                  <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.two} – {SCORING.starThresholds.three - 1} คะแนน</p>
                 </div>
-                <div className="rounded-card bg-white p-3 border border-border">
+                <div className="rounded-card bg-navy p-3 border border-navy text-white">
                   <span className="text-lg text-gold font-bold">★☆☆ 1 ดาว</span>
-                  <p className="text-xs text-navy/70 mt-1">{SCORING.starThresholds.one} – {SCORING.starThresholds.two - 1} คะแนน</p>
+                  <p className="text-xs text-white/80 mt-1">{SCORING.starThresholds.one} – {SCORING.starThresholds.two - 1} คะแนน</p>
                 </div>
               </div>
             </div>

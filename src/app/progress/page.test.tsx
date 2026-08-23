@@ -56,7 +56,7 @@ describe("Progress Page (/progress)", () => {
 
     expect(screen.getByText("StudentB")).toBeInTheDocument();
     expect(screen.getByText("1 / 50")).toBeInTheDocument();
-    expect(screen.getByText("★ 3")).toBeInTheDocument();
+    expect(screen.getByText("ดาวรวม").parentElement).toHaveTextContent("3");
     expect(screen.getByText("100")).toBeInTheDocument();
 
     expect(

@@ -83,7 +83,7 @@ export default function SettingsPage() {
                 บันทึก
               </Button>
             </div>
-            <p className="text-xs text-navy/60">
+            <p className="text-xs text-navy/80">
               * แนะนำให้ใช้ชื่อเล่นหรือรหัสนิสิตแทนชื่อจริงเต็ม
             </p>
           </div>
@@ -97,13 +97,14 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between border-b border-border/60 pb-3">
             <div>
               <div className="font-semibold text-navy">เสียงเอฟเฟกต์ (Sound Effects)</div>
-              <div className="text-xs text-navy/60">
+              <div className="text-xs text-navy/80">
                 เสียงวางการ์ด เสียงตรวจถูก/ผิด และเสียงผ่านด่าน
               </div>
             </div>
             <button
               type="button"
               role="switch"
+              aria-label="เปิดปิดเสียงเอฟเฟกต์"
               aria-checked={save.settings.sound}
               onClick={() => handleToggleSetting("sound", !save.settings.sound)}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
@@ -122,13 +123,14 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between border-b border-border/60 pb-3">
             <div>
               <div className="font-semibold text-navy">เพลงพื้นหลัง (Music)</div>
-              <div className="text-xs text-navy/60">
+              <div className="text-xs text-navy/80">
                 เพลงบรรเลงประกอบระหว่างการเล่น (ปิดไว้เป็นค่าเริ่มต้นเพื่อสมาธิ)
               </div>
             </div>
             <button
               type="button"
               role="switch"
+              aria-label="เปิดปิดเพลงพื้นหลัง"
               aria-checked={save.settings.music}
               onClick={() => handleToggleSetting("music", !save.settings.music)}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
@@ -147,13 +149,14 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between border-b border-border/60 pb-3">
             <div>
               <div className="font-semibold text-navy">ลดการเคลื่อนไหว (Reduced Motion)</div>
-              <div className="text-xs text-navy/60">
+              <div className="text-xs text-navy/80">
                 ปิดอนิเมชันการลากและเอฟเฟกต์การเคลื่อนไหว เหมาะสำหรับผู้ที่ไวต่อภาพเคลื่อนไหว
               </div>
             </div>
             <button
               type="button"
               role="switch"
+              aria-label="เปิดปิดการลดการเคลื่อนไหว"
               aria-checked={save.settings.reducedMotion}
               onClick={() =>
                 handleToggleSetting("reducedMotion", !save.settings.reducedMotion)
@@ -174,13 +177,14 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-semibold text-navy">ยินยอมส่งข้อมูลวิจัย (Research Data Consent)</div>
-              <div className="text-xs text-navy/60">
+              <div className="text-xs text-navy/80">
                 ส่งสถิติคะแนน เวลา และข้อผิดพลาดไปยังระบบบันทึกผลงานวิจัยเพื่อประเมินสื่อการเรียนรู้ (D-06, D-14)
               </div>
             </div>
             <button
               type="button"
               role="switch"
+              aria-label="เปิดปิดการยินยอมส่งข้อมูลวิจัย"
               aria-checked={save.settings.researchConsent}
               onClick={() =>
                 handleToggleSetting("researchConsent", !save.settings.researchConsent)
@@ -202,7 +206,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between rounded-card bg-canvas p-4 border border-navy/10">
           <div>
             <div className="font-semibold text-navy">การสำรองและกู้คืนข้อมูล</div>
-            <div className="text-xs text-navy/60">ส่งออกเป็นไฟล์ JSON หรือรีเซ็ตความก้าวหน้า</div>
+            <div className="text-xs text-navy/80">ส่งออกเป็นไฟล์ JSON หรือรีเซ็ตความก้าวหน้า</div>
           </div>
           <Link
             href="/progress"

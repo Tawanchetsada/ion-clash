@@ -97,7 +97,7 @@ export default function KnowledgePage() {
                       <span>+</span>
                       <EquationView ast={t1.clIon} />
                       <span>(aq)</span>
-                      <span className="text-xs text-navy/60 font-normal">
+                      <span className="text-xs text-navy/80 font-normal">
                         (อัตราส่วน 1 : 1 ได้อย่างละ 1 ไอออน)
                       </span>
                     </div>
@@ -112,7 +112,7 @@ export default function KnowledgePage() {
                       <span>+</span>
                       <EquationView ast={t1.twoClIon} />
                       <span>(aq)</span>
-                      <span className="text-xs text-navy/60 font-normal">
+                      <span className="text-xs text-navy/80 font-normal">
                         (อัตราส่วน 1 : 2 ได้คลอไรด์ไอออน 2 ไอออน)
                       </span>
                     </div>
@@ -198,7 +198,7 @@ export default function KnowledgePage() {
                     </tbody>
                   </table>
                 </div>
-                <p className="text-xs text-navy/60">
+                <p className="text-xs text-navy/80">
                   * ลำดับของกฎมีความสำคัญมาก: หากมีหลายกฎที่ดูเหมือนจะใช้ได้ ให้ใช้กฎที่อยู่ข้อบนสุดเป็นหลักในการตัดสิน
                 </p>
               </div>
@@ -247,10 +247,10 @@ export default function KnowledgePage() {
                       <EquationView ast={t3.reactantB.formula} />
                       <span className="font-normal text-navy/70">(aq)</span>
                       <span>→</span>
-                      <span className="text-gold font-bold">
+                      <span className="inline-flex items-center gap-1 bg-gold text-navy px-2 py-0.5 rounded-md font-bold shadow-xs">
                         <EquationView ast={t3.precipitate.formula} />
+                        <span>(s)</span>
                       </span>
-                      <span className="text-gold font-bold">(s)</span>
                       <span>+</span>
                       <span>2</span>
                       <EquationView ast={t3.aqueousProduct.formula} />
@@ -266,17 +266,17 @@ export default function KnowledgePage() {
                     <div className="flex flex-wrap items-center gap-2 text-sm bg-white p-3 rounded-card border border-border">
                       <span className="font-bold">Ca²⁺(aq)</span>
                       <span>+</span>
-                      <span className="line-through text-navy/40 font-bold bg-error/10 px-1 rounded">2Cl⁻(aq)</span>
+                      <span className="line-through text-navy/70 font-bold bg-error/10 px-1 rounded">2Cl⁻(aq)</span>
                       <span>+</span>
-                      <span className="line-through text-navy/40 font-bold bg-error/10 px-1 rounded">2Na⁺(aq)</span>
+                      <span className="line-through text-navy/70 font-bold bg-error/10 px-1 rounded">2Na⁺(aq)</span>
                       <span>+</span>
                       <span className="font-bold">SO₄²⁻(aq)</span>
                       <span>→</span>
-                      <span className="font-bold text-gold">CaSO₄(s)</span>
+                      <span className="inline-flex items-center bg-gold text-navy px-1.5 py-0.5 rounded font-bold shadow-xs">CaSO₄(s)</span>
                       <span>+</span>
-                      <span className="line-through text-navy/40 font-bold bg-error/10 px-1 rounded">2Na⁺(aq)</span>
+                      <span className="line-through text-navy/70 font-bold bg-error/10 px-1 rounded">2Na⁺(aq)</span>
                       <span>+</span>
-                      <span className="line-through text-navy/40 font-bold bg-error/10 px-1 rounded">2Cl⁻(aq)</span>
+                      <span className="line-through text-navy/70 font-bold bg-error/10 px-1 rounded">2Cl⁻(aq)</span>
                     </div>
                     <p className="text-xs text-error font-medium">
                       * ตัด 2Na⁺(aq) และ 2Cl⁻(aq) ออกทั้งสองข้างเนื่องจากเป็นไอออนผู้ชม
@@ -293,7 +293,7 @@ export default function KnowledgePage() {
                       <span>+</span>
                       <span>SO₄²⁻(aq)</span>
                       <span>→</span>
-                      <span className="text-gold">CaSO₄(s)</span>
+                      <span className="inline-flex items-center bg-gold text-navy px-2 py-0.5 rounded-md font-bold shadow-xs">CaSO₄(s)</span>
                     </div>
                   </div>
                 </div>
@@ -349,7 +349,7 @@ export default function KnowledgePage() {
                 <div className="rounded-card bg-canvas p-4 border border-border text-sm">
                   <h4 className="font-bold text-navy mb-2">ทำไม 2 : 2 → 2 จึงยังไม่ถูกต้อง?</h4>
                   <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2 font-semibold text-navy/60">
+                    <div className="flex flex-wrap items-center gap-2 font-semibold text-navy/80">
                       <span className="line-through flex items-center gap-1">
                         <EquationView ast={t4.twoAgIon} />
                         <span>(aq)</span>

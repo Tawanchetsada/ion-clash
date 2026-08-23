@@ -135,7 +135,7 @@ export default function LevelIntroPage({
             className="flex flex-col items-center justify-center rounded-card border-2 border-dashed border-navy/30 bg-canvas px-6 py-4"
           >
             <span className="text-2xl font-bold text-navy">?</span>
-            <span className="text-xs text-navy/60">ผลิตภัณฑ์</span>
+            <span className="text-xs text-navy/80">ผลิตภัณฑ์</span>
           </div>
         </div>
 

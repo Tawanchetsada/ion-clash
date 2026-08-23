@@ -79,7 +79,7 @@ export default function Home() {
             <p className="text-sm font-semibold text-navy/80">
               แยกไอออน • สร้างตะกอน • ตัดไอออนผู้ชม
             </p>
-            <p className="text-xs text-navy/60">
+            <p className="text-xs text-navy/80">
               เกมเคมี ม.4 สำหรับเรียนรู้สมการไอออนิกและปฏิกิริยาการตกตะกอน
             </p>
           </div>
@@ -120,13 +120,13 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-3 border-t border-border pt-6 w-full text-sm">
             <Link
               href="/how-to-play"
-              className="min-h-11 inline-flex items-center justify-center rounded-card bg-blue/10 px-4 py-2 font-semibold text-blue hover:bg-blue/20"
+              className="min-h-11 inline-flex items-center justify-center rounded-card border border-blue/30 bg-blue/10 px-4 py-2 font-semibold text-navy hover:bg-blue/20"
             >
               วิธีการเล่น
             </Link>
             <Link
               href="/knowledge"
-              className="min-h-11 inline-flex items-center justify-center rounded-card bg-green/10 px-4 py-2 font-semibold text-green hover:bg-green/20"
+              className="min-h-11 inline-flex items-center justify-center rounded-card border border-green/30 bg-green/10 px-4 py-2 font-semibold text-navy hover:bg-green/20"
             >
               ความรู้ก่อนเล่นเกม
             </Link>

@@ -248,14 +248,14 @@ export default function ResearchPage() {
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                     summary.e1Passed
-                      ? "bg-green/10 text-green"
-                      : "bg-error/10 text-error"
+                      ? "bg-green text-white"
+                      : "bg-error text-white"
                   }`}
                 >
                   {summary.e1Passed ? "ผ่านเกณฑ์ (≥80)" : "ไม่ผ่านเกณฑ์"}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-navy/60">
+              <p className="mt-2 text-xs text-navy/80">
                 คำนวณจากคะแนนเกมรายด่านของผู้เรียนทุกคน ({summary.participants.length} คน)
               </p>
             </div>
@@ -273,15 +273,15 @@ export default function ResearchPage() {
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                       summary.e2Passed
-                        ? "bg-green/10 text-green"
-                        : "bg-error/10 text-error"
+                        ? "bg-green text-white"
+                        : "bg-error text-white"
                     }`}
                   >
                     {summary.e2Passed ? "ผ่านเกณฑ์ (≥80)" : "ไม่ผ่านเกณฑ์"}
                   </span>
                 )}
               </div>
-              <p className="mt-2 text-xs text-navy/60">
+              <p className="mt-2 text-xs text-navy/80">
                 คำนวณจากคะแนนแบบทดสอบกระดาษหลังเรียน
               </p>
             </div>
@@ -328,7 +328,12 @@ export default function ResearchPage() {
             </Button>
           </div>
 
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto focus:ring-2 focus:ring-focus-ring rounded-card"
+            tabIndex={0}
+            role="region"
+            aria-label="ตารางสรุปผลรายบุคคล"
+          >
             <table className="w-full text-left text-sm text-navy border-collapse">
               <thead>
                 <tr className="border-b border-border bg-canvas/60 text-xs font-bold text-navy/70">
@@ -343,7 +348,7 @@ export default function ResearchPage() {
               <tbody className="divide-y divide-border/60">
                 {summary.participants.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-navy/50">
+                    <td colSpan={6} className="p-6 text-center text-navy/80">
                       ยังไม่มีข้อมูลผู้เรียน กรุณานำเข้าข้อมูลในส่วนที่ 1
                     </td>
                   </tr>
@@ -383,7 +388,7 @@ export default function ResearchPage() {
                               }}
                               className="h-8 w-16 rounded border border-border px-2 text-center text-sm font-bold text-navy"
                             />
-                            <span className="text-xs text-navy/50">/ {defaultMaxE2}</span>
+                            <span className="text-xs text-navy/80">/ {defaultMaxE2}</span>
                           </div>
                         </td>
                         <td className="p-3 text-right font-bold text-green">
@@ -487,7 +492,12 @@ export default function ResearchPage() {
             </div>
           </div>
 
-          <div className="max-h-96 overflow-y-auto border border-border rounded-card">
+          <div
+            className="max-h-96 overflow-y-auto border border-border rounded-card focus:ring-2 focus:ring-focus-ring"
+            tabIndex={0}
+            role="region"
+            aria-label="ตารางบันทึกเหตุการณ์รายด่านทั้งหมด"
+          >
             <table className="w-full text-left text-xs text-navy border-collapse">
               <thead className="sticky top-0 bg-canvas text-navy/80 font-bold border-b border-border">
                 <tr>
@@ -504,7 +514,7 @@ export default function ResearchPage() {
               <tbody className="divide-y divide-border/60">
                 {filteredEvents.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="p-6 text-center text-navy/50">
+                    <td colSpan={8} className="p-6 text-center text-navy/80">
                       ไม่มีรายการบันทึก
                     </td>
                   </tr>
@@ -520,7 +530,11 @@ export default function ResearchPage() {
                         <td className="p-2.5 text-center font-bold">ด่าน {ev.levelId}</td>
                         <td className="p-2.5 text-center">{ev.attemptNo}</td>
                         <td className="p-2.5 text-right font-bold text-blue">{ev.score}</td>
-                        <td className="p-2.5 text-center text-gold">{"★".repeat(ev.stars)}</td>
+                        <td className="p-2.5 text-center">
+                          <span className="inline-flex items-center justify-center bg-navy text-gold px-1.5 py-0.5 rounded text-xs font-bold shadow-xs">
+                            {"★".repeat(ev.stars)}
+                          </span>
+                        </td>
                         <td className="p-2.5 text-right">{Math.round(ev.elapsedMs / 1000)}วิ</td>
                         <td className="p-2.5 text-center">
                           {ev.hintsUsed} ใบ้ / {ev.wrongAttempts} ผิด

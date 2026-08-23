@@ -19,11 +19,13 @@ export function FeedbackPanel({ feedback, onRetry }: FeedbackPanelProps) {
   return (
     <div
       role={isError ? "alert" : "status"}
-      className={`flex items-center gap-3 rounded-card p-3 font-semibold ${
-        isError ? "border border-error text-error" : "border border-green text-green"
+      className={`flex items-center gap-3 rounded-card bg-white p-3 font-bold shadow-card ${
+        isError ? "border-2 border-error text-navy" : "border-2 border-green text-navy"
       }`}
     >
-      <span aria-hidden="true">{isError ? "⚠" : "✓"}</span>
+      <span aria-hidden="true" className={isError ? "text-error text-lg" : "text-green text-lg"}>
+        {isError ? "⚠" : "✓"}
+      </span>
       <span>{feedback.messageTh}</span>
       {isError && onRetry && (
         <button

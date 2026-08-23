@@ -204,8 +204,9 @@ export default function ProgressPage() {
 
           <div className="flex flex-col items-center rounded-card bg-white p-4 text-center shadow-card border border-border">
             <span className="text-xs font-semibold text-navy/70">ดาวรวม</span>
-            <span className="mt-1 text-2xl font-bold text-gold">
-              ★ {totalStars}
+            <span className="mt-1 text-2xl font-bold text-navy">
+              <span className="inline-flex items-center justify-center bg-navy text-gold px-1.5 py-0.5 rounded text-lg mr-1 shadow-xs">★</span>
+              {totalStars}
             </span>
           </div>
 

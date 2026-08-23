@@ -4,9 +4,11 @@ import { correctSlotOrder, precipitateCardId } from "./__fixtures__/autoplay";
 import { createInitialState } from "./gameMachine";
 import {
   checkArrangement,
+  checkBalance,
   checkCancelPair,
   correctSpectatorPairs,
   isCancellationComplete,
+  isCardCanceled,
   needsBalancing,
   playerProducts,
 } from "./guards";
@@ -165,4 +167,36 @@ describe("ตรวจการตัดไอออนผู้ชม", () => {
       isCancellationComplete({ ...base, canceledPairs: [...pairs] }, level),
     ).toBe(true);
   });
+
+  it("isCardCanceled ตรวจสถานะการถูกตัดของการ์ด", () => {
+    const level = getLevel(1);
+    const [pair] = correctSpectatorPairs(level);
+    const base = createInitialState(level);
+
+    expect(isCardCanceled(base, pair!.leftInstanceId)).toBe(false);
+    expect(isCardCanceled(base, pair!.rightInstanceId)).toBe(false);
+
+    const withCut: GameState = {
+      ...base,
+      canceledPairs: [pair!],
+    };
+    expect(isCardCanceled(withCut, pair!.leftInstanceId)).toBe(true);
+    expect(isCardCanceled(withCut, pair!.rightInstanceId)).toBe(true);
+    expect(isCardCanceled(withCut, "other-instance")).toBe(false);
+  });
 });
+
+describe("ตรวจการดุลสัมประสิทธิ์ใน guards", () => {
+  it("checkBalance คืน E-PAIR ถ้ายังวางไอออนไม่ครบหรือผิดคู่", () => {
+    const level = getLevel(13);
+    const state = createInitialState(level);
+    expect(checkBalance(state, level)).toEqual({ ok: false, code: "E-PAIR" });
+  });
+
+  it("checkBalance คืน E-BALANCE ถ้ายังกรอกสัมประสิทธิ์ไม่ครบ 4 ช่อง", () => {
+    const level = getLevel(13);
+    const state = arranged(13, correctSlotOrder(level));
+    expect(checkBalance(state, level)).toEqual({ ok: false, code: "E-BALANCE" });
+  });
+});
+
