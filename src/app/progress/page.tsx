@@ -1,0 +1,294 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { AppHeader } from "../../components/layout/AppHeader";
+import { PageShell } from "../../components/layout/PageShell";
+import { Button } from "../../components/ui/Button";
+import { Dialog } from "../../components/ui/Dialog";
+import type { ImportPreview } from "../../storage/repository";
+import type { GameSaveV1 } from "../../storage/schema";
+import { useSave } from "../../session/SaveProvider";
+import { useToast } from "../../session/ToastProvider";
+
+export default function ProgressPage() {
+  const router = useRouter();
+  const { save, exportJson, importJson, applyImport, reset } = useSave();
+  const toast = useToast();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importPending, setImportPending] = useState<{
+    merged: GameSaveV1;
+    preview: ImportPreview;
+  } | null>(null);
+
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [resetConfirmText, setResetConfirmText] = useState("");
+  const [resetError, setResetError] = useState("");
+
+  if (save === null) {
+    return (
+      <PageShell>
+        <AppHeader onHome={() => router.push("/")} />
+        <main className="flex flex-1 flex-col items-center justify-center p-8">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-navy/20 border-t-gold" />
+          <p className="mt-4 text-sm text-navy/70">กำลังโหลดความก้าวหน้า…</p>
+        </main>
+      </PageShell>
+    );
+  }
+
+  const completedList = Object.entries(save.completedLevels).filter(
+    ([, lvl]) => lvl.completed,
+  );
+  const completedCount = completedList.length;
+  const totalStars = completedList.reduce((sum, [, lvl]) => sum + lvl.stars, 0);
+  const totalScore = completedList.reduce((sum, [, lvl]) => sum + lvl.bestScore, 0);
+  const totalTimeMs = completedList.reduce(
+    (sum, [, lvl]) => sum + (lvl.bestTimeMs ?? 0),
+    0,
+  );
+  const totalMinutes = Math.floor(totalTimeMs / 60000);
+  const totalSeconds = Math.floor((totalTimeMs % 60000) / 1000);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const result = importJson(text);
+      if (result.ok) {
+        setImportPending({ merged: result.merged, preview: result.preview });
+      } else {
+        toast.show("ไฟล์บันทึกไม่ถูกต้องหรือเวอร์ชันไม่รองรับ");
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input value
+    e.target.value = "";
+  };
+
+  const handleConfirmImport = () => {
+    if (importPending) {
+      applyImport(importPending.merged);
+      setImportPending(null);
+      toast.show("นำเข้าข้อมูลและรวมความก้าวหน้าสำเร็จ");
+    }
+  };
+
+  const handleExecuteReset = () => {
+    if (resetConfirmText.trim() !== "RESET") {
+      setResetError("กรุณาพิมพ์คำว่า RESET ตัวพิมพ์ใหญ่เพื่อยืนยัน");
+      return;
+    }
+    reset();
+    setShowResetDialog(false);
+    setResetConfirmText("");
+    setResetError("");
+    toast.show("รีเซ็ตข้อมูลความก้าวหน้าทั้งหมดเรียบร้อยแล้ว");
+  };
+
+  return (
+    <PageShell>
+      <AppHeader
+        onHome={() => router.push("/")}
+        onHowToPlay={() => router.push("/how-to-play")}
+      />
+
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
+        <header className="border-b border-border pb-4">
+          <h1 className="text-2xl font-bold text-navy">ความก้าวหน้าและการจัดการข้อมูล</h1>
+          <p className="text-sm text-navy/70">
+            สรุปผลการเรียนรู้และเครื่องมือสำรอง/กู้คืนข้อมูล
+          </p>
+        </header>
+
+        {/* Player Banner */}
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-card bg-navy p-6 text-white shadow-card">
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden="true"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-gold font-bold text-navy text-xl"
+            >
+              {save.playerName ? save.playerName[0]?.toUpperCase() : "U"}
+            </span>
+            <div>
+              <div className="text-xs text-white/70">ผู้เรียน</div>
+              <div className="text-xl font-bold">
+                {save.playerName || "ผู้เล่นนิรนาม"}
+              </div>
+            </div>
+          </div>
+
+          <div className="text-right text-xs text-white/70">
+            <div>ปลดล็อกถึง: ด่าน {save.unlockedLevel} / 50</div>
+            <div>บันทึกล่าสุด: {new Date(save.updatedAt).toLocaleString("th-TH")}</div>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="flex flex-col items-center rounded-card bg-white p-4 text-center shadow-card border border-border">
+            <span className="text-xs font-semibold text-navy/70">ด่านที่ผ่าน</span>
+            <span className="mt-1 text-2xl font-bold text-blue">
+              {completedCount} / 50
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center rounded-card bg-white p-4 text-center shadow-card border border-border">
+            <span className="text-xs font-semibold text-navy/70">ดาวรวม</span>
+            <span className="mt-1 text-2xl font-bold text-gold">
+              ★ {totalStars}
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center rounded-card bg-white p-4 text-center shadow-card border border-border">
+            <span className="text-xs font-semibold text-navy/70">คะแนนสะสม</span>
+            <span className="mt-1 text-2xl font-bold text-navy">
+              {totalScore}
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center rounded-card bg-white p-4 text-center shadow-card border border-border">
+            <span className="text-xs font-semibold text-navy/70">เวลารวมที่ใช้</span>
+            <span className="mt-1 text-2xl font-bold text-navy">
+              {totalMinutes}น. {totalSeconds}วิ.
+            </span>
+          </div>
+        </div>
+
+        {/* Data Management Actions */}
+        <div className="flex flex-col gap-4 rounded-card bg-white p-6 shadow-card border border-border">
+          <h2 className="text-lg font-bold text-navy">การสำรองและกู้คืนข้อมูล</h2>
+          <p className="text-xs text-navy/70">
+            เนื่องจากข้อมูลถูกเก็บไว้ในเบราว์เซอร์นี้ หากเปลี่ยนเครื่องหรือต้องการส่งผล ให้ส่งออกเป็นไฟล์ JSON
+          </p>
+
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Button variant="gold" onClick={exportJson}>
+              ส่งออกข้อมูล (Export JSON)
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              นำเข้าข้อมูล (Import JSON)
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+
+            <button
+              type="button"
+              className="ml-auto min-h-11 min-w-11 inline-flex items-center justify-center rounded-card bg-error px-4 py-2 font-bold text-white shadow-card hover:bg-error/90"
+              onClick={() => setShowResetDialog(true)}
+            >
+              รีเซ็ตข้อมูลทั้งหมด
+            </button>
+          </div>
+        </div>
+      </main>
+
+      {/* Import Preview Dialog */}
+      <Dialog
+        open={importPending !== null}
+        titleTh="ยืนยันการนำเข้าข้อมูล"
+        onClose={() => setImportPending(null)}
+      >
+        <div className="flex flex-col gap-4 text-left">
+          <p className="text-sm text-navy/80">
+            ระบบจะรวมข้อมูลที่นำเข้าเข้ากับข้อมูลปัจจุบัน โดยเลือกด่านที่ผ่าน คะแนน และดาวที่สูงกว่า
+          </p>
+          {importPending && (
+            <div className="flex flex-col gap-2 rounded-card bg-canvas p-4 text-xs text-navy border border-border">
+              <div>
+                <span className="font-semibold">ผู้เรียนในไฟล์: </span>
+                <span>{importPending.preview.playerName || "ไม่ระบุชื่อ"}</span>
+              </div>
+              <div>
+                <span className="font-semibold">ด่านที่ผ่าน: </span>
+                <span>{importPending.preview.completedCount} ด่าน (สูงสุดด่าน {importPending.preview.highestLevel})</span>
+              </div>
+              <div>
+                <span className="font-semibold">บันทึกเมื่อ: </span>
+                <span>{new Date(importPending.preview.updatedAt).toLocaleString("th-TH")}</span>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" onClick={() => setImportPending(null)}>
+              ยกเลิก
+            </Button>
+            <Button variant="gold" onClick={handleConfirmImport}>
+              รวมข้อมูลและบันทึก
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Reset Confirmation Dialog (2-Step / Type RESET) */}
+      <Dialog
+        open={showResetDialog}
+        titleTh="ต้องการรีเซ็ตข้อมูลทั้งหมดหรือไม่?"
+        onClose={() => {
+          setShowResetDialog(false);
+          setResetConfirmText("");
+          setResetError("");
+        }}
+      >
+        <div className="flex flex-col gap-4 text-left">
+          <p className="text-sm text-error font-semibold">
+            การดำเนินการนี้จะล้างความก้าวหน้าทั้งหมดและไม่สามารถกู้คืนได้ หากยังไม่ได้ส่งออกไฟล์ JSON สำรองไว้
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="reset-confirm-input" className="text-xs font-bold text-navy">
+              พิมพ์คำว่า RESET เพื่อยืนยัน:
+            </label>
+            <input
+              id="reset-confirm-input"
+              type="text"
+              value={resetConfirmText}
+              onChange={(e) => {
+                setResetConfirmText(e.target.value);
+                if (resetError) setResetError("");
+              }}
+              placeholder="RESET"
+              className="h-11 w-full rounded-card border border-error px-3 text-base text-navy font-mono uppercase bg-white"
+            />
+            {resetError && (
+              <p role="alert" className="text-xs text-error">
+                {resetError}
+              </p>
+            )}
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowResetDialog(false);
+                setResetConfirmText("");
+                setResetError("");
+              }}
+            >
+              ยกเลิก
+            </Button>
+            <button
+              type="button"
+              className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-card bg-error px-4 py-2 font-bold text-white shadow-card hover:bg-error/90"
+              onClick={handleExecuteReset}
+            >
+              ยืนยันการล้างข้อมูล
+            </button>
+          </div>
+        </div>
+      </Dialog>
+    </PageShell>
+  );
+}

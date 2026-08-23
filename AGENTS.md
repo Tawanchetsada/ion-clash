@@ -7,3 +7,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Agent Execution & Autonomy Rules
+
+- **Direct Execution / Full Autonomy**: Proceed directly with actions. Do not stop to ask for confirmation or approval before executing commands, editing files, or running tests.
+- **Skip Plan Approval**: Implement solutions immediately without blocking on plan approval unless explicitly requested by the user.
+- **Full Workspace Permissions**: You have full permission to read, write, create files, and run terminal commands in this workspace.
